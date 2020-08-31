@@ -971,6 +971,11 @@ void collect_draw(void)
     y++;
 
     jo_printf(OPTIONS_X - 3, OPTIONS_Y - 1 + y++, "ppcenter.webou.net/pskai/savedata/");
+    y++;
+
+    jo_printf(OPTIONS_X - 3, OPTIONS_Y - 1 + y++, "Please append \".RAW\" to the save");
+    jo_printf(OPTIONS_X - 3, OPTIONS_Y - 1 + y++, "filename before sending. ");
+
     return;
 }
 
@@ -1025,6 +1030,10 @@ void credits_draw(void)
     jo_printf(OPTIONS_X - 3, OPTIONS_Y - 1, "Special thanks to:");
     y++;
 
+    jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "EmeraldNova for doing all Satiator");
+    jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "testing.");
+    y++;
+
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "Antime, Ponut, VBT, and everyone");
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "else at SegaXtreme keeping the");
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "Saturn dev scene alive.");
@@ -1033,15 +1042,6 @@ void credits_draw(void)
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "Thank you to Takashi for the");
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "original Save Game Copier idea");
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "back in ~2002.");
-    y++;
-
-    jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "The Jo Engine and minimodem open");
-    jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "source projects.");
-    y++;
-
-    jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "Written to help the fan translation");
-    jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "community. Can't wait to play the ");
-    jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "new translations =). ");
     y++;
 
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, " - Slinga");

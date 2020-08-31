@@ -89,18 +89,15 @@ int satiatorReadSaveFile(int backupDevice, char* filename, unsigned char* outBuf
     {
         unsigned int count;
 
-        count = MIN(outSize - bytesRead, 2048);
+        count = MIN(outSize - bytesRead, S_MAXBUF);
 
         // BUGBUG: fix this
-        jo_core_error("sat read: %x %x %x", bytesRead, count, outSize);
         result = s_read(fd, outBuffer + bytesRead, count);
-        jo_core_error("sat read res: %x %x %x", result, bytesRead, count);
-
         if(result <= 0)
         {
             jo_core_error("Bad read result: %x", result);
-            result = -1;
-            break;
+            s_close(fd);
+            return result;
         }
 
         bytesRead += count;
@@ -151,19 +148,18 @@ int satiatorWriteSaveFile(int backupDevice, char* filename, unsigned char* inBuf
     {
         unsigned int count;
 
-        count = MIN(inSize - bytesWritten, 2048);
+        count = MIN(inSize - bytesWritten, S_MAXBUF);
 
         // BUGBUG: fix this
-        jo_core_error("sat write: %x %x", bytesWritten, count);
         result = s_write(fd, inBuffer + bytesWritten, count);
-        jo_core_error("sat write res: %x %x %x", result, bytesWritten, count);
 
         s_sync(fd);
 
         if(result <= 0)
         {
             jo_core_error("Bad write result: %x", result);
-            result = -1;
+            s_close(fd);
+            return result;
             break;
         }
 
@@ -212,12 +208,8 @@ int satiatorDeleteSaveFile(int backupDevice, char* filename)
 // without this you cannot access the filesystem
 int satiatorEnter()
 {
-    int result;
-
-    result = s_mode(S_MODE_USBFS);
-
-    result = s_chdir("/SAVES");
-    //jo_core_error("enter chdir: %x", result);
+    s_mode(S_MODE_USBFS);
+    s_chdir("/SAVES");
 
     return 0;
 }
@@ -226,12 +218,10 @@ int satiatorEnter()
 // BUGBUG: this does not appear to work and ends up with the ISO no longer being accessible
 int satiatorExit()
 {
-    int result;
 
-    result = s_chdir("..");
-    //jo_core_error("exit chdir: %x", result);
+    // BUGBUG: this doesn't quite work correctly
+    //s_chdir("..");
+    //s_mode(S_MODE_CDROM);
 
-    result = s_mode(S_MODE_CDROM);
-    //jo_core_error("cdrom: %x", result);
     return 0;
 }
