@@ -13,7 +13,8 @@ int saturnListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
     result = jo_backup_mount(backupDevice);
     if(result == false)
     {
-        jo_core_error("Failed to mount backup device %d!!", backupDevice);
+        // Don't need this error message because jo engine already errors
+        //jo_core_error("Failed to mount backup device %d!!", backupDevice);
         return -1;
     }
 

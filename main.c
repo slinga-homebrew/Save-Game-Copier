@@ -53,24 +53,6 @@ void jo_main(void)
         return;
     }
 
-
-    /*
-    int result = s_mode(S_MODE_USBFS);
-
-
-    char buffer[32] = {0};
-    int bufLen = sizeof(buffer);
-    //int result = 0;
-
-    jo_core_error("About to call s_get_fw_version:");
-    result = s_get_fw_version(buffer, bufLen);
-    jo_core_error("s_get_fs result: %x %x %s", result, buffer, buffer);
-
-    jo_core_error("about to change to SAVES dir...:");
-    result = s_chdir("SAVES");
-    jo_core_error("s_chdir result: %x ", result);
-    */
-
     // increase the default heap size. LWRAM is not being used
     jo_add_memory_zone((unsigned char *)LWRAM, LWRAM_HEAP_SIZE);
 
@@ -437,14 +419,16 @@ void listSaves_draw(void)
 
             // read the saves meta data
             count = listSaveFiles(g_Game.backupDevice, g_Saves, COUNTOF(g_Saves));
-            if(count > 0)
+            if(count >= 0)
             {
                 // update the count of saves
                 g_Game.numSaves = count;
             }
             else
             {
-                g_Game.numSaves = 0;
+                // something went wrong
+                transitionToState(STATE_MAIN);
+                return;
             }
         }
         else

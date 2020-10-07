@@ -16,7 +16,12 @@ int listSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             return saturnListSaveFiles(backupDevice, saves, numSaves);
 
         case SatiatorBackup:
-            satiatorEnter();
+            result = satiatorEnter();
+            if(result != 0)
+            {
+                return -1;
+            }
+
             result = satiatorListSaveFiles(backupDevice, saves, numSaves);
             satiatorExit();
             return result;
@@ -45,7 +50,12 @@ int readSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, uns
             return saturnReadSaveFile(backupDevice, filename, outBuffer, outSize);
 
         case SatiatorBackup:
-            satiatorEnter();
+            result = satiatorEnter();
+            if(result != 0)
+            {
+                return -1;
+            }
+
             result = satiatorReadSaveFile(backupDevice, filename, outBuffer, outSize);
             satiatorExit();
             return result;
@@ -74,7 +84,11 @@ int writeSaveFile(int backupDevice, char* filename, unsigned char* inBuffer, uns
             return saturnWriteSaveFile(backupDevice, filename, inBuffer, inSize);
 
         case SatiatorBackup:
-            satiatorEnter();
+            result = satiatorEnter();
+            if(result != 0)
+            {
+                return -1;
+            }
             result = satiatorWriteSaveFile(backupDevice, filename, inBuffer, inSize);
             satiatorExit();
             return result;
@@ -101,7 +115,12 @@ int deleteSaveFile(int backupDevice, char* filename)
             return saturnDeleteSaveFile(backupDevice, filename);
 
         case SatiatorBackup:
-            satiatorEnter();
+            result = satiatorEnter();
+            if(result != 0)
+            {
+                return -1;
+            }
+
             result = satiatorDeleteSaveFile(backupDevice, filename);
             satiatorExit();
             return result;

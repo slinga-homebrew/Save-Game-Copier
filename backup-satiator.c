@@ -20,7 +20,7 @@ int satiatorListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
     if(result != 0)
     {
         jo_core_error("readSatiatorSaveFiles: Failed to open SAVES directory");
-        //return -2;
+        return -2;
     }
 
     // loop through the files in the directory
@@ -208,7 +208,14 @@ int satiatorDeleteSaveFile(int backupDevice, char* filename)
 // without this you cannot access the filesystem
 int satiatorEnter()
 {
-    s_mode(S_MODE_USBFS);
+    int result;
+
+    result = s_mode(S_MODE_USBFS);
+    if(result != 0)
+    {
+        jo_core_error("Failed to mount Satiator");
+        return -1;
+    }
     s_chdir("/SAVES");
 
     return 0;
