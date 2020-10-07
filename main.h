@@ -76,7 +76,7 @@
 #define VERIFY_Y                 HEADING_Y + 7
 
 #define SAVES_X                  HEADING_X + 3
-#define SAVES_Y                  HEADING_Y + 10
+#define SAVES_Y                  HEADING_Y + 11
 
 #define CURSOR_X                 HEADING_X
 

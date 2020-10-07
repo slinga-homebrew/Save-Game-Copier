@@ -568,7 +568,8 @@ void displaySave_draw(void)
     }
 
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Filename: %s        ", g_Game.saveFilename);
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Location: %s        ", g_Game.backupDeviceName);
+    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Device: %s        ", g_Game.backupDeviceName);
+    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Address: 0x%08x-0x%08x        ", g_Game.saveFileData, g_Game.saveFileData + g_Game.saveFileSize);
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Size: %d            ", g_Game.saveFileSize);
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "MD5: %02x%02x%02x%02x%02x%02x%02x%02x", g_Game.md5Hash[0], g_Game.md5Hash[1], g_Game.md5Hash[2], g_Game.md5Hash[3], g_Game.md5Hash[4], g_Game.md5Hash[5], g_Game.md5Hash[6], g_Game.md5Hash[7]);
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "     %02x%02x%02x%02x%02x%02x%02x%02x", g_Game.md5Hash[8], g_Game.md5Hash[9], g_Game.md5Hash[10], g_Game.md5Hash[11],  g_Game.md5Hash[12], g_Game.md5Hash[13], g_Game.md5Hash[14], g_Game.md5Hash[15]);
