@@ -23,10 +23,11 @@ void exec_cmd(cmd_t cr, uint16_t wait) {
     CDB_REG_CR2 = cr[1];
     CDB_REG_CR3 = cr[2];
     CDB_REG_CR4 = cr[3];
+
     while (!(CDB_REG_HIRQ & HIRQ_CMOK));
+
     if (wait)
         while (!(CDB_REG_HIRQ & wait));
-
 }
 
 static uint16_t sat_result[4];
@@ -212,7 +213,9 @@ int s_opendir(const char *filename) {
 // Change working directory.
 int s_chdir(const char *filename) {
     int len = strlen(filename);
+
     buffer_write(filename, len);
+
     simplecall(c_chdir, 0, 0, len);
     return 0;
 }
@@ -234,6 +237,8 @@ int s_getcwd(char *filename, int buflen) {
 static int cur_mode = S_MODE_CDROM;
 
 int s_mode(int mode) {
+    int result;
+
     if (mode == cur_mode)
         return 0;
 
@@ -242,8 +247,15 @@ int s_mode(int mode) {
         exec_cmd(cmd, HIRQ_MPED);
     } else {
         cmd_t cmd = {0xe000, 0x0000, 0x00c1, 0x05e7};
+
         exec_cmd(cmd, HIRQ_EFLS);
-        cd_stop_drive();
+
+        result = cd_stop_drive();
+        if(result != 0)
+        {
+            // BUGBUG: ignore this for now
+            //return -1;
+        }
     }
     cur_mode = mode;
     return 0;
