@@ -75,6 +75,9 @@ void jo_main(void)
     jo_core_add_callback(formatVerify_draw);
     jo_core_add_callback(formatVerify_input);
 
+    jo_core_add_callback(dumpMemory_draw);
+    jo_core_add_callback(dumpMemory_input);
+
     jo_core_add_callback(collect_draw);
     jo_core_add_callback(collect_input);
 
@@ -132,8 +135,10 @@ void transitionToState(int newState)
         case STATE_MAIN:
         case STATE_LIST_SAVES:
         case STATE_DISPLAY_SAVE:
+        case STATE_DISPLAY_MEMORY:
         case STATE_FORMAT:
         case STATE_FORMAT_VERIFY:
+        case STATE_DUMP_MEMORY:
         case STATE_COLLECT:
         case STATE_CREDITS:
             break;
@@ -162,6 +167,7 @@ void transitionToState(int newState)
             break;
 
         case STATE_DISPLAY_SAVE:
+        case STATE_DISPLAY_MEMORY:
             g_Game.cursorPosX = CURSOR_X;
             g_Game.cursorPosY = SAVES_Y;
             g_Game.cursorOffset = 0;
@@ -183,6 +189,15 @@ void transitionToState(int newState)
             g_Game.cursorPosY = VERIFY_Y;
             g_Game.cursorOffset = 0;
             g_Game.numStateOptions = FORMAT_VERIFY_NUM_OPTIONS;
+            break;
+
+        case STATE_DUMP_MEMORY:
+            g_Game.cursorPosX = CURSOR_X + 14;
+            g_Game.cursorPosY = VERIFY_Y - 2;
+            g_Game.cursorOffset = 0;
+            g_Game.numStateOptions = 16;
+            g_Game.dumpMemoryAddress = 0;
+            g_Game.dumpMemorySize = 0;
             break;
 
         case STATE_COLLECT:
@@ -225,6 +240,7 @@ void main_draw(void)
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Satiator");
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "CD Memory");
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Format Device");
+    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Dump Memory");
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Save Collect Project");
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Credits");
 
@@ -353,6 +369,11 @@ void main_input(void)
                 case MAIN_OPTION_FORMAT:
                 {
                     transitionToState(STATE_FORMAT);
+                    return;
+                }
+                case MAIN_OPTION_DUMP_MEMORY:
+                {
+                    transitionToState(STATE_DUMP_MEMORY);
                     return;
                 }
                 case MAIN_OPTION_COLLECT:
@@ -530,33 +551,54 @@ void listSaves_input(void)
     return;
 }
 
-// draws display save screen
+// draws the display save screen and the display memory screen
 void displaySave_draw(void)
 {
     int result = 0;
     int y = 0;
+    unsigned char* saveFileData;
 
-    if(g_Game.state != STATE_DISPLAY_SAVE)
+    if(g_Game.state != STATE_DISPLAY_SAVE && g_Game.state != STATE_DISPLAY_MEMORY)
     {
         return;
     }
 
-    jo_printf(HEADING_X, HEADING_Y, "Save Info");
+    if(g_Game.state == STATE_DISPLAY_SAVE)
+    {
+        saveFileData = g_Game.saveFileData;
+    }
+    else
+    {
+        saveFileData = (unsigned char*)g_Game.dumpMemoryAddress;
+    }
+
+    // heading
+    if(g_Game.state == STATE_DISPLAY_SAVE)
+    {
+        jo_printf(HEADING_X, HEADING_Y, "Save Info");
+    }
+    else
+    {
+        jo_printf(HEADING_X, HEADING_Y, "Memory Info");
+    }
     jo_printf(HEADING_X, HEADING_Y + 1, HEADING_UNDERSCORE);
 
     // only compute the MD5 hash once
     if(g_Game.md5Calculated == false)
     {
-        result = readSaveFile(g_Game.backupDevice, g_Game.saveFilename, g_Game.saveFileData, g_Game.saveFileSize);
-        if(result != 0)
+        if(g_Game.state == STATE_DISPLAY_SAVE)
         {
-            jo_core_error("Failed to read the save!!");
-            transitionToState(STATE_MAIN);
-            return;
+            result = readSaveFile(g_Game.backupDevice, g_Game.saveFilename, saveFileData, g_Game.saveFileSize);
+            if(result != 0)
+            {
+                jo_core_error("Failed to read the save!!");
+                transitionToState(STATE_MAIN);
+                return;
+            }
         }
 
         // print messages to the user so that can get an estimate of the time for longer operations
-        result = calculateMD5Hash(g_Game.saveFileData, g_Game.saveFileSize, g_Game.md5Hash);
+        result = calculateMD5Hash(saveFileData, g_Game.saveFileSize, g_Game.md5Hash);
         if(result != 0)
         {
             // something went wrong
@@ -568,8 +610,8 @@ void displaySave_draw(void)
     }
 
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Filename: %s        ", g_Game.saveFilename);
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Device: %s        ", g_Game.backupDeviceName);
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Address: 0x%08x-0x%08x        ", g_Game.saveFileData, g_Game.saveFileData + g_Game.saveFileSize);
+    //jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Device: %s        ", g_Game.backupDeviceName);
+    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Address: 0x%08x-0x%08x        ", saveFileData, saveFileData + g_Game.saveFileSize);
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Size: %d            ", g_Game.saveFileSize);
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "MD5: %02x%02x%02x%02x%02x%02x%02x%02x", g_Game.md5Hash[0], g_Game.md5Hash[1], g_Game.md5Hash[2], g_Game.md5Hash[3], g_Game.md5Hash[4], g_Game.md5Hash[5], g_Game.md5Hash[6], g_Game.md5Hash[7]);
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "     %02x%02x%02x%02x%02x%02x%02x%02x", g_Game.md5Hash[8], g_Game.md5Hash[9], g_Game.md5Hash[10], g_Game.md5Hash[11],  g_Game.md5Hash[12], g_Game.md5Hash[13], g_Game.md5Hash[14], g_Game.md5Hash[15]);
@@ -603,16 +645,27 @@ void displaySave_draw(void)
     return;
 }
 
-// handles input on the display saves screen
+// handles input on the display saves and display memory screen
 // B returns to the main menu
 void displaySave_input(void)
 {
     int result = 0;
+    unsigned char* saveFileData;
 
-    if(g_Game.state != STATE_DISPLAY_SAVE)
+    if(g_Game.state != STATE_DISPLAY_SAVE && g_Game.state != STATE_DISPLAY_MEMORY)
     {
         return;
     }
+
+    if(g_Game.state == STATE_DISPLAY_SAVE)
+    {
+        saveFileData = g_Game.saveFileData;
+    }
+    else
+    {
+        saveFileData = (unsigned char*)g_Game.dumpMemoryAddress;
+    }
+
 
     // did the player hit start
     if(jo_is_pad1_key_pressed(JO_KEY_START) ||
@@ -627,7 +680,7 @@ void displaySave_input(void)
                 {
                     case SAVE_OPTION_INTERNAL:
                     {
-                        result = writeSaveFile(JoInternalMemoryBackup, g_Game.saveFilename, g_Game.saveFileData, g_Game.saveFileSize);
+                        result = writeSaveFile(JoInternalMemoryBackup, g_Game.saveFilename, saveFileData, g_Game.saveFileSize);
                         if(result != 0)
                         {
                             g_Game.operationStatus = OPERATION_FAIL;
@@ -638,7 +691,7 @@ void displaySave_input(void)
                     }
                     case SAVE_OPTION_CARTRIDGE:
                     {
-                        result = writeSaveFile(JoCartridgeMemoryBackup, g_Game.saveFilename, g_Game.saveFileData, g_Game.saveFileSize);
+                        result = writeSaveFile(JoCartridgeMemoryBackup, g_Game.saveFilename, saveFileData, g_Game.saveFileSize);
                         if(result != 0)
                         {
                             g_Game.operationStatus = OPERATION_FAIL;
@@ -649,7 +702,7 @@ void displaySave_input(void)
                     }
                     case SAVE_OPTION_EXTERNAL:
                     {
-                        result = writeSaveFile(JoExternalDeviceBackup, g_Game.saveFilename, g_Game.saveFileData, g_Game.saveFileSize);
+                        result = writeSaveFile(JoExternalDeviceBackup, g_Game.saveFilename, saveFileData, g_Game.saveFileSize);
                         if(result != 0)
                         {
                             g_Game.operationStatus = OPERATION_FAIL;
@@ -660,7 +713,7 @@ void displaySave_input(void)
                     }
                     case SAVE_OPTION_SATIATOR:
                     {
-                        result = writeSaveFile(SatiatorBackup, g_Game.saveFilename, g_Game.saveFileData, g_Game.saveFileSize);
+                        result = writeSaveFile(SatiatorBackup, g_Game.saveFilename, saveFileData, g_Game.saveFileSize);
                         if(result != 0)
                         {
                             g_Game.operationStatus = OPERATION_FAIL;
@@ -671,6 +724,14 @@ void displaySave_input(void)
                     }
                     case SAVE_OPTION_DELETE:
                     {
+                        // doesn't make sense to delete a memory dump
+                        // BUGBUG: don't list this option for STATE_DISPLAY_MEMORY
+                        if(g_Game.state == STATE_DISPLAY_MEMORY)
+                        {
+                            g_Game.operationStatus = OPERATION_FAIL;
+                            return;
+                        }
+
                         result = deleteSaveFile(g_Game.backupDevice, g_Game.saveFilename);
                         if(result != 0)
                         {
@@ -796,10 +857,6 @@ void format_input(void)
     {
         g_Game.input.pressedB = false;
     }
-
-    // update the cursor
-    moveCursor(false);
-    return;
 
     // update the cursor
     moveCursor(false);
@@ -932,6 +989,250 @@ void formatVerify_input(void)
     // update the cursor
     moveCursor(false);
     return;
+}
+
+// draws the dump memory screen
+void dumpMemory_draw(void)
+{
+    unsigned int y = 0;
+
+    if(g_Game.state != STATE_DUMP_MEMORY)
+    {
+        return;
+    }
+
+    // heading
+    jo_printf(HEADING_X, HEADING_Y + y++, "Dump Memory");
+    jo_printf(HEADING_X, HEADING_Y + y++, HEADING_UNDERSCORE);
+
+    y = 0;
+
+    // options
+    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Address: 0x%08x", g_Game.dumpMemoryAddress);
+    y++;
+    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Size:    0x%08x", g_Game.dumpMemorySize);
+    y++;
+
+    // digit cursor
+    if(g_Game.cursorOffset < 8)
+    {
+        jo_printf(g_Game.cursorPosX + g_Game.cursorOffset, g_Game.cursorPosY, "^");
+    }
+    else
+    {
+        jo_printf(g_Game.cursorPosX + (g_Game.cursorOffset % 8), g_Game.cursorPosY + 2, "^");
+    }
+
+    jo_printf(HEADING_X, OPTIONS_Y + y++, "Press left/right to select digit");
+    jo_printf(HEADING_X, OPTIONS_Y + y++, "Press up/down to adjust digit");
+    jo_printf(HEADING_X, OPTIONS_Y + y++, "Press C to continue");
+
+    y++;
+
+    return;
+}
+
+// takes an integer and increments or decrements the specified hex digit
+void adjustHexValue(unsigned int* value, unsigned int digit, bool add)
+{
+    unsigned int tempValue = *value;
+    unsigned char nibbles[8] = {0};
+
+    if(digit > 7)
+    {
+        jo_core_error("Digit cannot be greater than 7!!");
+        return;
+    }
+
+    for(int i = 0; i < 8; i++)
+    {
+        nibbles[7 - i] = tempValue & 0xF;
+        tempValue = tempValue >> 4;
+    }
+
+    if(add == true)
+    {
+        nibbles[digit] = (nibbles[digit] + 1) & 0xF;
+    }
+    else
+    {
+        nibbles[digit] = (nibbles[digit] - 1) & 0xF;
+    }
+
+    tempValue = 0;
+    for(int j = 0; j < 8; j++)
+    {
+        tempValue = tempValue << 4;
+        tempValue += nibbles[j];
+
+    }
+
+    *value = tempValue;
+
+    return;
+}
+
+// checks for up/down movement for the cursor
+// erases the old one and draws a new one
+// savesPage is set to true if the cursor is for the list saves page
+void moveDigitCursor()
+{
+    int cursorOffset = g_Game.cursorOffset;
+    int maxCursorOffset = g_Game.numStateOptions;
+
+    // do nothing if there are no options
+    // this can happen if we select a backup device with no saves for example
+    if(g_Game.numStateOptions == 0)
+    {
+        return;
+    }
+
+    // left/right controls what digit we are looking at
+    if (jo_is_pad1_key_pressed(JO_KEY_LEFT))
+    {
+        if(g_Game.input.pressedLeft == false)
+        {
+            cursorOffset--;
+        }
+        g_Game.input.pressedLeft = true;
+    }
+    else
+    {
+        g_Game.input.pressedLeft = false;
+    }
+
+    if (jo_is_pad1_key_pressed(JO_KEY_RIGHT))
+    {
+        if(g_Game.input.pressedRight == false)
+        {
+            cursorOffset++;
+        }
+        g_Game.input.pressedRight = true;
+    }
+    else
+    {
+        g_Game.input.pressedRight = false;
+    }
+
+    // up/down changes the digit value
+    // left/right controls what digit we are looking at
+    if (jo_is_pad1_key_pressed(JO_KEY_UP))
+    {
+        if(g_Game.input.pressedUp == false)
+        {
+            if(g_Game.cursorOffset < 8)
+            {
+                adjustHexValue(&g_Game.dumpMemoryAddress, g_Game.cursorOffset, true);
+            }
+            else
+            {
+                adjustHexValue(&g_Game.dumpMemorySize, g_Game.cursorOffset % 8, true);
+            }
+        }
+        g_Game.input.pressedUp = true;
+    }
+    else
+    {
+        g_Game.input.pressedUp = false;
+    }
+
+    if (jo_is_pad1_key_pressed(JO_KEY_DOWN))
+    {
+        if(g_Game.input.pressedDown == false)
+        {
+            if(g_Game.cursorOffset < 8)
+            {
+                adjustHexValue(&g_Game.dumpMemoryAddress, g_Game.cursorOffset, false);
+            }
+            else
+            {
+                adjustHexValue(&g_Game.dumpMemorySize, g_Game.cursorOffset % 8, false);
+            }
+        }
+        g_Game.input.pressedDown = true;
+    }
+    else
+    {
+        g_Game.input.pressedDown = false;
+    }
+
+
+    // if we moved the cursor, erase the old
+    if(cursorOffset != g_Game.cursorOffset)
+    {
+        if(g_Game.cursorOffset < 8)
+        {
+            jo_printf(g_Game.cursorPosX + g_Game.cursorOffset, g_Game.cursorPosY, " ");
+        }
+        else
+        {
+            jo_printf(g_Game.cursorPosX + (g_Game.cursorOffset % 8), g_Game.cursorPosY + 2, " ");
+        }
+    }
+
+    // validate the number of lives
+    if(cursorOffset < 0)
+    {
+        cursorOffset = maxCursorOffset - 1;
+    }
+
+    if(cursorOffset >= maxCursorOffset)
+    {
+        cursorOffset = 0;
+    }
+    g_Game.cursorOffset = cursorOffset;
+}
+
+// handles input on the format screen
+void dumpMemory_input(void)
+{
+    if(g_Game.state != STATE_DUMP_MEMORY)
+    {
+        return;
+    }
+
+    // did the player hit start
+    if(jo_is_pad1_key_pressed(JO_KEY_START) ||
+       jo_is_pad1_key_pressed(JO_KEY_A) ||
+       jo_is_pad1_key_pressed(JO_KEY_C))
+    {
+        // it doesn't make sense to continue if the dump memory size is 0
+        // so just ignore it and do nothing
+        if(g_Game.input.pressedStartAC == false &&
+           g_Game.dumpMemorySize != 0)
+        {
+            g_Game.input.pressedStartAC = true;
+
+            // set globals based on the memory address and size being copied
+            snprintf(g_Game.saveFilename, MAX_SAVE_FILENAME, "0x%08x", g_Game.dumpMemoryAddress);
+            g_Game.saveFileSize = g_Game.dumpMemorySize;
+
+            transitionToState(STATE_DISPLAY_MEMORY);
+            return;
+        }
+    }
+    else
+    {
+        g_Game.input.pressedStartAC = false;
+    }
+
+    // did the player hit B
+    if(jo_is_pad1_key_pressed(JO_KEY_B))
+    {
+        if(g_Game.input.pressedB == false)
+        {
+            g_Game.input.pressedB = true;
+
+            transitionToState(STATE_MAIN);
+            return;
+        }
+    }
+    else
+    {
+        g_Game.input.pressedB = false;
+    }
+
+    moveDigitCursor();
 }
 
 // draws the save games collect screen

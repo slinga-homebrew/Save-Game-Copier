@@ -30,17 +30,19 @@
 #pragma once
 
 // program version, keep this length to avoid having to resize strings
-#define VERSION "3.00"
+#define VERSION "3.01"
 
 // program states
 #define STATE_UNINITIALIZED      0
 #define STATE_MAIN               1
 #define STATE_LIST_SAVES         2
 #define STATE_DISPLAY_SAVE       3
-#define STATE_FORMAT             4
-#define STATE_FORMAT_VERIFY      5
-#define STATE_COLLECT            6
-#define STATE_CREDITS            7
+#define STATE_DISPLAY_MEMORY     4
+#define STATE_FORMAT             5
+#define STATE_FORMAT_VERIFY      6
+#define STATE_DUMP_MEMORY        7
+#define STATE_COLLECT            8
+#define STATE_CREDITS            9
 
 // option selected on the main screen
 #define MAIN_OPTION_INTERNAL     0
@@ -49,8 +51,9 @@
 #define MAIN_OPTION_SATIATOR     3
 #define MAIN_OPTION_CD           4
 #define MAIN_OPTION_FORMAT       5
-#define MAIN_OPTION_COLLECT      6
-#define MAIN_OPTION_CREDITS      7
+#define MAIN_OPTION_DUMP_MEMORY  6
+#define MAIN_OPTION_COLLECT      7
+#define MAIN_OPTION_CREDITS      8
 
 #define SAVE_OPTION_INTERNAL     0
 #define SAVE_OPTION_CARTRIDGE    1
@@ -80,7 +83,7 @@
 
 #define CURSOR_X                 HEADING_X
 
-#define MAIN_NUM_OPTIONS             8
+#define MAIN_NUM_OPTIONS             9
 #define FORMAT_NUM_OPTIONS           3
 #define FORMAT_VERIFY_NUM_OPTIONS    2
 #define SAVES_NUM_OPTIONS            5
@@ -139,6 +142,9 @@ typedef struct _GAME
     unsigned int saveFileSize; // selected save file size
     unsigned char* saveFileData; // the raw data, points at transmissonFileData + TRANSMISSION_HEADER_SIZE
 
+    unsigned int dumpMemoryAddress;
+    unsigned int dumpMemorySize;
+
     bool md5Calculated; // set to true if we have calculated the md5 MD5_HASH_SIZE
     unsigned char md5Hash[MD5_HASH_SIZE];
 
@@ -182,6 +188,10 @@ void format_input(void);
 void formatVerify_draw(void);
 void formatVerify_input(void);
 
+// dump memory screen
+void dumpMemory_draw(void);
+void dumpMemory_input(void);
+
 // save games collect projects screen
 void collect_draw(void);
 void collect_input(void);
@@ -196,3 +206,4 @@ void debugOutput_draw(void);
 // function prototypes to suppress compiler warnings
 void *memcpy(void *dest, const void *src, unsigned int n);
 char *strncpy(char *dest, const char *src, unsigned int n);
+int snprintf(char *str, unsigned int size, const char *format, ...);

@@ -125,13 +125,13 @@ int satiatorWriteSaveFile(int backupDevice, char* filename, unsigned char* inBuf
         return -1;
     }
 
-    if(inBuffer == NULL || filename == NULL)
+    if(filename == NULL)
     {
         jo_core_error("writeSatiatorSaveData: Save file data buffer is NULL!!");
         return -1;
     }
 
-    if(inSize == 0 || inSize > MAX_SAVE_SIZE)
+    if(inSize == 0)
     {
         jo_core_error("writeSatiatorSaveData: Save file size is invalid %d!!", inSize);
         return -2;

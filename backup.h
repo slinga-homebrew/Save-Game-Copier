@@ -4,7 +4,7 @@
 
 #define MAX_SAVE_SIZE           (512 * 1024)/4 // according to Cafe-Alpha this is the maximum size supported by the bios
 #define MAX_SAVE_FILENAME       12
-#define MAX_SAVES               50
+#define MAX_SAVES               255
 
 #define SatiatorBackup (JoExternalDeviceBackup + 1)
 #define CdMemoryBackup (SatiatorBackup + 1)
