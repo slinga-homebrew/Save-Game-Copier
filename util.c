@@ -17,7 +17,7 @@ int calculateMD5Hash(unsigned char* buffer, unsigned int bufferSize, unsigned ch
 {
     MD5_CTX ctx = {0};
 
-    if(md5Hash == NULL)
+    if(buffer == NULL || md5Hash == NULL)
     {
         jo_core_error("Invalid parameters to calculateMD5Hash!!");
         return -1;

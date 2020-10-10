@@ -239,8 +239,8 @@ void main_draw(void)
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "External Device (Floppy)");
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Satiator");
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "CD Memory");
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Format Device");
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Dump Memory");
+    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Format Device");
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Save Collect Project");
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Credits");
 
@@ -1025,6 +1025,7 @@ void dumpMemory_draw(void)
 
     jo_printf(HEADING_X, OPTIONS_Y + y++, "Press left/right to select digit");
     jo_printf(HEADING_X, OPTIONS_Y + y++, "Press up/down to adjust digit");
+    jo_printf(HEADING_X, OPTIONS_Y + y++, "Address and size cannot be 0");
     jo_printf(HEADING_X, OPTIONS_Y + y++, "Press C to continue");
 
     y++;
@@ -1044,12 +1045,14 @@ void adjustHexValue(unsigned int* value, unsigned int digit, bool add)
         return;
     }
 
+    // convert int to array of values
     for(int i = 0; i < 8; i++)
     {
         nibbles[7 - i] = tempValue & 0xF;
         tempValue = tempValue >> 4;
     }
 
+    // add or subtract a value
     if(add == true)
     {
         nibbles[digit] = (nibbles[digit] + 1) & 0xF;
@@ -1059,12 +1062,12 @@ void adjustHexValue(unsigned int* value, unsigned int digit, bool add)
         nibbles[digit] = (nibbles[digit] - 1) & 0xF;
     }
 
+    // convert back to int
     tempValue = 0;
     for(int j = 0; j < 8; j++)
     {
         tempValue = tempValue << 4;
         tempValue += nibbles[j];
-
     }
 
     *value = tempValue;
@@ -1075,7 +1078,7 @@ void adjustHexValue(unsigned int* value, unsigned int digit, bool add)
 // checks for up/down movement for the cursor
 // erases the old one and draws a new one
 // savesPage is set to true if the cursor is for the list saves page
-void moveDigitCursor()
+void moveDigitCursor(void)
 {
     int cursorOffset = g_Game.cursorOffset;
     int maxCursorOffset = g_Game.numStateOptions;
@@ -1196,10 +1199,11 @@ void dumpMemory_input(void)
        jo_is_pad1_key_pressed(JO_KEY_A) ||
        jo_is_pad1_key_pressed(JO_KEY_C))
     {
-        // it doesn't make sense to continue if the dump memory size is 0
-        // so just ignore it and do nothing
+        // it doesn't make sense to continue if the dump memory size or address
+        // are zero so just ignore it and do nothing
         if(g_Game.input.pressedStartAC == false &&
-           g_Game.dumpMemorySize != 0)
+           g_Game.dumpMemorySize != 0 &&
+           g_Game.dumpMemoryAddress != 0)
         {
             g_Game.input.pressedStartAC = true;
 

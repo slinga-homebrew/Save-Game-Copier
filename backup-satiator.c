@@ -131,7 +131,7 @@ int satiatorWriteSaveFile(int backupDevice, char* filename, unsigned char* inBuf
         return -1;
     }
 
-    if(inSize == 0)
+    if(inBuffer == NULL || filename == NULL)
     {
         jo_core_error("writeSatiatorSaveData: Save file size is invalid %d!!", inSize);
         return -2;
@@ -210,7 +210,7 @@ int satiatorEnter()
 {
     int result;
 
-    result = s_mode(S_MODE_USBFS);
+    result = s_mode(s_api);
     if(result != 0)
     {
         jo_core_error("Failed to mount Satiator");

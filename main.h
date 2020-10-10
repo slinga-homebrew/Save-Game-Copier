@@ -30,7 +30,7 @@
 #pragma once
 
 // program version, keep this length to avoid having to resize strings
-#define VERSION "3.01"
+#define VERSION "3.02"
 
 // program states
 #define STATE_UNINITIALIZED      0
@@ -38,9 +38,9 @@
 #define STATE_LIST_SAVES         2
 #define STATE_DISPLAY_SAVE       3
 #define STATE_DISPLAY_MEMORY     4
-#define STATE_FORMAT             5
-#define STATE_FORMAT_VERIFY      6
-#define STATE_DUMP_MEMORY        7
+#define STATE_DUMP_MEMORY        5
+#define STATE_FORMAT             6
+#define STATE_FORMAT_VERIFY      7
 #define STATE_COLLECT            8
 #define STATE_CREDITS            9
 
@@ -50,8 +50,8 @@
 #define MAIN_OPTION_EXTERNAL     2
 #define MAIN_OPTION_SATIATOR     3
 #define MAIN_OPTION_CD           4
-#define MAIN_OPTION_FORMAT       5
-#define MAIN_OPTION_DUMP_MEMORY  6
+#define MAIN_OPTION_DUMP_MEMORY  5
+#define MAIN_OPTION_FORMAT       6
 #define MAIN_OPTION_COLLECT      7
 #define MAIN_OPTION_CREDITS      8
 
@@ -163,6 +163,8 @@ void clearScreen(void);
 int copyBIOS(unsigned int segment);
 int copySaveFile(void);
 void moveCursor(bool savesPage);
+void moveDigitCursor(void);
+void adjustHexValue(unsigned int* value, unsigned int digit, bool add);
 
 // main screen
 void main_draw(void);
