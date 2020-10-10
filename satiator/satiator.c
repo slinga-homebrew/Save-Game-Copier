@@ -234,15 +234,26 @@ int s_getcwd(char *filename, int buflen) {
 // }}}
 
 // System API {{{
-static int cur_mode = S_MODE_CDROM;
+static int is_satiator_active(void) {
+    // This checks the MPEG version field.
+    // Real MPEG cards have version 1.
+    // The Satiator has version 2.
+    cmd_t cmd = {0x0100, 0, 0, 0};
+    exec_cmd(cmd, 0);
+    return (CDB_REG_CR3 & 0xff) == 2;
+}
+static enum satiator_mode cur_mode = s_cdrom;
 
-int s_mode(int mode) {
-    int result;
-
+int s_mode(enum satiator_mode mode) {
+    /* Switch between emulating a CD drive and exposing the SD card API.
+     * This function returns:
+     *      0: success
+     *      -1: Satiator not detected
+     */
     if (mode == cur_mode)
         return 0;
 
-    if (mode == S_MODE_CDROM) {
+    if (mode == s_cdrom) {
         cmd_t cmd = {0x9300, 1, 0, 0};
         exec_cmd(cmd, HIRQ_MPED);
     } else {
@@ -250,12 +261,11 @@ int s_mode(int mode) {
 
         exec_cmd(cmd, HIRQ_EFLS);
 
-        result = cd_stop_drive();
-        if(result != 0)
-        {
-            // BUGBUG: ignore this for now
-            //return -1;
-        }
+         // is there actually a Satiator attached?
+        if (!is_satiator_active())
+            return -1;
+
+        cd_stop_drive();
     }
     cur_mode = mode;
     return 0;
