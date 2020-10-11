@@ -30,6 +30,13 @@ I don't own a Satiator so my testing has solely been with the [Satiator Yabause 
 * Make sure you upgrade to the latest firmware. There have been firmware fixes
 * Create a "SAVES" directory on the root of the drive. SGC is hardcoded to use that folder
 
+## Dumping Memory
+SGC also supports advanced feature to arbitrary dump memory. This can allow you to dump:
+* Saturn BIOS (address: 0x80000, size: 0x80000)
+* Internal backup memory (address: 0x00180000, size: 0x001FFFFF)
+* Cartridge backup memory (address: 0x02000000, size: 0x01FFFFFF)
+* etc
+
 ## Issues
 * I want to make the menu dynamic based on what attachments are found (e.g. backup cartridge, Satiator, etc)
 * Once you access the Satiator you can no longer list the saves in the "CD Memory" option. I don't know if this is an issue with Satiator or the Satiator-Yabause fork I am testing with. If you really want to transfer multiple "CD Memory" saves to your Satiator, transfer them to your Internal Memory first. From there you can transfer multiple saves to the Satiator without issue. Or since you have a Satiator you can just put the saves on your SD card...
