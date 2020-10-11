@@ -32,8 +32,8 @@ I don't own a Satiator so my testing has solely been with the [Satiator Yabause 
 
 ## Issues
 * I want to make the menu dynamic based on what attachments are found (e.g. backup cartridge, Satiator, etc)
-* Once you access the Satiator you can no longer list the saves in the "CD Memory" option. I don't know if this is an issue with Satiator or the Satiator-Yabause fork I am testing with. If you really want to transfer multiple "CD Memory" saves to your Satiator, transfer them to your Internal Memory first. From there you can transfer multiple saves to the Satiator without issue.
-* Some Satiator users have reported the first transfer takes ~90 seconds and then all other transfers are fast. Professor Abrasive is aware of the issue. 
+* Once you access the Satiator you can no longer list the saves in the "CD Memory" option. I don't know if this is an issue with Satiator or the Satiator-Yabause fork I am testing with. If you really want to transfer multiple "CD Memory" saves to your Satiator, transfer them to your Internal Memory first. From there you can transfer multiple saves to the Satiator without issue. Or since you have a Satiator you can just put the saves on your SD card...
+* Some Satiator users have reported the first transfer takes ~90 seconds and then all other transfers are fast. Professor Abrasive is aware of the issue. It's possible the issue is related to the SD card itself. Try running a chkdsk. 
 
 ## Troubleshooting
 When debugging saves that don't work, load SGC on both systems and verify the MD5 hash and file size of both saves. The most likely issue is that of metadata being included. The other common issue is the name of the file. 
