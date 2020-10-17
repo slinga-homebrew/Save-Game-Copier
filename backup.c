@@ -192,7 +192,7 @@ int getBackupDeviceName(unsigned int backupDevice, char** deviceName)
             *deviceName = "Satiator";
             break;
         case CdMemoryBackup:
-            *deviceName = "CD Memory";
+            *deviceName = "CD File System";
             break;
 
         default:

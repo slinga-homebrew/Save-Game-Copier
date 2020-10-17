@@ -238,7 +238,7 @@ void main_draw(void)
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Cartridge Memory");
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "External Device (Floppy)");
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Satiator");
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "CD Memory");
+    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "CD File System");
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Dump Memory");
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Format Device");
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Save Collect Project");
