@@ -121,7 +121,6 @@ int cd_get_stat(cd_stat_struct *cd_status)
    return IAPETUS_ERR_OK;
 }
 
-#define MAX_ITERATIONS 0xFF
 int cd_stop_drive()
 {
    int ret;
@@ -129,7 +128,6 @@ int cd_stop_drive()
    cd_cmd_struct cd_cmd_rs;
    cd_stat_struct cd_status;
    int i;
-   unsigned int j;
 
    // CD Init Command
    cd_cmd.CR1 = 0x0400;
@@ -143,7 +141,7 @@ int cd_stop_drive()
    // Wait till operation is finished(fix me)
 
    // Wait till drive is stopped
-   for (j = 0; j < MAX_ITERATIONS; j++)
+   for (;;)
    {
       // wait a bit
       for (i = 0; i < 100000; i++) { }
@@ -152,11 +150,6 @@ int cd_stop_drive()
 
       if (cd_status.status == STATUS_STANDBY) break;
       else if (cd_status.status == STATUS_FATAL) return IAPETUS_ERR_UNKNOWN;
-   }
-
-   if(j >= MAX_ITERATIONS)
-   {
-      return IAPETUS_ERR_UNKNOWN;
    }
 
    return IAPETUS_ERR_OK;
