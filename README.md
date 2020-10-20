@@ -22,7 +22,7 @@ SGC automatically renames it back for you.
 
 ## Adding Custom Save Games
 There are two ways to add your custom save game files to SGC:
-1) (Windows) Using something WinISO add your save game file to the SAVES directory. Again read the instructions in "Save Game Format" so you have the correct type of file and filename. 
+1) (Windows) Using something like WinISO add your save game file to the SAVES directory. Again read the instructions in "Save Game Format" so you have the correct type of file and filename. The filename must be in the 8.3 format. 
 1) (Linux)
 ```
 # mount the original
@@ -32,7 +32,7 @@ cd /mnt/
 tar cf - . | (cd /tmp/sgc_custom; tar xfp -)
 
 # make the necessary changes
-# remember that filenames must be in 8.3 format>
+# remember that filenames must be in 8.3 format
 cd /tmp/sgc_custom/SAVES
 <add\delete saves as needed>
 
@@ -48,7 +48,7 @@ dd conv=notrunc if=sgc_original.iso of=sgc_modified.iso bs=1 count=32768
 ## Satiator Support
 I don't own a Satiator so my testing has solely been with the [Satiator Yabause fork](https://github.com/satiator/satiator-yabause). When using a Satiator:
 * Make sure you upgrade to the latest firmware. There have been firmware fixes
-* Create a "SAVES" directory on the root of the drive. SGC is hardcoded to use that folder
+* Create a "SAVES" directory on the root of the drive. SGC is hardcoded to use that folder. Copy saves to and from that folder. 
 
 ## Dumping Memory
 SGC also supports advanced feature to arbitrary dump memory. This can allow you to dump:
