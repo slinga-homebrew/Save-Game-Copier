@@ -23,6 +23,26 @@ SGC automatically renames it back for you.
 ## Adding Custom Save Games
 There are two ways to add your custom save game files to SGC:
 1) (Windows) Using something WinISO add your save game file to the SAVES directory. Again read the instructions in "Save Game Format" so you have the correct type of file and filename. 
+1) (Linux)
+```
+# mount the original
+mkdir /tmp/sgc_custom
+sudo mount -t iso9660 -o loop sgc_original.iso /mnt/
+cd /mnt/
+tar cf - . | (cd /tmp/sgc_custom; tar xfp -)
+
+# make the necessary changes
+# remember that filenames must be in 8.3 format>
+cd /tmp/sgc_custom/SAVES
+<add\delete saves as needed>
+
+# convert your changes back into an iso
+mkisofs -o sgc_modified.iso /tmp/sgc_custom
+
+# insert the boot headers from the original iso into the modified
+dd conv=notrunc if=sgc_original.iso of=sgc_modified.iso bs=1 count=32768
+```
+
 2) If you are comfortable compiling SGC, you can also add saves at build time. Checkout SGC from source. Add your save game files (in a raw format) to cd/SAVES/ and recompile. Again read the instructions in "Save Game Format" so you have the correct type of file and filename.  The newly built ISO will include your saves. 
 
 ## Satiator Support
