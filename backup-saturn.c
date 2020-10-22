@@ -1,5 +1,12 @@
 #include "backup-saturn.h"
 
+# define JO_BACKUP_DRIVER_ADDR                  (*(volatile unsigned int *)(0x6000354))
+/** @brief Helper to get backup driver functions addresses */
+# define JO_BACKUP_FUNCTION_ADDR(INDEX)         (*(unsigned int *)(JO_BACKUP_DRIVER_ADDR + INDEX))
+
+# define BUP_SelPart(DEVICE, PARTITION)	\
+((int (*)(unsigned int, unsigned int))JO_BACKUP_FUNCTION_ADDR(4))(DEVICE, PARTITION)
+
 // queries the saves on the backup device and fills out the fileSaves array
 int saturnListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 {
@@ -16,6 +23,20 @@ int saturnListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
         // Don't need this error message because jo engine already errors
         //jo_core_error("Failed to mount backup device %d!!", backupDevice);
         return -1;
+    }
+
+    if(backupDevice == JoExternalDeviceBackup)
+    {
+        int part = BUP_SelPart(2, 1);
+        if(part != 0)
+        {
+            jo_core_error("BUP_SelPart returned 0x%x", part);
+            return -1;
+        }
+        else
+        {
+            jo_core_error("BUP_SelPart returned success");
+        }
     }
 
     // get a list of files from the backup device
@@ -75,6 +96,20 @@ int saturnReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffe
         return -2;
     }
 
+    if(backupDevice == JoExternalDeviceBackup)
+    {
+        int part = BUP_SelPart(2, 1);
+        if(part != 0)
+        {
+            jo_core_error("BUP_SelPart returned 0x%x", part);
+            return -1;
+        }
+        else
+        {
+            jo_core_error("BUP_SelPart returned success");
+        }
+    }
+
     // read the file from the backup device
     // jo engine mallocs a buffer for us
     saveData = jo_backup_load_file_contents(backupDevice, filename, &outBufSize);
@@ -103,6 +138,20 @@ int saturnWriteSaveFile(int backupDevice, char* filename, unsigned char* saveDat
         return -1;
     }
 
+    if(backupDevice == JoExternalDeviceBackup)
+    {
+        int part = BUP_SelPart(2, 1);
+        if(part != 0)
+        {
+            jo_core_error("BUP_SelPart returned 0x%x", part);
+            return -1;
+        }
+        else
+        {
+            jo_core_error("BUP_SelPart returned success");
+        }
+    }
+
     result = jo_backup_save_file_contents(backupDevice, filename, "SGC", saveData, saveDataLen);
     if(result == false)
     {
@@ -123,6 +172,20 @@ int saturnDeleteSaveFile(int backupDevice, char* filename)
     {
         jo_core_error("Failed to mount backup device %d!!", backupDevice);
         return -1;
+    }
+
+    if(backupDevice == JoExternalDeviceBackup)
+    {
+        int part = BUP_SelPart(2, 1);
+        if(part != 0)
+        {
+            jo_core_error("BUP_SelPart returned 0x%x", part);
+            return -1;
+        }
+        else
+        {
+            jo_core_error("BUP_SelPart returned success");
+        }
     }
 
     result = jo_backup_delete_file(backupDevice, filename);
