@@ -88,7 +88,7 @@ void jo_main(void)
     //jo_core_add_callback(debugOutput_draw);
 
     // initial state
-    transitionToState(STATE_MAIN);
+    resetState();
 
     jo_core_run();
 }
@@ -96,17 +96,16 @@ void jo_main(void)
 // useful debug output
 void debugOutput_draw()
 {
-    jo_printf(2, 0, "Memory Usage: %d Frag: %d" , jo_memory_usage_percent(), jo_memory_fragmentation());
-    jo_printf(2, 1, "Save: %d CO: %d" , g_Game.numSaves, g_Game.cursorOffset);
+    // memory usage
+    //jo_printf(2, 0, "Memory Usage: %d Frag: %d" , jo_memory_usage_percent(), jo_memory_fragmentation());
+    //jo_printf(2, 1, "Save: %d CO: %d" , g_Game.numSaves, g_Game.cursorOffset);
 
-    /*
-    if(jo_memory_fragmentation() > 100)
+    // debug the state
+    jo_printf(2, 0, "State depth: %d      ", g_Game.numStates);
+    for(int i = 0; i < MAX_STATES; i++)
     {
-        jo_core_error("High fragmentation!! %d", jo_memory_fragmentation());
-        jo_reduce_memory_fragmentation();
-        jo_core_error("High fragmentation!! %d", jo_memory_fragmentation());
+        jo_printf(2 + (i*2), 1, "%d      ", g_Game.previousStates[i]);
     }
-    */
 }
 
 // restarts the program if controller one presses ABC+Start
@@ -116,7 +115,7 @@ void abcStartHandler(void)
 {
     g_Game.input.pressedStartAC = true;
     g_Game.input.pressedB = true;
-    transitionToState(STATE_MAIN);
+    resetState();
     return;
 }
 
@@ -127,7 +126,17 @@ void transitionToState(int newState)
 {
     clearScreen();
 
-    g_Game.previousState = g_Game.state;
+    // STATE_PREVIOUS is a handled specially
+    // one pop for our current state
+    // the second pop to get to our previous state
+    if(newState == STATE_PREVIOUS)
+    {
+        newState = popState();
+        newState = popState();
+    }
+
+    // save off the new state we are in
+    pushState(newState);
 
     switch(g_Game.state)
     {
@@ -214,6 +223,54 @@ void transitionToState(int newState)
     g_Game.state = newState;
 
     return;
+}
+
+// reset the global state
+// useful when a major error happens
+void resetState()
+{
+    g_Game.numStates = 0;
+    memset(g_Game.previousStates, 0, sizeof(g_Game.previousStates));
+    transitionToState(STATE_MAIN);
+}
+
+// pop off the current state
+int popState()
+{
+    int tempState;
+
+    if(g_Game.numStates > 0)
+    {
+        g_Game.numStates--;
+        tempState = g_Game.previousStates[g_Game.numStates];
+        g_Game.previousStates[g_Game.numStates] = 0;
+        return tempState;
+    }
+    else
+    {
+        // should never get here
+        jo_core_error("popState: invalid numStates %d!!", g_Game.numStates);
+        g_Game.numStates = 0;
+        return STATE_MAIN;
+    }
+}
+
+// push a state to our array
+int pushState(int newState)
+{
+    if(g_Game.numStates + 1 >= MAX_STATES)
+    {
+        // bugbug: should never get here too deep
+        // should never get here
+        jo_core_error("pushState: invalid numStates %d!!", g_Game.numStates);
+        g_Game.numStates = 0;
+        return STATE_MAIN;
+    }
+
+    g_Game.previousStates[g_Game.numStates] = newState;
+    g_Game.numStates++;
+
+    return 0;
 }
 
 // draws the main option screen
@@ -417,7 +474,7 @@ void listSaves_draw(void)
     result = getBackupDeviceName(g_Game.backupDevice, &g_Game.backupDeviceName);
     if(result != 0)
     {
-        transitionToState(STATE_MAIN);
+        transitionToState(STATE_PREVIOUS);
         return;
     }
 
@@ -448,7 +505,7 @@ void listSaves_draw(void)
             else
             {
                 // something went wrong
-                transitionToState(STATE_MAIN);
+                transitionToState(STATE_PREVIOUS);
                 return;
             }
         }
@@ -519,7 +576,7 @@ void listSaves_input(void)
             if(g_Game.numStateOptions == 0)
             {
                 // there are 0 saves, just return back to the main screen
-                transitionToState(STATE_MAIN);
+                transitionToState(STATE_PREVIOUS);
                 return;
             }
 
@@ -537,7 +594,7 @@ void listSaves_input(void)
         if(g_Game.input.pressedB == false)
         {
             g_Game.input.pressedB = true;
-            transitionToState(STATE_MAIN);
+            transitionToState(STATE_PREVIOUS);
             return;
         }
     }
@@ -592,7 +649,7 @@ void displaySave_draw(void)
             if(result != 0)
             {
                 jo_core_error("Failed to read the save!!");
-                transitionToState(STATE_MAIN);
+                transitionToState(STATE_PREVIOUS);
                 return;
             }
         }
@@ -602,7 +659,7 @@ void displaySave_draw(void)
         if(result != 0)
         {
             // something went wrong
-            transitionToState(STATE_MAIN);
+            transitionToState(STATE_PREVIOUS);
             return;
         }
 
@@ -639,7 +696,7 @@ void displaySave_draw(void)
     else if(g_Game.operationStatus == OPERATION_FAIL)
     {
         y++;
-        jo_printf(OPTIONS_X, SAVES_Y + y++, "Failed to perform operation.");
+        jo_printf(OPTIONS_X, SAVES_Y + y++, "Failed to perform operation      .");
     }
 
     return;
@@ -755,7 +812,7 @@ void displaySave_input(void)
         if(g_Game.input.pressedB == false)
         {
             g_Game.input.pressedB = true;
-            transitionToState(g_Game.previousState);
+            transitionToState(STATE_PREVIOUS);
             return;
         }
     }
@@ -849,7 +906,7 @@ void format_input(void)
         {
             g_Game.input.pressedB = true;
 
-            transitionToState(STATE_MAIN);
+            transitionToState(STATE_PREVIOUS);
             return;
         }
     }
@@ -878,7 +935,7 @@ void formatVerify_draw(void)
     result = getBackupDeviceName(g_Game.backupDevice, &g_Game.backupDeviceName);
     if(result != 0)
     {
-        transitionToState(STATE_MAIN);
+        transitionToState(STATE_PREVIOUS);
         return;
     }
 
@@ -941,7 +998,7 @@ void formatVerify_input(void)
                     if(g_Game.operationStatus != OPERATION_UNINIT)
                     {
                         // we already formatted the device
-                        transitionToState(g_Game.previousState);
+                        transitionToState(STATE_PREVIOUS);
                         return;
                     }
 
@@ -950,7 +1007,7 @@ void formatVerify_input(void)
                     {
                         jo_core_error("Failed to format device!!");
                         g_Game.operationStatus = OPERATION_FAIL;
-                        transitionToState(STATE_MAIN);
+                        transitionToState(STATE_PREVIOUS);
                         return;
                     }
 
@@ -959,7 +1016,7 @@ void formatVerify_input(void)
                 }
                 case VERIFY_NO:
                 {
-                    transitionToState(g_Game.previousState);
+                    transitionToState(STATE_PREVIOUS);
                     return;
                 }
             }
@@ -977,7 +1034,7 @@ void formatVerify_input(void)
         {
             g_Game.input.pressedB = true;
 
-            transitionToState(g_Game.previousState);
+            transitionToState(STATE_PREVIOUS);
             return;
         }
     }
@@ -1227,7 +1284,7 @@ void dumpMemory_input(void)
         {
             g_Game.input.pressedB = true;
 
-            transitionToState(STATE_MAIN);
+            transitionToState(STATE_PREVIOUS);
             return;
         }
     }
@@ -1289,7 +1346,7 @@ void collect_input(void)
         {
             g_Game.input.pressedStartAC = true;
             g_Game.input.pressedB = true;
-            transitionToState(STATE_MAIN);
+            transitionToState(STATE_PREVIOUS);
             return;
         }
     }
@@ -1360,7 +1417,7 @@ void credits_input(void)
         {
             g_Game.input.pressedStartAC = true;
             g_Game.input.pressedB = true;
-            transitionToState(STATE_MAIN);
+            transitionToState(STATE_PREVIOUS);
             return;
         }
     }

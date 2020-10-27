@@ -30,7 +30,7 @@
 #pragma once
 
 // program version, keep this length to avoid having to resize strings
-#define VERSION "3.0.5"
+#define VERSION "3.0.6"
 
 // program states
 #define STATE_UNINITIALIZED      0
@@ -43,6 +43,9 @@
 #define STATE_FORMAT_VERIFY      7
 #define STATE_COLLECT            8
 #define STATE_CREDITS            9
+#define STATE_PREVIOUS          -1 // go to the previous state
+
+#define MAX_STATES              16 // how many states to record
 
 // option selected on the main screen
 #define MAIN_OPTION_INTERNAL     0
@@ -119,7 +122,8 @@ typedef struct _GAME
 {
     // game state variables
     int state; // current state of the program i.e. what screen it is in
-    int previousState; // useful when going backwards from certain states
+    int previousStates[MAX_STATES]; // useful when going backwards from certain states
+    int numStates;
 
     // number of options in the current state
     int numStateOptions;
@@ -157,7 +161,6 @@ extern GAME g_Game;
 
 // common functions
 void jo_main(void);
-void transitionToState(int newState);
 void abcStartHandler(void);
 void clearScreen(void);
 int copyBIOS(unsigned int segment);
@@ -165,6 +168,13 @@ int copySaveFile(void);
 void moveCursor(bool savesPage);
 void moveDigitCursor(void);
 void adjustHexValue(unsigned int* value, unsigned int digit, bool add);
+
+// state helper functions
+void transitionToState(int newState);
+void resetState();
+int popState();
+int pushState(int newState);
+
 
 // main screen
 void main_draw(void);
