@@ -696,7 +696,7 @@ void displaySave_draw(void)
     else if(g_Game.operationStatus == OPERATION_FAIL)
     {
         y++;
-        jo_printf(OPTIONS_X, SAVES_Y + y++, "Failed to perform operation      .");
+        jo_printf(OPTIONS_X, SAVES_Y + y++, "Failed to perform operation.     ");
     }
 
     return;
@@ -1265,7 +1265,7 @@ void dumpMemory_input(void)
             g_Game.input.pressedStartAC = true;
 
             // set globals based on the memory address and size being copied
-            snprintf(g_Game.saveFilename, MAX_SAVE_FILENAME, "0x%08x", g_Game.dumpMemoryAddress);
+            snprintf(g_Game.saveFilename, MAX_SAVE_FILENAME, "%08X.DM", g_Game.dumpMemoryAddress);
             g_Game.saveFileSize = g_Game.dumpMemorySize;
 
             transitionToState(STATE_DISPLAY_MEMORY);
