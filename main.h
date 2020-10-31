@@ -39,10 +39,11 @@
 #define STATE_DISPLAY_SAVE       3
 #define STATE_DISPLAY_MEMORY     4
 #define STATE_DUMP_MEMORY        5
-#define STATE_FORMAT             6
-#define STATE_FORMAT_VERIFY      7
-#define STATE_COLLECT            8
-#define STATE_CREDITS            9
+#define STATE_WRITE_MEMORY       6
+#define STATE_FORMAT             7
+#define STATE_FORMAT_VERIFY      8
+#define STATE_COLLECT            9
+#define STATE_CREDITS            10
 #define STATE_PREVIOUS          -1 // go to the previous state
 
 #define MAX_STATES              16 // how many states to record
@@ -62,7 +63,8 @@
 #define SAVE_OPTION_CARTRIDGE    1
 #define SAVE_OPTION_EXTERNAL     2
 #define SAVE_OPTION_SATIATOR     3
-#define SAVE_OPTION_DELETE       4
+#define SAVE_OPTION_WRITE_MEMORY 4
+#define SAVE_OPTION_DELETE       5
 
 #define VERIFY_YES               0
 #define VERIFY_NO                1
@@ -89,7 +91,7 @@
 #define MAIN_NUM_OPTIONS             9
 #define FORMAT_NUM_OPTIONS           3
 #define FORMAT_VERIFY_NUM_OPTIONS    2
-#define SAVES_NUM_OPTIONS            5
+#define SAVES_NUM_OPTIONS            6
 
 #define HEADING_UNDERSCORE     "___________________________________"
 

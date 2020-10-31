@@ -148,6 +148,7 @@ void transitionToState(int newState)
         case STATE_FORMAT:
         case STATE_FORMAT_VERIFY:
         case STATE_DUMP_MEMORY:
+        case STATE_WRITE_MEMORY:
         case STATE_COLLECT:
         case STATE_CREDITS:
             break;
@@ -207,6 +208,16 @@ void transitionToState(int newState)
             g_Game.numStateOptions = 16;
             g_Game.dumpMemoryAddress = 0;
             g_Game.dumpMemorySize = 0;
+            break;
+
+        case STATE_WRITE_MEMORY:
+            g_Game.cursorPosX = CURSOR_X + 14;
+            g_Game.cursorPosY = VERIFY_Y - 2;
+            g_Game.cursorOffset = 0;
+            g_Game.numStateOptions = 16;
+            g_Game.dumpMemoryAddress = 0;
+            g_Game.dumpMemorySize = g_Game.saveFileSize;
+            g_Game.operationStatus = OPERATION_UNINIT;
             break;
 
         case STATE_COLLECT:
@@ -681,6 +692,7 @@ void displaySave_draw(void)
     jo_printf(OPTIONS_X, SAVES_Y + y++, "Copy to Cartridge Memory");
     jo_printf(OPTIONS_X, SAVES_Y + y++, "Copy to External Device (Floppy)");
     jo_printf(OPTIONS_X, SAVES_Y + y++, "Copy to Satiator");
+    jo_printf(OPTIONS_X, SAVES_Y + y++, "Write to Memory");
     jo_printf(OPTIONS_X, SAVES_Y + y++, "Delete Save");
 
     jo_printf(g_Game.cursorPosX, g_Game.cursorPosY + g_Game.cursorOffset, ">>");
@@ -777,6 +789,12 @@ void displaySave_input(void)
                             return;
                         }
                         g_Game.operationStatus = OPERATION_SUCCESS;
+                        return;
+                    }
+                    case SAVE_OPTION_WRITE_MEMORY:
+                    {
+                        transitionToState(STATE_WRITE_MEMORY);
+                        //g_Game.operationStatus = OPERATION_SUCCESS;
                         return;
                     }
                     case SAVE_OPTION_DELETE:
@@ -1053,13 +1071,21 @@ void dumpMemory_draw(void)
 {
     unsigned int y = 0;
 
-    if(g_Game.state != STATE_DUMP_MEMORY)
+    if(g_Game.state != STATE_DUMP_MEMORY && g_Game.state != STATE_WRITE_MEMORY)
     {
         return;
     }
 
     // heading
-    jo_printf(HEADING_X, HEADING_Y + y++, "Dump Memory");
+    if(g_Game.state == STATE_DUMP_MEMORY)
+    {
+        jo_printf(HEADING_X, HEADING_Y + y++, "Dump Memory");
+    }
+    else
+    {
+        jo_printf(HEADING_X, HEADING_Y + y++, "Write Memory");
+    }
+
     jo_printf(HEADING_X, HEADING_Y + y++, HEADING_UNDERSCORE);
 
     y = 0;
@@ -1084,6 +1110,19 @@ void dumpMemory_draw(void)
     jo_printf(HEADING_X, OPTIONS_Y + y++, "Press up/down to adjust digit");
     jo_printf(HEADING_X, OPTIONS_Y + y++, "Address and size cannot be 0");
     jo_printf(HEADING_X, OPTIONS_Y + y++, "Press C to continue");
+    y++;
+
+    // done formatting
+    if(g_Game.operationStatus == OPERATION_SUCCESS)
+    {
+        y++;
+        jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Successfully performed operation.");
+    }
+    else if(g_Game.operationStatus == OPERATION_FAIL)
+    {
+        y++;
+        jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Failed to perform operation.     ");
+    }
 
     y++;
 
@@ -1243,10 +1282,10 @@ void moveDigitCursor(void)
     g_Game.cursorOffset = cursorOffset;
 }
 
-// handles input on the format screen
+// handles input on the dump memory and write memory screen
 void dumpMemory_input(void)
 {
-    if(g_Game.state != STATE_DUMP_MEMORY)
+    if(g_Game.state != STATE_DUMP_MEMORY && g_Game.state != STATE_WRITE_MEMORY)
     {
         return;
     }
@@ -1264,12 +1303,30 @@ void dumpMemory_input(void)
         {
             g_Game.input.pressedStartAC = true;
 
-            // set globals based on the memory address and size being copied
-            snprintf(g_Game.saveFilename, MAX_SAVE_FILENAME, "%08X.DM", g_Game.dumpMemoryAddress);
-            g_Game.saveFileSize = g_Game.dumpMemorySize;
+            if(g_Game.state == STATE_DUMP_MEMORY)
+            {
+                // set globals based on the memory address and size being copied
+                snprintf(g_Game.saveFilename, MAX_SAVE_FILENAME, "%08X.DM", g_Game.dumpMemoryAddress);
+                g_Game.saveFileSize = g_Game.dumpMemorySize;
 
-            transitionToState(STATE_DISPLAY_MEMORY);
-            return;
+                transitionToState(STATE_DISPLAY_MEMORY);
+                return;
+            }
+            else // STATE_WRITE_MEMORY
+            {
+                // check if we already did the write
+                // if so, back output
+                if(g_Game.operationStatus != OPERATION_UNINIT)
+                {
+                    transitionToState(STATE_PREVIOUS);
+                    return;
+                }
+
+                // BUGBUG: print success messsage and then have some sort of wait here
+                memcpy((void*)g_Game.dumpMemoryAddress, g_Game.saveFileData, g_Game.dumpMemorySize);
+                g_Game.operationStatus = OPERATION_SUCCESS;
+                return;
+            }
         }
     }
     else
