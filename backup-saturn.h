@@ -2,6 +2,7 @@
 
 #include "backup.h"
 
+bool saturnIsBackupDeviceAvailable(int backupDevice);
 int saturnListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves);
 int saturnReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, unsigned int outSize);
 int saturnWriteSaveFile(int backupDevice, char* filename, unsigned char* inBuffer, unsigned int inSize);

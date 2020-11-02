@@ -1,6 +1,27 @@
 #include "backup-satiator.h"
 #include "satiator/satiator.h"
 
+// returns true if the backup device is found
+bool satiatorIsBackupDeviceAvailable(int backupDevice)
+{
+    int result;
+
+    if(backupDevice != SatiatorBackup)
+    {
+        return false;
+    }
+
+    result = satiatorEnter();
+    if(result != 0)
+    {
+        // failed to find Satiator
+        return false;
+    }
+
+    // found Satiator
+    return true;
+}
+
 // queries the saves on the Satiator device and fills out the saves array
 // BUGBUG: code copied from satiator-menu/main.c and needs ot be under the MPL
 int satiatorListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
@@ -13,6 +34,13 @@ int satiatorListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 
     if(backupDevice != SatiatorBackup)
     {
+        return -1;
+    }
+
+    result = satiatorEnter();
+    if(result != 0)
+    {
+        jo_core_error("Failed to detect satiator");
         return -1;
     }
 
@@ -63,6 +91,13 @@ int satiatorReadSaveFile(int backupDevice, char* filename, unsigned char* outBuf
 
     if(backupDevice != SatiatorBackup)
     {
+        return -1;
+    }
+
+    result = satiatorEnter();
+    if(result == 0)
+    {
+        jo_core_error("Failed to detect satiator");
         return -1;
     }
 
@@ -122,6 +157,13 @@ int satiatorWriteSaveFile(int backupDevice, char* filename, unsigned char* inBuf
 
     if(backupDevice != SatiatorBackup)
     {
+        return -1;
+    }
+
+    result = satiatorEnter();
+    if(result != 0)
+    {
+        jo_core_error("Failed to detect satiator");
         return -1;
     }
 
@@ -187,6 +229,13 @@ int satiatorDeleteSaveFile(int backupDevice, char* filename)
         return -1;
     }
 
+    result = satiatorEnter();
+    if(result != 0)
+    {
+        jo_core_error("Failed to detect satiator");
+        return -1;
+    }
+
     if(filename == NULL)
     {
         jo_core_error("deleteSatiatorSaveData: Filename is NULL!!");
@@ -206,24 +255,22 @@ int satiatorDeleteSaveFile(int backupDevice, char* filename)
 
 // enable satiator extra mode
 // without this you cannot access the filesystem
-int satiatorEnter()
+int satiatorEnter(void)
 {
     int result;
 
     result = s_mode(s_api);
     if(result != 0)
     {
-        jo_core_error("Failed to mount Satiator");
         return -1;
     }
     s_chdir("/SAVES");
-
     return 0;
 }
 
 // exit satiator extra mode
 // BUGBUG: this does not appear to work and ends up with the ISO no longer being accessible
-int satiatorExit()
+int satiatorExit(void)
 {
 
     // BUGBUG: this doesn't quite work correctly

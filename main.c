@@ -87,6 +87,8 @@ void jo_main(void)
     // debug output
     //jo_core_add_callback(debugOutput_draw);
 
+    queryBackupDevices();
+
     // initial state
     resetState();
 
@@ -116,6 +118,37 @@ void abcStartHandler(void)
     g_Game.input.pressedStartAC = true;
     g_Game.input.pressedB = true;
     resetState();
+    return;
+}
+
+// verifies which backup devices are available
+// needed for dynamic menu
+void queryBackupDevices(void)
+{
+    if(SKIP_DEVICE_CHECKS == 0)
+    {
+        g_Game.deviceInternalMemoryBackup = isBackupDeviceAvailable(JoInternalMemoryBackup);
+        g_Game.deviceCartridgeMemoryBackup = isBackupDeviceAvailable(JoCartridgeMemoryBackup);
+        g_Game.deviceExternalDeviceBackup = isBackupDeviceAvailable(JoExternalDeviceBackup);
+        g_Game.deviceSatiatorBackup = isBackupDeviceAvailable(SatiatorBackup);
+        g_Game.deviceCdMemoryBackup = isBackupDeviceAvailable(CdMemoryBackup);
+    }
+    else
+    {
+        g_Game.deviceInternalMemoryBackup = true;
+        g_Game.deviceCartridgeMemoryBackup = true;
+        g_Game.deviceExternalDeviceBackup = true;
+        g_Game.deviceSatiatorBackup = true;
+        g_Game.deviceCdMemoryBackup = true;
+    }
+
+    /*
+    jo_core_error("g_Game.deviceInternalMemoryBackup: %d", g_Game.deviceInternalMemoryBackup);
+    jo_core_error("g_Game.deviceCartridgeMemoryBackup: %d", g_Game.deviceCartridgeMemoryBackup);
+    jo_core_error("g_Game.deviceExternalDeviceBackup: %d", g_Game.deviceExternalDeviceBackup);
+    jo_core_error("g_Game.deviceSatiatorBackup: %d", g_Game.deviceSatiatorBackup);
+    jo_core_error("g_Game.deviceCdMemoryBackup:", g_Game.deviceCdMemoryBackup);
+    */
     return;
 }
 
@@ -164,7 +197,7 @@ void transitionToState(int newState)
             g_Game.cursorPosX = CURSOR_X;
             g_Game.cursorPosY = OPTIONS_Y;
             g_Game.cursorOffset = 0;
-            g_Game.numStateOptions = MAIN_NUM_OPTIONS;
+            g_Game.numStateOptions = initMenuOptions(STATE_MAIN);
             break;
 
         case STATE_LIST_SAVES:
@@ -184,14 +217,15 @@ void transitionToState(int newState)
             g_Game.numStateOptions = SAVES_NUM_OPTIONS;
             g_Game.md5Calculated = false;
             g_Game.operationStatus = OPERATION_UNINIT;
+            g_Game.numStateOptions = initMenuOptions(STATE_DISPLAY_SAVE);
             break;
 
         case STATE_FORMAT:
             g_Game.cursorPosX = CURSOR_X;
             g_Game.cursorPosY = OPTIONS_Y;
             g_Game.cursorOffset = 0;
-            g_Game.numStateOptions = FORMAT_NUM_OPTIONS;
             g_Game.operationStatus = OPERATION_UNINIT;
+            g_Game.numStateOptions = initMenuOptions(STATE_FORMAT);
             break;
 
         case STATE_FORMAT_VERIFY:
@@ -238,7 +272,7 @@ void transitionToState(int newState)
 
 // reset the global state
 // useful when a major error happens
-void resetState()
+void resetState(void)
 {
     g_Game.numStates = 0;
     memset(g_Game.previousStates, 0, sizeof(g_Game.previousStates));
@@ -246,7 +280,7 @@ void resetState()
 }
 
 // pop off the current state
-int popState()
+int popState(void)
 {
     int tempState;
 
@@ -284,6 +318,174 @@ int pushState(int newState)
     return 0;
 }
 
+// initialize the menu for the specified state
+// the dynamic menu should only show options that make sense for the user
+// ex. hide Satiator for non-Satiator users etc
+// returns the number of options on success
+unsigned int initMenuOptions(int newState)
+{
+    unsigned int numMenuOptions = 0;
+
+    memset(&g_Game.menuOptions, 0, sizeof(g_Game.menuOptions));
+    g_Game.numMenuOptions = 0;
+
+    switch(newState)
+    {
+        case STATE_MAIN:
+        {
+            // only show main menu options for devices that have been detected
+            if(g_Game.deviceInternalMemoryBackup == true)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Internal Memory";
+                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_INTERNAL;
+                numMenuOptions++;
+            }
+
+            if(g_Game.deviceCartridgeMemoryBackup == true)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Cartridge Memory";
+                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_CARTRIDGE;
+                numMenuOptions++;
+            }
+
+            if(g_Game.deviceExternalDeviceBackup == true)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "External Device (Floppy)";
+                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_EXTERNAL;
+                numMenuOptions++;
+            }
+
+            if(g_Game.deviceSatiatorBackup == true)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Satiator";
+                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_SATIATOR;
+                numMenuOptions++;
+            }
+
+            if(g_Game.deviceCdMemoryBackup == true)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "CD File System";
+                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_CD;
+                numMenuOptions++;
+            }
+
+            g_Game.menuOptions[numMenuOptions].optionText = "Dump Memory";
+            g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_DUMP_MEMORY;
+            numMenuOptions++;
+
+            if(g_Game.deviceInternalMemoryBackup == true)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Format Device";
+                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_FORMAT;
+                numMenuOptions++;
+            }
+
+            g_Game.menuOptions[numMenuOptions].optionText = "Save Collect Project";
+            g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_COLLECT;
+            numMenuOptions++;
+
+            g_Game.menuOptions[numMenuOptions].optionText = "Credits";
+            g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_CREDITS;
+            numMenuOptions++;
+            break;
+        }
+
+        case STATE_DISPLAY_SAVE:
+        {
+            // only show main menu options for devices that have been detected
+            // don't allow user to copy file back to same device
+            // don't allow user to delete CD save
+            if(g_Game.deviceInternalMemoryBackup == true && g_Game.backupDevice != JoInternalMemoryBackup)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Copy to Internal Memory";
+                g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_INTERNAL;
+                numMenuOptions++;
+            }
+
+            if(g_Game.deviceCartridgeMemoryBackup == true && g_Game.backupDevice != JoCartridgeMemoryBackup)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Copy to Cartridge Memory";
+                g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_CARTRIDGE;
+                numMenuOptions++;
+            }
+
+            if(g_Game.deviceExternalDeviceBackup == true && g_Game.backupDevice != JoExternalDeviceBackup)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Copy to External Device (Floppy)";
+                g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_EXTERNAL;
+                numMenuOptions++;
+            }
+
+            if(g_Game.deviceSatiatorBackup == true && g_Game.backupDevice != SatiatorBackup)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Copy to Satiator";
+                g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_SATIATOR;
+                numMenuOptions++;
+            }
+
+            g_Game.menuOptions[numMenuOptions].optionText = "Write to Memory";
+            g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_WRITE_MEMORY;
+            numMenuOptions++;
+
+            // this check should really be isBackupDeviceWriteable()
+            // for now we just check if it's not the cd
+            if(g_Game.backupDevice != CdMemoryBackup)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Delete Save";
+                g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_DELETE;
+                numMenuOptions++;
+            }
+            break;
+        }
+
+        case STATE_FORMAT:
+            // only show main menu options for devices that have been detected
+            if(g_Game.deviceInternalMemoryBackup == true)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Internal Memory";
+                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_INTERNAL;
+                numMenuOptions++;
+            }
+
+            if(g_Game.deviceCartridgeMemoryBackup == true)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Cartridge Memory";
+                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_CARTRIDGE;
+                numMenuOptions++;
+            }
+
+            if(g_Game.deviceExternalDeviceBackup == true)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "External Device (Floppy)";
+                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_EXTERNAL;
+                numMenuOptions++;
+            }
+            break;
+
+        default:
+            jo_core_error("%d is an invalid current state!!", g_Game.state);
+            resetState();
+            return 0;
+    }
+
+    g_Game.numMenuOptions = numMenuOptions;
+    return numMenuOptions;
+}
+
+// helper function to take the cursor index and return the value
+// of the menu option
+unsigned int getMenuOptionByIndex(unsigned int index)
+{
+    if(index >= g_Game.numMenuOptions)
+    {
+        jo_core_error("Invalid index %d for menu options (%d)!!", index, g_Game.numMenuOptions);
+        resetState();
+        return -1;
+    }
+
+    return g_Game.menuOptions[index].option;
+}
+
 // draws the main option screen
 // Number of options are hardcoded
 void main_draw(void)
@@ -302,15 +504,10 @@ void main_draw(void)
     y = 0;
 
     // options
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Internal Memory");
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Cartridge Memory");
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "External Device (Floppy)");
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Satiator");
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "CD File System");
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Dump Memory");
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Format Device");
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Save Collect Project");
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Credits");
+    for(unsigned int i = 0; i < g_Game.numMenuOptions; i++)
+    {
+        jo_printf(OPTIONS_X, OPTIONS_Y + i, g_Game.menuOptions[i].optionText);
+    }
 
     // cursor
     jo_printf(g_Game.cursorPosX, g_Game.cursorPosY + g_Game.cursorOffset, ">>");
@@ -388,6 +585,8 @@ void moveCursor(bool savesPage)
 // handles input on the main screen
 void main_input(void)
 {
+    unsigned int option;
+
     if(g_Game.state != STATE_MAIN)
     {
         return;
@@ -402,7 +601,9 @@ void main_input(void)
         {
             g_Game.input.pressedStartAC = true;
 
-            switch(g_Game.cursorOffset)
+            option = getMenuOptionByIndex(g_Game.cursorOffset);
+
+            switch(option)
             {
                 case MAIN_OPTION_INTERNAL:
                 {
@@ -441,6 +642,7 @@ void main_input(void)
                 }
                 case MAIN_OPTION_DUMP_MEMORY:
                 {
+                    g_Game.backupDevice = MemoryBackup;
                     transitionToState(STATE_DUMP_MEMORY);
                     return;
                 }
@@ -685,15 +887,13 @@ void displaySave_draw(void)
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "     %02x%02x%02x%02x%02x%02x%02x%02x", g_Game.md5Hash[8], g_Game.md5Hash[9], g_Game.md5Hash[10], g_Game.md5Hash[11],  g_Game.md5Hash[12], g_Game.md5Hash[13], g_Game.md5Hash[14], g_Game.md5Hash[15]);
 
     y = 0;
-    //y++;
 
     // options
-    jo_printf(OPTIONS_X, SAVES_Y + y++, "Copy to Internal Memory");
-    jo_printf(OPTIONS_X, SAVES_Y + y++, "Copy to Cartridge Memory");
-    jo_printf(OPTIONS_X, SAVES_Y + y++, "Copy to External Device (Floppy)");
-    jo_printf(OPTIONS_X, SAVES_Y + y++, "Copy to Satiator");
-    jo_printf(OPTIONS_X, SAVES_Y + y++, "Write to Memory");
-    jo_printf(OPTIONS_X, SAVES_Y + y++, "Delete Save");
+    for(unsigned int i = 0; i < g_Game.numMenuOptions; i++)
+    {
+        jo_printf(OPTIONS_X, SAVES_Y + i, g_Game.menuOptions[i].optionText);
+        y++; // spacing for the error messages
+    }
 
     jo_printf(g_Game.cursorPosX, g_Game.cursorPosY + g_Game.cursorOffset, ">>");
 
@@ -719,6 +919,7 @@ void displaySave_draw(void)
 void displaySave_input(void)
 {
     int result = 0;
+    unsigned int option = 0;
     unsigned char* saveFileData;
 
     if(g_Game.state != STATE_DISPLAY_SAVE && g_Game.state != STATE_DISPLAY_MEMORY)
@@ -745,7 +946,9 @@ void displaySave_input(void)
         {
             g_Game.input.pressedStartAC = true;
             {
-                switch(g_Game.cursorOffset)
+                option = getMenuOptionByIndex(g_Game.cursorOffset);
+
+                switch(option)
                 {
                     case SAVE_OPTION_INTERNAL:
                     {
@@ -861,10 +1064,12 @@ void format_draw(void)
 
     y = 0;
 
-    // options
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Internal Memory");
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Cartridge Memory");
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "External Device (Floppy)");
+        // options
+    for(unsigned int i = 0; i < g_Game.numMenuOptions; i++)
+    {
+        jo_printf(OPTIONS_X, OPTIONS_Y + i, g_Game.menuOptions[i].optionText);
+        y++; // spacing for the error messages
+    }
 
     // cursor
     jo_printf(g_Game.cursorPosX, g_Game.cursorPosY + g_Game.cursorOffset, ">>");
@@ -875,6 +1080,8 @@ void format_draw(void)
 // handles input on the format screen
 void format_input(void)
 {
+    unsigned int option = 0;
+
     if(g_Game.state != STATE_FORMAT)
     {
         return;
@@ -889,7 +1096,9 @@ void format_input(void)
         {
             g_Game.input.pressedStartAC = true;
 
-            switch(g_Game.cursorOffset)
+            option = getMenuOptionByIndex(g_Game.cursorOffset);
+
+            switch(option)
             {
                 case MAIN_OPTION_INTERNAL:
                 {
@@ -1079,7 +1288,7 @@ void dumpMemory_draw(void)
     // heading
     if(g_Game.state == STATE_DUMP_MEMORY)
     {
-        jo_printf(HEADING_X, HEADING_Y + y++, "Dump Memory");
+    jo_printf(HEADING_X, HEADING_Y + y++, "Dump Memory");
     }
     else
     {
@@ -1305,12 +1514,12 @@ void dumpMemory_input(void)
 
             if(g_Game.state == STATE_DUMP_MEMORY)
             {
-                // set globals based on the memory address and size being copied
-                snprintf(g_Game.saveFilename, MAX_SAVE_FILENAME, "%08X.DM", g_Game.dumpMemoryAddress);
-                g_Game.saveFileSize = g_Game.dumpMemorySize;
+            // set globals based on the memory address and size being copied
+            snprintf(g_Game.saveFilename, MAX_SAVE_FILENAME, "%08X.DM", g_Game.dumpMemoryAddress);
+            g_Game.saveFileSize = g_Game.dumpMemorySize;
 
-                transitionToState(STATE_DISPLAY_MEMORY);
-                return;
+            transitionToState(STATE_DISPLAY_MEMORY);
+            return;
             }
             else // STATE_WRITE_MEMORY
             {

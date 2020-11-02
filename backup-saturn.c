@@ -1,5 +1,20 @@
 #include "backup-saturn.h"
 
+// queries whether the backup device is present
+bool saturnIsBackupDeviceAvailable(int backupDevice)
+{
+    bool isPresent = false;
+
+    isPresent = jo_backup_mount(backupDevice);
+    if(isPresent == true)
+    {
+        jo_backup_unmount(backupDevice);
+        return true;
+    }
+
+    return false;
+}
+
 // queries the saves on the backup device and fills out the fileSaves array
 int saturnListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 {
@@ -56,7 +71,6 @@ int saturnListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 
     return count;
 }
-
 
 // copies the specified save gane to the saveFileData buffer
 int saturnReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, unsigned int outBufSize)

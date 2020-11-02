@@ -8,6 +8,7 @@
 
 #define SatiatorBackup (JoExternalDeviceBackup + 1)
 #define CdMemoryBackup (SatiatorBackup + 1)
+#define MemoryBackup (CdMemoryBackup + 1)
 
 // meta data related to save files
 typedef  struct  _SAVES {
@@ -34,9 +35,8 @@ typedef struct _BACKUP_MEDIUM
     BACKUP_FORMAT_FN formatDevice;
 } BACKUP_MEDIUM, *PBACKUP_MEDIUM;
 
-//BACKUP_MEDIUM g_backupSaturn = {
-
 // access the save data
+bool isBackupDeviceAvailable(int backupDevice);
 int listSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves);
 int readSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, unsigned int outSize);
 int writeSaveFile(int backupDevice, char* filename, unsigned char* inBuffer, unsigned int inSize);

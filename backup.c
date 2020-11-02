@@ -3,11 +3,33 @@
 #include "backup-satiator.h"
 #include "backup-cd.h"
 
+// returns true if the backup device is found
+bool isBackupDeviceAvailable(int backupDevice)
+{
+    switch(backupDevice)
+    {
+        case JoInternalMemoryBackup:
+        case JoCartridgeMemoryBackup:
+        case JoExternalDeviceBackup:
+            return saturnIsBackupDeviceAvailable(backupDevice);
+
+        case SatiatorBackup:
+            return satiatorIsBackupDeviceAvailable(backupDevice);
+
+        case CdMemoryBackup:
+            return true; // always assume CD backups are available
+
+        default:
+            jo_core_error("Invalid backup device specified!! %d\n", backupDevice);
+            return -1;
+    }
+
+    return -1;
+}
+
 // queries the saves on the backup device and fills out the saves array
 int listSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 {
-    int result = 0;
-
     switch(backupDevice)
     {
         case JoInternalMemoryBackup:
@@ -16,15 +38,7 @@ int listSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             return saturnListSaveFiles(backupDevice, saves, numSaves);
 
         case SatiatorBackup:
-            result = satiatorEnter();
-            if(result != 0)
-            {
-                return -1;
-            }
-
-            result = satiatorListSaveFiles(backupDevice, saves, numSaves);
-            satiatorExit();
-            return result;
+            return satiatorListSaveFiles(backupDevice, saves, numSaves);
 
         case CdMemoryBackup:
             return cdListSaveFiles(backupDevice, saves, numSaves);
@@ -40,8 +54,6 @@ int listSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 // reads the specified save game from the backup device
 int readSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, unsigned int outSize)
 {
-    int result = 0;
-
     switch(backupDevice)
     {
         case JoInternalMemoryBackup:
@@ -50,15 +62,7 @@ int readSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, uns
             return saturnReadSaveFile(backupDevice, filename, outBuffer, outSize);
 
         case SatiatorBackup:
-            result = satiatorEnter();
-            if(result != 0)
-            {
-                return -1;
-            }
-
-            result = satiatorReadSaveFile(backupDevice, filename, outBuffer, outSize);
-            satiatorExit();
-            return result;
+            return satiatorReadSaveFile(backupDevice, filename, outBuffer, outSize);
 
         case CdMemoryBackup:
             return cdReadSaveFile(backupDevice, filename, outBuffer, outSize);
@@ -74,8 +78,6 @@ int readSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, uns
 // write the save game to the backup device
 int writeSaveFile(int backupDevice, char* filename, unsigned char* inBuffer, unsigned int inSize)
 {
-    int result = 0;
-
     switch(backupDevice)
     {
         case JoInternalMemoryBackup:
@@ -84,14 +86,7 @@ int writeSaveFile(int backupDevice, char* filename, unsigned char* inBuffer, uns
             return saturnWriteSaveFile(backupDevice, filename, inBuffer, inSize);
 
         case SatiatorBackup:
-            result = satiatorEnter();
-            if(result != 0)
-            {
-                return -1;
-            }
-            result = satiatorWriteSaveFile(backupDevice, filename, inBuffer, inSize);
-            satiatorExit();
-            return result;
+            return satiatorWriteSaveFile(backupDevice, filename, inBuffer, inSize);
 
         case CdMemoryBackup:
             return -1;
@@ -105,8 +100,6 @@ int writeSaveFile(int backupDevice, char* filename, unsigned char* inBuffer, uns
 // delete the save from the backup device
 int deleteSaveFile(int backupDevice, char* filename)
 {
-    int result = 0;
-
     switch(backupDevice)
     {
         case JoInternalMemoryBackup:
@@ -115,15 +108,7 @@ int deleteSaveFile(int backupDevice, char* filename)
             return saturnDeleteSaveFile(backupDevice, filename);
 
         case SatiatorBackup:
-            result = satiatorEnter();
-            if(result != 0)
-            {
-                return -1;
-            }
-
-            result = satiatorDeleteSaveFile(backupDevice, filename);
-            satiatorExit();
-            return result;
+            return satiatorDeleteSaveFile(backupDevice, filename);
 
         case CdMemoryBackup:
             return -1;

@@ -2,6 +2,7 @@
 
 #include "backup.h"
 
+bool satiatorIsBackupDeviceAvailable(int backupDevice);
 int satiatorListSaveFiles(int backupDevice, PSAVES fileSaves, unsigned int numSaves);
 int satiatorReadSaveFile(int backupDevice, char* filename, unsigned char* ouBuffer, unsigned int outBufSize);
 int satiatorWriteSaveFile(int backupDevice, char* filename, unsigned char* saveData, unsigned int saveDataLen);

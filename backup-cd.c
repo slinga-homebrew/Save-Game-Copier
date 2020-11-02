@@ -1,5 +1,16 @@
 #include "backup-cd.h"
 
+// always return true for saves being present
+bool cdIsBackupDeviceAvailable(int backupDevice)
+{
+    if(backupDevice != CdMemoryBackup)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 // queries the saves on the CD device and fills out the fileSaves array
 int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 {

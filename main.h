@@ -100,12 +100,14 @@
 #define MAX_SAVES               255
 #define MAX_SAVES_PER_PAGE      10
 
-// the test audio message
-#define TEST_MESSAGE "This\n  is\n  COOL\n"
+#define MD5_HASH_SIZE           16
 
-#define MD5_HASH_SIZE                   16
+// set this to 1 to skip device checks at boot. This will show the full menu
+// set to 1 to skip
+// BUGBUG: this should be a compile option,not a #define
+#define SKIP_DEVICE_CHECKS      0
 
-#define ESTIMATED_TRANSFER_SPEED        70
+#define MAX_MENU_OPTIONS        12
 
 // records whether or not an input has been pressed that frame
 typedef struct _INPUTCACHE
@@ -120,6 +122,13 @@ typedef struct _INPUTCACHE
     bool pressedRT;
 } INPUTCACHE, *PINPUTCACHE;
 
+// dynamic menu options
+typedef struct _MENUOPTIONS
+{
+    char* optionText; // what to print to the user
+    unsigned int option; // value of the option, used to detect which option was selected
+} MENUOPTIONS, *PMENUOPTIONS;
+
 typedef struct _GAME
 {
     // game state variables
@@ -131,6 +140,9 @@ typedef struct _GAME
     int numStateOptions;
     int numSaves; // number of saves on the device
 
+    MENUOPTIONS menuOptions[MAX_MENU_OPTIONS];
+    unsigned int numMenuOptions;
+
     // the position of the cursor in the 0 position
     // we add cursorOffset to get the correct position
     int cursorPosX;
@@ -139,6 +151,14 @@ typedef struct _GAME
 
     jo_backup_device backupDevice; // JoInternalMemoryBackup, JoCartridgeMemoryBackup, JoExternalDeviceBackup
     char* backupDeviceName;
+
+    // flags for whether or not we found the specified backup device
+    // this will help with our dynamic menu
+    bool deviceInternalMemoryBackup;
+    bool deviceCartridgeMemoryBackup;
+    bool deviceExternalDeviceBackup;
+    bool deviceSatiatorBackup;
+    bool deviceCdMemoryBackup;
 
     bool listedSaves; // set to true if we already queried the saves from the backup device
 
@@ -170,13 +190,16 @@ int copySaveFile(void);
 void moveCursor(bool savesPage);
 void moveDigitCursor(void);
 void adjustHexValue(unsigned int* value, unsigned int digit, bool add);
+void queryBackupDevices(void);
+
+// menu options helpers
+unsigned int initMenuOptions(int newState);
 
 // state helper functions
 void transitionToState(int newState);
-void resetState();
-int popState();
+void resetState(void);
+int popState(void);
 int pushState(int newState);
-
 
 // main screen
 void main_draw(void);
