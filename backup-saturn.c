@@ -29,7 +29,7 @@ int saturnListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
     if(result == false)
     {
         // Don't need this error message because jo engine already errors
-        //jo_core_error("Failed to mount backup device %d!!", backupDevice);
+        sgc_core_error("Failed to mount backup device %d!!", backupDevice);
         return -1;
     }
 
@@ -50,14 +50,14 @@ int saturnListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 
         if(filename == NULL)
         {
-            jo_core_error("readSaveFiles list is corrupt!!");
+            sgc_core_error("readSaveFiles list is corrupt!!");
             return -1;
         }
 
         result = jo_backup_get_file_size(backupDevice, filename, &numBytes, &numBlocks);
         if(result == false)
         {
-            jo_core_error("Failed to read file size!!");
+            sgc_core_error("Failed to read file size!!");
             return -1;
         }
 
@@ -79,13 +79,13 @@ int saturnReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffe
 
     if(outBuffer == NULL || filename == NULL)
     {
-        jo_core_error("Save file data buffer is NULL!!");
+        sgc_core_error("Save file data buffer is NULL!!");
         return -1;
     }
 
     if(outBufSize == 0 || outBufSize > MAX_SAVE_SIZE)
     {
-        jo_core_error("Save file size is invalid %d!!", outBufSize);
+        sgc_core_error("Save file size is invalid %d!!", outBufSize);
         return -2;
     }
 
@@ -94,7 +94,7 @@ int saturnReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffe
     saveData = jo_backup_load_file_contents(backupDevice, filename, &outBufSize);
     if(saveData == NULL)
     {
-        jo_core_error("Failed to read save file!!");
+        sgc_core_error("Failed to read save file!!");
         return -3;
     }
 
@@ -113,14 +113,14 @@ int saturnWriteSaveFile(int backupDevice, char* filename, unsigned char* saveDat
     result = jo_backup_mount(backupDevice);
     if(result == false)
     {
-        jo_core_error("Failed to mount backup device %d!!", backupDevice);
+        sgc_core_error("Failed to mount backup device %d!!", backupDevice);
         return -1;
     }
 
     result = jo_backup_save_file_contents(backupDevice, filename, "SGC", saveData, saveDataLen);
     if(result == false)
     {
-        jo_core_error("Failed to write save backup device %d!!", backupDevice);
+        sgc_core_error("Failed to write save backup device %d!!", backupDevice);
         return -1;
     }
 
@@ -135,7 +135,7 @@ int saturnDeleteSaveFile(int backupDevice, char* filename)
     result = jo_backup_mount(backupDevice);
     if(result == false)
     {
-        jo_core_error("Failed to mount backup device %d!!", backupDevice);
+        sgc_core_error("Failed to mount backup device %d!!", backupDevice);
         return -1;
     }
 

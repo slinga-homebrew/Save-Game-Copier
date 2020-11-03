@@ -20,7 +20,7 @@ bool isBackupDeviceAvailable(int backupDevice)
             return true; // always assume CD backups are available
 
         default:
-            jo_core_error("Invalid backup device specified!! %d\n", backupDevice);
+            sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
             return -1;
     }
 
@@ -44,7 +44,7 @@ int listSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             return cdListSaveFiles(backupDevice, saves, numSaves);
 
         default:
-            jo_core_error("Invalid backup device specified!! %d\n", backupDevice);
+            sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
             return -1;
     }
 
@@ -68,7 +68,7 @@ int readSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, uns
             return cdReadSaveFile(backupDevice, filename, outBuffer, outSize);
 
         default:
-            jo_core_error("Invalid backup device specified!! %d\n", backupDevice);
+            sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
             return -1;
     }
 
@@ -92,7 +92,7 @@ int writeSaveFile(int backupDevice, char* filename, unsigned char* inBuffer, uns
             return -1;
 
         default:
-            jo_core_error("Invalid backup device specified!! %d\n", backupDevice);
+            sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
             return -1;
     }
 }
@@ -114,7 +114,7 @@ int deleteSaveFile(int backupDevice, char* filename)
             return -1;
 
         default:
-            jo_core_error("Invalid backup device specified!! %d\n", backupDevice);
+            sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
             return -1;
     }
 
@@ -134,7 +134,7 @@ int formatDevice(int backupDevice)
             break;
         default:
         {
-            jo_core_error("Invalid device to format!!");
+            sgc_core_error("Invalid device to format!!");
             return -1;
         }
     }
@@ -145,14 +145,14 @@ int formatDevice(int backupDevice)
         char* deviceName = NULL;
         getBackupDeviceName(backupDevice, &deviceName);
 
-        jo_core_error("Failed to mount %s!!", deviceName);
+        sgc_core_error("Failed to mount %s!!", deviceName);
         return -2;
     }
 
     result = jo_backup_format_device(backupDevice);
     if(result == false)
     {
-        jo_core_error("Failed to format device!!");
+        sgc_core_error("Failed to format device!!");
         return -3;
     }
 
@@ -181,7 +181,7 @@ int getBackupDeviceName(unsigned int backupDevice, char** deviceName)
             break;
 
         default:
-            jo_core_error("Invalid backup device specified!! %d\n", backupDevice);
+            sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
             return -1;
     }
 

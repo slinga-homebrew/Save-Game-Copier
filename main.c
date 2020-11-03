@@ -49,7 +49,7 @@ void jo_main(void)
     g_Game.saveFileData = jo_malloc(MAX_SAVE_SIZE);
     if(g_Game.saveFileData == NULL)
     {
-        jo_core_error("Failed to allocated save file data buffer!!");
+        sgc_core_error("Failed to allocated save file data buffer!!");
         return;
     }
 
@@ -143,11 +143,11 @@ void queryBackupDevices(void)
     }
 
     /*
-    jo_core_error("g_Game.deviceInternalMemoryBackup: %d", g_Game.deviceInternalMemoryBackup);
-    jo_core_error("g_Game.deviceCartridgeMemoryBackup: %d", g_Game.deviceCartridgeMemoryBackup);
-    jo_core_error("g_Game.deviceExternalDeviceBackup: %d", g_Game.deviceExternalDeviceBackup);
-    jo_core_error("g_Game.deviceSatiatorBackup: %d", g_Game.deviceSatiatorBackup);
-    jo_core_error("g_Game.deviceCdMemoryBackup:", g_Game.deviceCdMemoryBackup);
+    sgc_core_error("g_Game.deviceInternalMemoryBackup: %d", g_Game.deviceInternalMemoryBackup);
+    sgc_core_error("g_Game.deviceCartridgeMemoryBackup: %d", g_Game.deviceCartridgeMemoryBackup);
+    sgc_core_error("g_Game.deviceExternalDeviceBackup: %d", g_Game.deviceExternalDeviceBackup);
+    sgc_core_error("g_Game.deviceSatiatorBackup: %d", g_Game.deviceSatiatorBackup);
+    sgc_core_error("g_Game.deviceCdMemoryBackup:", g_Game.deviceCdMemoryBackup);
     */
     return;
 }
@@ -187,7 +187,7 @@ void transitionToState(int newState)
             break;
 
         default:
-            jo_core_error("%d is an invalid current state!!", g_Game.state);
+            sgc_core_error("%d is an invalid current state!!", g_Game.state);
             return;
     }
 
@@ -261,7 +261,7 @@ void transitionToState(int newState)
             break;
 
         default:
-            jo_core_error("%d is an invalid state!!", newState);
+            sgc_core_error("%d is an invalid state!!", newState);
             return;
     }
 
@@ -294,7 +294,7 @@ int popState(void)
     else
     {
         // should never get here
-        jo_core_error("popState: invalid numStates %d!!", g_Game.numStates);
+        sgc_core_error("popState: invalid numStates %d!!", g_Game.numStates);
         g_Game.numStates = 0;
         return STATE_MAIN;
     }
@@ -307,7 +307,7 @@ int pushState(int newState)
     {
         // bugbug: should never get here too deep
         // should never get here
-        jo_core_error("pushState: invalid numStates %d!!", g_Game.numStates);
+        sgc_core_error("pushState: invalid numStates %d!!", g_Game.numStates);
         g_Game.numStates = 0;
         return STATE_MAIN;
     }
@@ -463,7 +463,7 @@ unsigned int initMenuOptions(int newState)
             break;
 
         default:
-            jo_core_error("%d is an invalid current state!!", g_Game.state);
+            sgc_core_error("%d is an invalid current state!!", g_Game.state);
             resetState();
             return 0;
     }
@@ -478,7 +478,7 @@ unsigned int getMenuOptionByIndex(unsigned int index)
 {
     if(index >= g_Game.numMenuOptions)
     {
-        jo_core_error("Invalid index %d for menu options (%d)!!", index, g_Game.numMenuOptions);
+        sgc_core_error("Invalid index %d for menu options (%d)!!", index, g_Game.numMenuOptions);
         resetState();
         return -1;
     }
@@ -658,7 +658,7 @@ void main_input(void)
                 }
                 default:
                 {
-                    jo_core_error("Invalid main option!!");
+                    sgc_core_error("Invalid main option!!");
                     return;
                 }
             }
@@ -861,7 +861,7 @@ void displaySave_draw(void)
             result = readSaveFile(g_Game.backupDevice, g_Game.saveFilename, saveFileData, g_Game.saveFileSize);
             if(result != 0)
             {
-                jo_core_error("Failed to read the save!!");
+                sgc_core_error("Failed to read the save!!");
                 transitionToState(STATE_PREVIOUS);
                 return;
             }
@@ -1232,7 +1232,7 @@ void formatVerify_input(void)
                     result = formatDevice(g_Game.backupDevice);
                     if(result != 0)
                     {
-                        jo_core_error("Failed to format device!!");
+                        sgc_core_error("Failed to format device!!");
                         g_Game.operationStatus = OPERATION_FAIL;
                         transitionToState(STATE_PREVIOUS);
                         return;
@@ -1346,7 +1346,7 @@ void adjustHexValue(unsigned int* value, unsigned int digit, bool add)
 
     if(digit > 7)
     {
-        jo_core_error("Digit cannot be greater than 7!!");
+        sgc_core_error("Digit cannot be greater than 7!!");
         return;
     }
 

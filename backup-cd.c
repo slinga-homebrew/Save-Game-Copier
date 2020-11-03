@@ -83,13 +83,13 @@ int cdReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, u
 
     if(outBuffer == NULL || filename == NULL)
     {
-        jo_core_error("Save file data buffer is NULL!!");
+        sgc_core_error("Save file data buffer is NULL!!");
         return -1;
     }
 
     if(outSize == 0 || outSize > MAX_SAVE_SIZE)
     {
-        jo_core_error("Save file size is invalid %d!!", outSize);
+        sgc_core_error("Save file size is invalid %d!!", outSize);
         return -2;
     }
 

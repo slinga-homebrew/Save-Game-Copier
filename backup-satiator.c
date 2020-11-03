@@ -40,14 +40,14 @@ int satiatorListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
     result = satiatorEnter();
     if(result != 0)
     {
-        jo_core_error("Failed to detect satiator");
+        sgc_core_error("Failed to detect satiator");
         return -1;
     }
 
     result = s_opendir(".");
     if(result != 0)
     {
-        jo_core_error("readSatiatorSaveFiles: Failed to open SAVES directory");
+        sgc_core_error("readSatiatorSaveFiles: Failed to open SAVES directory");
         return -2;
     }
 
@@ -97,26 +97,26 @@ int satiatorReadSaveFile(int backupDevice, char* filename, unsigned char* outBuf
     result = satiatorEnter();
     if(result == 0)
     {
-        jo_core_error("Failed to detect satiator");
+        sgc_core_error("Failed to detect satiator");
         return -1;
     }
 
     if(outBuffer == NULL || filename == NULL)
     {
-        jo_core_error("readSatiatorSaveFile: Save file data buffer is NULL!!");
+        sgc_core_error("readSatiatorSaveFile: Save file data buffer is NULL!!");
         return -1;
     }
 
     if(outSize == 0 || outSize > MAX_SAVE_SIZE)
     {
-        jo_core_error("readSatiatorSaveFile: Save file size is invalid %d!!", outSize);
+        sgc_core_error("readSatiatorSaveFile: Save file size is invalid %d!!", outSize);
         return -2;
     }
 
     fd = s_open(filename, FA_READ);
     if(fd < 0)
     {
-        jo_core_error("readSatiatorSaveFile: Failed to open satiator file!!");
+        sgc_core_error("readSatiatorSaveFile: Failed to open satiator file!!");
         return -2;
     }
 
@@ -130,7 +130,7 @@ int satiatorReadSaveFile(int backupDevice, char* filename, unsigned char* outBuf
         result = s_read(fd, outBuffer + bytesRead, count);
         if(result <= 0)
         {
-            jo_core_error("Bad read result: %x", result);
+            sgc_core_error("Bad read result: %x", result);
             s_close(fd);
             return result;
         }
@@ -142,7 +142,7 @@ int satiatorReadSaveFile(int backupDevice, char* filename, unsigned char* outBuf
 
     if(result < 0)
     {
-        jo_core_error("readSatiatorSaveFile: Failed to read satiator file!!");
+        sgc_core_error("readSatiatorSaveFile: Failed to read satiator file!!");
         return -3;
     }
 
@@ -163,26 +163,26 @@ int satiatorWriteSaveFile(int backupDevice, char* filename, unsigned char* inBuf
     result = satiatorEnter();
     if(result != 0)
     {
-        jo_core_error("Failed to detect satiator");
+        sgc_core_error("Failed to detect satiator");
         return -1;
     }
 
     if(filename == NULL)
     {
-        jo_core_error("writeSatiatorSaveData: Save file data buffer is NULL!!");
+        sgc_core_error("writeSatiatorSaveData: Save file data buffer is NULL!!");
         return -1;
     }
 
     if(inBuffer == NULL || filename == NULL)
     {
-        jo_core_error("writeSatiatorSaveData: Save file size is invalid %d!!", inSize);
+        sgc_core_error("writeSatiatorSaveData: Save file size is invalid %d!!", inSize);
         return -2;
     }
 
     fd = s_open(filename, FA_WRITE|FA_CREATE_ALWAYS);
     if(fd < 0)
     {
-        jo_core_error("writeSatiatorSaveData: Failed to open satiator file!!");
+        sgc_core_error("writeSatiatorSaveData: Failed to open satiator file!!");
         return -2;
     }
 
@@ -199,7 +199,7 @@ int satiatorWriteSaveFile(int backupDevice, char* filename, unsigned char* inBuf
 
         if(result <= 0)
         {
-            jo_core_error("Bad write result: %x", result);
+            sgc_core_error("Bad write result: %x", result);
             s_close(fd);
             return result;
             break;
@@ -212,7 +212,7 @@ int satiatorWriteSaveFile(int backupDevice, char* filename, unsigned char* inBuf
 
     if(result < 0)
     {
-        jo_core_error("writeSatiatorSaveData: Failed to read satiator file!!");
+        sgc_core_error("writeSatiatorSaveData: Failed to read satiator file!!");
         return -3;
     }
 
@@ -232,13 +232,13 @@ int satiatorDeleteSaveFile(int backupDevice, char* filename)
     result = satiatorEnter();
     if(result != 0)
     {
-        jo_core_error("Failed to detect satiator");
+        sgc_core_error("Failed to detect satiator");
         return -1;
     }
 
     if(filename == NULL)
     {
-        jo_core_error("deleteSatiatorSaveData: Filename is NULL!!");
+        sgc_core_error("deleteSatiatorSaveData: Filename is NULL!!");
         return -1;
     }
 
@@ -246,7 +246,7 @@ int satiatorDeleteSaveFile(int backupDevice, char* filename)
 
     if(result < 0)
     {
-        jo_core_error("deleteSatiatorSaveData: Failed to read satiator file!!");
+        sgc_core_error("deleteSatiatorSaveData: Failed to read satiator file!!");
         return -3;
     }
 

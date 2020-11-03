@@ -1,6 +1,7 @@
 #pragma once
 
 #include <jo/jo.h>
+#include "util.h"
 
 #define MAX_SAVE_SIZE           (512 * 1024)/4 // according to Cafe-Alpha this is the maximum size supported by the bios
 #define MAX_SAVE_FILENAME       12
