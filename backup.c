@@ -179,6 +179,9 @@ int getBackupDeviceName(unsigned int backupDevice, char** deviceName)
         case CdMemoryBackup:
             *deviceName = "CD File System";
             break;
+        case MemoryBackup:
+            *deviceName = "RAM";
+            break;
 
         default:
             sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);

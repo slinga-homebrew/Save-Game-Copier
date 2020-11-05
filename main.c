@@ -142,13 +142,6 @@ void queryBackupDevices(void)
         g_Game.deviceCdMemoryBackup = true;
     }
 
-    /*
-    sgc_core_error("g_Game.deviceInternalMemoryBackup: %d", g_Game.deviceInternalMemoryBackup);
-    sgc_core_error("g_Game.deviceCartridgeMemoryBackup: %d", g_Game.deviceCartridgeMemoryBackup);
-    sgc_core_error("g_Game.deviceExternalDeviceBackup: %d", g_Game.deviceExternalDeviceBackup);
-    sgc_core_error("g_Game.deviceSatiatorBackup: %d", g_Game.deviceSatiatorBackup);
-    sgc_core_error("g_Game.deviceCdMemoryBackup:", g_Game.deviceCdMemoryBackup);
-    */
     return;
 }
 
@@ -429,7 +422,7 @@ unsigned int initMenuOptions(int newState)
 
             // this check should really be isBackupDeviceWriteable()
             // for now we just check if it's not the cd
-            if(g_Game.backupDevice != CdMemoryBackup)
+            if(g_Game.backupDevice != CdMemoryBackup && g_Game.backupDevice != MemoryBackup)
             {
                 g_Game.menuOptions[numMenuOptions].optionText = "Delete Save";
                 g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_DELETE;
@@ -876,11 +869,18 @@ void displaySave_draw(void)
             return;
         }
 
+        result = getBackupDeviceName(g_Game.backupDevice, &g_Game.backupDeviceName);
+        if(result != 0)
+        {
+            transitionToState(STATE_PREVIOUS);
+            return;
+        }
+
         g_Game.md5Calculated = true;
     }
 
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Filename: %s        ", g_Game.saveFilename);
-    //jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Device: %s        ", g_Game.backupDeviceName);
+    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Device: %s        ", g_Game.backupDeviceName);
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Address: 0x%08x-0x%08x        ", saveFileData, saveFileData + g_Game.saveFileSize);
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Size: %d            ", g_Game.saveFileSize);
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "MD5: %02x%02x%02x%02x%02x%02x%02x%02x", g_Game.md5Hash[0], g_Game.md5Hash[1], g_Game.md5Hash[2], g_Game.md5Hash[3], g_Game.md5Hash[4], g_Game.md5Hash[5], g_Game.md5Hash[6], g_Game.md5Hash[7]);
