@@ -10,6 +10,7 @@
 #define SatiatorBackup (JoExternalDeviceBackup + 1)
 #define CdMemoryBackup (SatiatorBackup + 1)
 #define MemoryBackup (CdMemoryBackup + 1)
+#define MODEBackup (MemoryBackup + 1)
 
 // meta data related to save files
 typedef  struct  _SAVES {

@@ -68,7 +68,7 @@ int satiatorListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             continue;
         }
 
-        strncpy((char*)&saves[count].filename, st->name, MAX_SAVE_FILENAME);
+        strncpy((char*)saves[count].filename, st->name, MAX_SAVE_FILENAME);
         saves[count].datasize = st->size;
         saves[count].blocksize = 0; // blocksize on the Satiator doesn't matter
         count++;

@@ -61,7 +61,7 @@ int saturnListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             return -1;
         }
 
-        strncpy((char*)&saves[i].filename, filename, MAX_SAVE_FILENAME);
+        strncpy((char*)saves[i].filename, filename, MAX_SAVE_FILENAME);
         saves[i].datasize = numBytes;
         saves[i].blocksize = numBlocks;
         count++;

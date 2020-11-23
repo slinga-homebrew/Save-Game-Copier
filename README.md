@@ -52,6 +52,13 @@ I don't own a Satiator so my testing has solely been with the [Satiator Yabause 
 * Make sure you upgrade to the latest firmware. There have been firmware fixes
 * Create a "SAVES" directory on the root of the drive. SGC is hardcoded to use that folder. Copy saves to and from that folder.
 
+## MODE Support
+* Ensure you are running firmware >= 1.04
+* Create a "SATSAVES" directory on the root of the SD card. SGC is hardcoded to use that folder and the SD card HDD is not supported yet. Ensure copied saves don't have a . separating name and extension, otherwise they will error when importing. FPS_6MEN_01 will work, FPS_6MEN._01 won't.
+* You must use the cue file named *game_cue_for_mode.cue* **INSTEAD OF** *game.cue* file. Ensure only 1 cue is present along with game.iso file. This is required because MODE needs a large TOC for the command interface.
+
+
+
 ## Dumping Memory
 SGC also supports advanced feature to arbitrary dump memory. This can allow you to dump:
 * Saturn BIOS (address: 0x80000, size: 0x80000)

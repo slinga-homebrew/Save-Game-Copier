@@ -51,7 +51,7 @@ int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 
             cdToBackupName(filename, tempName);
 
-            strncpy((char*)&saves[count].filename, tempName, MAX_SAVE_FILENAME);
+            strncpy((char*)saves[count].filename, tempName, MAX_SAVE_FILENAME);
             saves[i].datasize = numBytes;
             saves[i].blocksize = 0; // blocksize on the cd doesn't matter
             count++;
