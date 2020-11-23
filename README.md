@@ -10,6 +10,8 @@ SGC is for copying save games to a Saturn. To copy save games from Saturn -> PC 
 ![Copy](screenshots/copy.png)
 ![Satiator](screenshots/satiator.png)
 ![Dump](screenshots/dump.png)
+![MODE](screenshots/mode1.png)
+![MODE dir list](screenshots/mode2.png)
 
 ## Save Games Format
 The save games are stored in a raw format (no header, no encoding, no metadata, etc). Many emulators add a header to the save. When working with a save from an emulator I recommend using [ss-save-parser](https://github.com/hitomi2500/ss-save-parser) and extracting as raw without any extra information.
