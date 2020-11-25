@@ -132,7 +132,7 @@ void queryBackupDevices(void)
         g_Game.deviceExternalDeviceBackup = isBackupDeviceAvailable(JoExternalDeviceBackup);
         g_Game.deviceSatiatorBackup = isBackupDeviceAvailable(SatiatorBackup);
         g_Game.deviceCdMemoryBackup = isBackupDeviceAvailable(CdMemoryBackup);
-		g_Game.deviceModeBackup = isBackupDeviceAvailable(MODEBackup);
+        g_Game.deviceModeBackup = isBackupDeviceAvailable(MODEBackup);
     }
     else
     {
@@ -141,7 +141,7 @@ void queryBackupDevices(void)
         g_Game.deviceExternalDeviceBackup = true;
         g_Game.deviceSatiatorBackup = true;
         g_Game.deviceCdMemoryBackup = true;
-		g_Game.deviceModeBackup = true;
+        g_Game.deviceModeBackup = true;
     }
 
     return;
@@ -364,12 +364,12 @@ unsigned int initMenuOptions(int newState)
                 numMenuOptions++;
             }
 
-			if (g_Game.deviceModeBackup == true)
-			{
-				g_Game.menuOptions[numMenuOptions].optionText = "MODE";
-				g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_MODE;
-				numMenuOptions++;
-			}
+            if (g_Game.deviceModeBackup == true)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "MODE";
+                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_MODE;
+                numMenuOptions++;
+            }
 
             g_Game.menuOptions[numMenuOptions].optionText = "Dump Memory";
             g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_DUMP_MEMORY;
@@ -394,7 +394,7 @@ unsigned int initMenuOptions(int newState)
 
         case STATE_DISPLAY_SAVE:
         {
-            // only show main menu options for devices that have been detected
+            // only show display save menu options for devices that have been detected
             // don't allow user to copy file back to same device
             // don't allow user to delete CD save
             if(g_Game.deviceInternalMemoryBackup == true && g_Game.backupDevice != JoInternalMemoryBackup)
@@ -425,12 +425,12 @@ unsigned int initMenuOptions(int newState)
                 numMenuOptions++;
             }
 
-			if (g_Game.deviceModeBackup == true && g_Game.backupDevice != MODEBackup)
-			{
-				g_Game.menuOptions[numMenuOptions].optionText = "Copy to MODE";
-				g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_MODE;
-				numMenuOptions++;
-			}
+            if (g_Game.deviceModeBackup == true && g_Game.backupDevice != MODEBackup)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Copy to MODE";
+                g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_MODE;
+                numMenuOptions++;
+            }
 
             g_Game.menuOptions[numMenuOptions].optionText = "Write to Memory";
             g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_WRITE_MEMORY;
@@ -448,7 +448,7 @@ unsigned int initMenuOptions(int newState)
         }
 
         case STATE_FORMAT:
-            // only show main menu options for devices that have been detected
+            // only show format menu options for devices that have been detected
             if(g_Game.deviceInternalMemoryBackup == true)
             {
                 g_Game.menuOptions[numMenuOptions].optionText = "Internal Memory";
@@ -638,12 +638,12 @@ void main_input(void)
                     transitionToState(STATE_LIST_SAVES);
                     return;
                 }
-				case MAIN_OPTION_MODE:
-				{
-					g_Game.backupDevice = MODEBackup;
-					transitionToState(STATE_LIST_SAVES);
-					return;
-				}
+                case MAIN_OPTION_MODE:
+                {
+                    g_Game.backupDevice = MODEBackup;
+                    transitionToState(STATE_LIST_SAVES);
+                    return;
+                }
                 case MAIN_OPTION_CD:
                 {
                     g_Game.backupDevice = CdMemoryBackup;
@@ -719,7 +719,7 @@ void listSaves_draw(void)
            g_Game.backupDevice == JoExternalDeviceBackup ||
            g_Game.backupDevice == CdMemoryBackup ||
            g_Game.backupDevice == SatiatorBackup ||
-		   g_Game.backupDevice == MODEBackup)
+           g_Game.backupDevice == MODEBackup)
         {
             jo_memset(g_Saves, 0, sizeof(g_Saves));
             g_Game.listedSaves = true;
@@ -1017,18 +1017,18 @@ void displaySave_input(void)
                         g_Game.operationStatus = OPERATION_SUCCESS;
                         return;
                     }
-					case SAVE_OPTION_MODE:
-					{
-						jo_printf(OPTIONS_X, SAVES_Y + g_Game.numMenuOptions + 2, "Operation in progress....        ");
-						result = writeSaveFile(MODEBackup, g_Game.saveFilename, saveFileData, g_Game.saveFileSize);
-						if (result != 0)
-						{
-							g_Game.operationStatus = OPERATION_FAIL;
-							return;
-						}
-						g_Game.operationStatus = OPERATION_SUCCESS;
-						return;
-					}
+                    case SAVE_OPTION_MODE:
+                    {
+                        jo_printf(OPTIONS_X, SAVES_Y + g_Game.numMenuOptions + 2, "Operation in progress....        ");
+                        result = writeSaveFile(MODEBackup, g_Game.saveFilename, saveFileData, g_Game.saveFileSize);
+                        if (result != 0)
+                        {
+                            g_Game.operationStatus = OPERATION_FAIL;
+                            return;
+                        }
+                        g_Game.operationStatus = OPERATION_SUCCESS;
+                        return;
+                    }
                     case SAVE_OPTION_WRITE_MEMORY:
                     {
                         transitionToState(STATE_WRITE_MEMORY);
@@ -1680,6 +1680,10 @@ void credits_draw(void)
 
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "EmeraldNova for doing all Satiator");
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "testing.");
+    y++;
+    
+    jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "Terraonion for contributing MODE");
+    jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "support.");
     y++;
 
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "Antime, Ponut, VBT, and everyone");

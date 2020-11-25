@@ -2,6 +2,10 @@
 
 #include "backup.h"
 
+//
+// MODE support contributed by Terraonion (https://github.com/Terraonion-dev)
+//
+
 bool modeIsBackupDeviceAvailable(int backupDevice);
 int modeListSaveFiles(int backupDevice, PSAVES fileSaves, unsigned int numSaves);
 int modeReadSaveFile(int backupDevice, char* filename, unsigned char* ouBuffer, unsigned int outBufSize);

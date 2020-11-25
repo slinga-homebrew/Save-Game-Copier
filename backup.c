@@ -17,8 +17,8 @@ bool isBackupDeviceAvailable(int backupDevice)
         case SatiatorBackup:
             return satiatorIsBackupDeviceAvailable(backupDevice);
 
-		case MODEBackup:
-			return modeIsBackupDeviceAvailable(backupDevice);
+        case MODEBackup:
+            return modeIsBackupDeviceAvailable(backupDevice);
 
         case CdMemoryBackup:
             return true; // always assume CD backups are available
@@ -44,8 +44,8 @@ int listSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
         case SatiatorBackup:
             return satiatorListSaveFiles(backupDevice, saves, numSaves);
 
-		case MODEBackup:
-			return modeListSaveFiles(backupDevice, saves, numSaves);
+        case MODEBackup:
+            return modeListSaveFiles(backupDevice, saves, numSaves);
 
         case CdMemoryBackup:
             return cdListSaveFiles(backupDevice, saves, numSaves);
@@ -71,8 +71,8 @@ int readSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, uns
         case SatiatorBackup:
             return satiatorReadSaveFile(backupDevice, filename, outBuffer, outSize);
 
-		case MODEBackup:
-			return modeReadSaveFile(backupDevice, filename, outBuffer, outSize);
+        case MODEBackup:
+            return modeReadSaveFile(backupDevice, filename, outBuffer, outSize);
 
         case CdMemoryBackup:
             return cdReadSaveFile(backupDevice, filename, outBuffer, outSize);
@@ -98,8 +98,8 @@ int writeSaveFile(int backupDevice, char* filename, unsigned char* inBuffer, uns
         case SatiatorBackup:
             return satiatorWriteSaveFile(backupDevice, filename, inBuffer, inSize);
 
-		case MODEBackup:
-			return modeWriteSaveFile(backupDevice, filename, inBuffer, inSize);
+        case MODEBackup:
+            return modeWriteSaveFile(backupDevice, filename, inBuffer, inSize);
 
         case CdMemoryBackup:
             return -1;
@@ -123,8 +123,8 @@ int deleteSaveFile(int backupDevice, char* filename)
         case SatiatorBackup:
             return satiatorDeleteSaveFile(backupDevice, filename);
 
-		case MODEBackup:
-			return modeDeleteSaveFile(backupDevice, filename);
+        case MODEBackup:
+            return modeDeleteSaveFile(backupDevice, filename);
 
         case CdMemoryBackup:
             return -1;
@@ -192,9 +192,9 @@ int getBackupDeviceName(unsigned int backupDevice, char** deviceName)
         case SatiatorBackup:
             *deviceName = "Satiator";
             break;
-		case MODEBackup:
-			*deviceName = "MODE";
-			break;
+        case MODEBackup:
+            *deviceName = "MODE";
+            break;
         case CdMemoryBackup:
             *deviceName = "CD File System";
             break;

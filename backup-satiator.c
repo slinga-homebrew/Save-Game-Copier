@@ -23,7 +23,7 @@ bool satiatorIsBackupDeviceAvailable(int backupDevice)
 }
 
 // queries the saves on the Satiator device and fills out the saves array
-// BUGBUG: code copied from satiator-menu/main.c and needs ot be under the MPL
+// BUGBUG: code copied from satiator-menu/main.c and needs to be under the MPL
 int satiatorListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 {
     int result = 0;
@@ -149,7 +149,7 @@ int satiatorReadSaveFile(int backupDevice, char* filename, unsigned char* outBuf
     return 0;
 }
 
-// read the save game
+// write the save game to the Satiator
 int satiatorWriteSaveFile(int backupDevice, char* filename, unsigned char* inBuffer, unsigned int inSize)
 {
     int result = 0;

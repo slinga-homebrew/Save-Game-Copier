@@ -53,12 +53,12 @@
 #define MAIN_OPTION_CARTRIDGE    1
 #define MAIN_OPTION_EXTERNAL     2
 #define MAIN_OPTION_SATIATOR     3
-#define MAIN_OPTION_CD           4
-#define MAIN_OPTION_DUMP_MEMORY  5
-#define MAIN_OPTION_FORMAT       6
-#define MAIN_OPTION_COLLECT      7
-#define MAIN_OPTION_CREDITS      8
-#define MAIN_OPTION_MODE         9
+#define MAIN_OPTION_MODE         4
+#define MAIN_OPTION_CD           5
+#define MAIN_OPTION_DUMP_MEMORY  6
+#define MAIN_OPTION_FORMAT       7
+#define MAIN_OPTION_COLLECT      8
+#define MAIN_OPTION_CREDITS      9
 
 #define SAVE_OPTION_INTERNAL     0
 #define SAVE_OPTION_CARTRIDGE    1

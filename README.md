@@ -1,5 +1,5 @@
 # Save Game Copier (SGC)
-Copy Sega Saturn save game files to and/or from internal memory, cartridge memory, external devices (e.g. Sega Saturn [Floppy Disk Drive](https://segaretro.org/Saturn_Floppy_Drive)), Satiator ODE, and CD. Build with [Jo Engine](https://github.com/johannes-fetz/joengine) or download an ISO from [releases](https://github.com/slinga-homebrew/Save-Game-Copier/releases). One of the most useful features of SGC is to create a custom SGC ISO with your own save game files and copy them to your Saturn.
+Copy Sega Saturn save game files to and/or from internal memory, cartridge memory, external devices (e.g. Sega Saturn [Floppy Disk Drive](https://segaretro.org/Saturn_Floppy_Drive)), Satiator ODE, MODE, and CD. Build with [Jo Engine](https://github.com/johannes-fetz/joengine) or download an ISO from [releases](https://github.com/slinga-homebrew/Save-Game-Copier/releases). One of the most useful features of SGC is to create a custom SGC ISO with your own save game files and copy them to your Saturn.
 
 SGC is for copying save games to a Saturn. To copy save games from Saturn -> PC use [Save Game Extractor](https://github.com/slinga-homebrew/Save-Game-Extractor).
 
@@ -9,9 +9,10 @@ SGC is for copying save games to a Saturn. To copy save games from Saturn -> PC 
 ![CD Saves](screenshots/cd.png)
 ![Copy](screenshots/copy.png)
 ![Satiator](screenshots/satiator.png)
-![Dump](screenshots/dump.png)
 ![MODE](screenshots/mode1.png)
-![MODE dir list](screenshots/mode2.png)
+![MODE List Saves](screenshots/mode2.png)
+![Dump](screenshots/dump.png)
+
 
 ## Save Games Format
 The save games are stored in a raw format (no header, no encoding, no metadata, etc). Many emulators add a header to the save. When working with a save from an emulator I recommend using [ss-save-parser](https://github.com/hitomi2500/ss-save-parser) and extracting as raw without any extra information.
@@ -59,8 +60,6 @@ I don't own a Satiator so my testing has solely been with the [Satiator Yabause 
 * Create a "SATSAVES" directory on the root of the SD card. SGC is hardcoded to use that folder and the SD card HDD is not supported yet. Ensure copied saves don't have a . separating name and extension, otherwise they will error when importing. FPS_6MEN_01 will work, FPS_6MEN._01 won't.
 * You must use the cue file named *game_cue_for_mode.cue* **INSTEAD OF** *game.cue* file. Ensure only 1 cue is present along with game.iso file. This is required because MODE needs a large TOC for the command interface.
 
-
-
 ## Dumping Memory
 SGC also supports advanced feature to arbitrary dump memory. This can allow you to dump:
 * Saturn BIOS (address: 0x80000, size: 0x80000)
@@ -77,6 +76,8 @@ SGC also supports advanced feature to arbitrary dump memory. This can allow you 
 
  SGC uses a dynamic menu and will remove devices it doesn't detect from your menu. If SGC is having trouble seeing your backup cartridge make sure the builtin Saturn memory manager can see the cartridge. Most likely the Saturn can't see the cartridge and therefore neither can SGC.
 
+ MODE is not detected. Make sure you use the game_cure_for_mode.cue otherwise the MODE will not be detected.
+
 ## Saturn Save Games Collect Project
 Want to share your save games on the web? Send them to the [Save Games Collect](https://ppcenter.webou.net/pskai/savedata/) project. Made by Cafe-Alpha, the author of the Gamer's Cartridge. Please append a ".RAW" to the save filename before submitting.
 
@@ -92,6 +93,7 @@ Save Game Copier uses code from:
 
 ## Credits
 * Thank you to [Emerald Nova](https://github.com/EmeraldNova) for volunteering to test the code on his Satiator.
+* Thank you to [Terraonion](https://github.com/Terraonion-dev) for contributing MODE support.
 * Special thanks to Antime, Ponut, VBT, and everyone else at SegaXtreme keeping the Saturn dev scene alive.
 * Thank you to Takashi for the original Save Game Copier idea back in ~2002.
 * [Shentokk](https://github.com/Shentokk) for information regarding emulator save game extraction
