@@ -113,6 +113,6 @@ int calculateMD5Hash(unsigned char* buffer, unsigned int bufferSize, unsigned ch
 // BUGBUG: I would like for this to be in Jo Engine instead
 void rebootSaturn(void)
 {
-    (**(volatile void(**)(void))0x600026C)();
+    (**(void(**)(void))0x600026C)();
 }
 

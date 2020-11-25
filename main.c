@@ -357,17 +357,17 @@ unsigned int initMenuOptions(int newState)
                 numMenuOptions++;
             }
 
-            if(g_Game.deviceCdMemoryBackup == true)
-            {
-                g_Game.menuOptions[numMenuOptions].optionText = "CD File System";
-                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_CD;
-                numMenuOptions++;
-            }
-
             if (g_Game.deviceModeBackup == true)
             {
                 g_Game.menuOptions[numMenuOptions].optionText = "MODE";
                 g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_MODE;
+                numMenuOptions++;
+            }
+
+            if(g_Game.deviceCdMemoryBackup == true)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "CD File System";
+                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_CD;
                 numMenuOptions++;
             }
 
@@ -389,11 +389,11 @@ unsigned int initMenuOptions(int newState)
             g_Game.menuOptions[numMenuOptions].optionText = "Credits";
             g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_CREDITS;
             numMenuOptions++;
-            
+
             g_Game.menuOptions[numMenuOptions].optionText = "Reboot";
             g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_REBOOT;
             numMenuOptions++;
-            
+
             break;
         }
 
@@ -1691,7 +1691,7 @@ void credits_draw(void)
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "EmeraldNova for doing all Satiator");
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "testing.");
     y++;
-    
+
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "Terraonion for contributing MODE");
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "support.");
     y++;
