@@ -30,7 +30,7 @@
 #pragma once
 
 // program version, keep this length to avoid having to resize strings
-#define VERSION "3.1.0"
+#define VERSION "3.2.0"
 
 // program states
 #define STATE_UNINITIALIZED      0
@@ -59,6 +59,7 @@
 #define MAIN_OPTION_FORMAT       7
 #define MAIN_OPTION_COLLECT      8
 #define MAIN_OPTION_CREDITS      9
+#define MAIN_OPTION_REBOOT      10
 
 #define SAVE_OPTION_INTERNAL     0
 #define SAVE_OPTION_CARTRIDGE    1

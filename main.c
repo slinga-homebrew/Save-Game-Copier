@@ -389,6 +389,11 @@ unsigned int initMenuOptions(int newState)
             g_Game.menuOptions[numMenuOptions].optionText = "Credits";
             g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_CREDITS;
             numMenuOptions++;
+            
+            g_Game.menuOptions[numMenuOptions].optionText = "Reboot";
+            g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_REBOOT;
+            numMenuOptions++;
+            
             break;
         }
 
@@ -669,6 +674,11 @@ void main_input(void)
                 case MAIN_OPTION_CREDITS:
                 {
                     transitionToState(STATE_CREDITS);
+                    return;
+                }
+                case MAIN_OPTION_REBOOT:
+                {
+                    rebootSaturn();
                     return;
                 }
                 default:

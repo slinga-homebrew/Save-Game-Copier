@@ -27,3 +27,8 @@ void clearScreen(void);
 // md5Hash is an out parameter that must be at least MD5_HASH_SIZE (16) long
 // returns 0 on success
 int calculateMD5Hash(unsigned char* buffer, unsigned int bufferSize, unsigned char* md5Hash);
+
+// reboots the Saturn
+void rebootSaturn(void);
+
+
