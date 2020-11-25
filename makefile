@@ -10,7 +10,8 @@ JO_COMPILE_WITH_DUAL_CPU_MODULE = 0
 JO_DEBUG = 0
 JO_NTSC = 1
 JO_COMPILE_USING_SGL = 1
-SRCS=main.c util.c backup.c backup-saturn.c backup-satiator.c backup-cd.c md5/md5.c satiator/satiator.c satiator/cd.c
+SRCS=main.c util.c backup.c backup-saturn.c backup-satiator.c backup-cd.c md5/md5.c satiator/satiator.c satiator/cd.c backup-mode.c 
+LIBS=mode/mode_intf.a
 JO_ENGINE_SRC_DIR=../../jo_engine
 COMPILER_DIR=../../Compiler
 include $(COMPILER_DIR)/COMMON/jo_engine_makefile

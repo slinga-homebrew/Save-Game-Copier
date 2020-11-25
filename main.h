@@ -58,6 +58,7 @@
 #define MAIN_OPTION_FORMAT       6
 #define MAIN_OPTION_COLLECT      7
 #define MAIN_OPTION_CREDITS      8
+#define MAIN_OPTION_MODE         9
 
 #define SAVE_OPTION_INTERNAL     0
 #define SAVE_OPTION_CARTRIDGE    1
@@ -65,6 +66,7 @@
 #define SAVE_OPTION_SATIATOR     3
 #define SAVE_OPTION_WRITE_MEMORY 4
 #define SAVE_OPTION_DELETE       5
+#define SAVE_OPTION_MODE		 6
 
 #define VERIFY_YES               0
 #define VERIFY_NO                1
@@ -159,6 +161,7 @@ typedef struct _GAME
     bool deviceExternalDeviceBackup;
     bool deviceSatiatorBackup;
     bool deviceCdMemoryBackup;
+	bool deviceModeBackup;
 
     bool listedSaves; // set to true if we already queried the saves from the backup device
 

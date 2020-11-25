@@ -10,6 +10,8 @@ SGC is for copying save games to a Saturn. To copy save games from Saturn -> PC 
 ![Copy](screenshots/copy.png)
 ![Satiator](screenshots/satiator.png)
 ![Dump](screenshots/dump.png)
+![MODE](screenshots/mode1.png)
+![MODE dir list](screenshots/mode2.png)
 
 ## Save Games Format
 The save games are stored in a raw format (no header, no encoding, no metadata, etc). Many emulators add a header to the save. When working with a save from an emulator I recommend using [ss-save-parser](https://github.com/hitomi2500/ss-save-parser) and extracting as raw without any extra information.
@@ -51,6 +53,13 @@ dd conv=notrunc if=sgc_original.iso of=sgc_modified.iso bs=1 count=32768
 I don't own a Satiator so my testing has solely been with the [Satiator Yabause fork](https://github.com/satiator/satiator-yabause). When using a Satiator:
 * Make sure you upgrade to the latest firmware. There have been firmware fixes
 * Create a "SAVES" directory on the root of the drive. SGC is hardcoded to use that folder. Copy saves to and from that folder.
+
+## MODE Support
+* Ensure you are running firmware >= 1.04
+* Create a "SATSAVES" directory on the root of the SD card. SGC is hardcoded to use that folder and the SD card HDD is not supported yet. Ensure copied saves don't have a . separating name and extension, otherwise they will error when importing. FPS_6MEN_01 will work, FPS_6MEN._01 won't.
+* You must use the cue file named *game_cue_for_mode.cue* **INSTEAD OF** *game.cue* file. Ensure only 1 cue is present along with game.iso file. This is required because MODE needs a large TOC for the command interface.
+
+
 
 ## Dumping Memory
 SGC also supports advanced feature to arbitrary dump memory. This can allow you to dump:
