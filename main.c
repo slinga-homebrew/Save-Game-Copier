@@ -29,6 +29,8 @@
 */
 
 #include <jo/jo.h>
+#include "STDLIB.H"
+#include "STRING.H"
 #include "main.h"
 #include "util.h"
 #include "backup.h"
@@ -544,6 +546,9 @@ void moveCursor(bool savesPage)
         return;
     }
 
+    //
+    // check for up/down which moves up or down the list by 1
+    //
     if (jo_is_pad1_key_pressed(JO_KEY_UP))
     {
         if(g_Game.input.pressedUp == false)
@@ -568,6 +573,35 @@ void moveCursor(bool savesPage)
     else
     {
         g_Game.input.pressedDown = false;
+    }
+    
+    //
+    // check for left/right which moves up or down the list by a page
+    //
+    if (jo_is_pad1_key_pressed(JO_KEY_LEFT))
+    {
+        if(g_Game.input.pressedLeft == false)
+        {
+            cursorOffset -= MAX_SAVES_PER_PAGE;
+        }
+        g_Game.input.pressedLeft = true;
+    }
+    else
+    {
+        g_Game.input.pressedLeft = false;
+    }
+
+    if (jo_is_pad1_key_pressed(JO_KEY_RIGHT))
+    {
+        if(g_Game.input.pressedRight == false)
+        {
+            cursorOffset += MAX_SAVES_PER_PAGE;
+        }
+        g_Game.input.pressedRight = true;
+    }
+    else
+    {
+        g_Game.input.pressedRight = false;
     }
 
     // if we moved the cursor, erase the old
@@ -699,6 +733,14 @@ void main_input(void)
     return;
 }
 
+int compareSaveName (const void * a, const void * b)
+{
+    PSAVES aSave = (PSAVES)a;
+    PSAVES bSave = (PSAVES)b;
+
+    return strcmp(aSave->filename, bSave->filename);
+}
+
 // draws the list saves screen
 void listSaves_draw(void)
 {
@@ -738,6 +780,10 @@ void listSaves_draw(void)
             count = listSaveFiles(g_Game.backupDevice, g_Saves, COUNTOF(g_Saves));
             if(count >= 0)
             {
+            
+                // sort the saves here
+                qsort(g_Saves, count, sizeof(g_Saves[0]), compareSaveName);
+            
                 // update the count of saves
                 g_Game.numSaves = count;
             }
@@ -1743,3 +1789,4 @@ void credits_input(void)
     }
     return;
 }
+
