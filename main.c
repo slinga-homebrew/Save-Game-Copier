@@ -574,7 +574,7 @@ void moveCursor(bool savesPage)
     {
         g_Game.input.pressedDown = false;
     }
-    
+
     //
     // check for left/right which moves up or down the list by a page
     //
@@ -712,7 +712,7 @@ void main_input(void)
                 }
                 case MAIN_OPTION_REBOOT:
                 {
-                    rebootSaturn();
+                    jo_core_restart_saturn();
                     return;
                 }
                 default:
@@ -780,10 +780,10 @@ void listSaves_draw(void)
             count = listSaveFiles(g_Game.backupDevice, g_Saves, COUNTOF(g_Saves));
             if(count >= 0)
             {
-            
+
                 // sort the saves here
                 qsort(g_Saves, count, sizeof(g_Saves[0]), compareSaveName);
-            
+
                 // update the count of saves
                 g_Game.numSaves = count;
             }
