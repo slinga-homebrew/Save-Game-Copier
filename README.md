@@ -90,8 +90,10 @@ Save Game Copier uses code from:
 * [iapetus](https://github.com/cyberwarriorx/iapetus) - GPL
 
 ## Credits
+* Thank you to [Johannes Fetz](https://github.com/Johannes-Fetz) for [Jo Engine](https://github.com/johannes-fetz/joengine) and adding features needed by Save Game Copier.  
 * Thank you to [Emerald Nova](https://github.com/EmeraldNova) for volunteering to test the code on his Satiator.
 * Thank you to [Terraonion](https://github.com/Terraonion-dev) for contributing MODE support.
+* Thank you to [RevQuixo](https://github.com/RevQuixo) for numerous bug reports. 
 * Special thanks to Antime, Ponut, VBT, and everyone else at SegaXtreme keeping the Saturn dev scene alive.
 * Thank you to Takashi for the original Save Game Copier idea back in ~2002.
 * [Shentokk](https://github.com/Shentokk) for information regarding emulator save game extraction
