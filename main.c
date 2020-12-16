@@ -1734,12 +1734,19 @@ void credits_draw(void)
     jo_printf(OPTIONS_X - 3, OPTIONS_Y - 1, "Special thanks to:");
     y++;
 
+    jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "Johannes Fetz for Jo Engine and");
+    jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "adding features needed by SGC.");
+    y++;
+
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "EmeraldNova for doing all Satiator");
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "testing.");
     y++;
 
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "Terraonion for contributing MODE");
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "support.");
+    y++;
+
+    jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "RevQuixo for numerous bug reports.");
     y++;
 
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "Antime, Ponut, VBT, and everyone");
@@ -1752,8 +1759,7 @@ void credits_draw(void)
     jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "back in ~2002.");
     y++;
 
-    jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, " - Slinga");
-    jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, "(github.com/slinga-homebrew)");
+    jo_printf(OPTIONS_X - 3, OPTIONS_Y + y++, " - Slinga (github/slinga-homebrew)");
 
     return;
 }
