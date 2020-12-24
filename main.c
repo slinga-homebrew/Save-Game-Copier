@@ -134,7 +134,13 @@ void queryBackupDevices(void)
         g_Game.deviceExternalDeviceBackup = isBackupDeviceAvailable(JoExternalDeviceBackup);
         g_Game.deviceSatiatorBackup = isBackupDeviceAvailable(SatiatorBackup);
         g_Game.deviceCdMemoryBackup = isBackupDeviceAvailable(CdMemoryBackup);
-        g_Game.deviceModeBackup = isBackupDeviceAvailable(MODEBackup);
+
+        // some Satiator users were reporting black screens at boot
+        // possibly related to MODE?
+        if(g_Game.deviceSatiatorBackup == false)
+        {
+            g_Game.deviceModeBackup = isBackupDeviceAvailable(MODEBackup);
+        }
     }
     else
     {

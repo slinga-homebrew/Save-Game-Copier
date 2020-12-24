@@ -1,4 +1,4 @@
-// Save Game Extractor - a utility that modules Sega Saturn save game files over audio
+// Save Game Copier - a utility that copies Sega Saturn save game files
 
 /*
 ** Jo Sega Saturn Engine
@@ -30,7 +30,7 @@
 #pragma once
 
 // program version, keep this length to avoid having to resize strings
-#define VERSION "3.3.1"
+#define VERSION "3.3.2"
 
 // program states
 #define STATE_UNINITIALIZED      0
