@@ -24,6 +24,8 @@
 #ifndef _SATISFIER_H
 #define _SATISFIER_H
 
+#include <STRING.H>
+
 // typedefs
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
@@ -33,12 +35,6 @@ typedef unsigned int uintptr_t;
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
-
-
-// prototypes to keep compiler happy
-int strlen(const char* s);
-void *memcpy(void *dest, const void *src, unsigned int n);
-
 
 typedef enum {
     c_get_status = 0x90,
