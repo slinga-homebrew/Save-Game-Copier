@@ -28,9 +28,10 @@
 ** SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma once
+#include "bup_header.h"
 
 // program version, keep this length to avoid having to resize strings
-#define VERSION "3.3.2"
+#define VERSION "3.4.1"
 
 // program states
 #define STATE_UNINITIALIZED      0
@@ -87,7 +88,7 @@
 #define VERIFY_Y                 HEADING_Y + 7
 
 #define SAVES_X                  HEADING_X + 3
-#define SAVES_Y                  HEADING_Y + 11
+#define SAVES_Y                  HEADING_Y + 16
 
 #define CURSOR_X                 HEADING_X
 
@@ -100,8 +101,13 @@
 
 #define MAX_SAVE_SIZE           (256 * 1024) // according to Cafe-Alpha this is the maximum size supported by the BIOS
 #define MAX_SAVE_FILENAME       12
+#define MAX_SAVE_COMMENT        11
 #define MAX_SAVES               255
 #define MAX_SAVES_PER_PAGE      10
+#define MAX_FILENAME            32 // maximum length of the filename on the backup medium
+                                   // internal memory - this will be 11 characters
+                                   // cd - 8.3
+                                   // satiator, ode - 255? hopefully most people will keep the save filenames small
 
 #define MD5_HASH_SIZE           16
 
@@ -168,9 +174,16 @@ typedef struct _GAME
 
     int operationStatus; // status of the operation
 
-    char saveFilename[MAX_SAVE_FILENAME]; // selected save file name
+    // save name and savefilename are not the same thing
+    char saveFilename[MAX_FILENAME]; // file name
+    char saveName[MAX_SAVE_FILENAME]; // selected save file name
+    char saveComment[MAX_SAVE_COMMENT]; // selected save comment
+    unsigned char saveLanguage; // selected save language
+    unsigned int saveDate; // selected save date;
     unsigned int saveFileSize; // selected save file size
-    unsigned char* saveFileData; // the raw data, points at transmissonFileData + TRANSMISSION_HEADER_SIZE
+
+    PBUP_HEADER saveBupHeader; // the bup header. Immediately following is the saveFileData
+    unsigned char* saveFileData; // the raw save data
 
     unsigned int dumpMemoryAddress;
     unsigned int dumpMemorySize;

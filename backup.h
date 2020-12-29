@@ -1,10 +1,14 @@
 #pragma once
 
 #include <jo/jo.h>
+#include <STRING.H>
 #include "util.h"
+#include "bup_header.h"
 
 #define MAX_SAVE_SIZE           (256 * 1024) // according to Cafe-Alpha this is the maximum size supported by the BIOS
 #define MAX_SAVE_FILENAME       12
+#define MAX_SAVE_COMMENT        11
+#define MAX_FILENAME            32
 #define MAX_SAVES               255
 
 #define SatiatorBackup (JoExternalDeviceBackup + 1)
@@ -13,8 +17,12 @@
 #define MODEBackup (MemoryBackup + 1)
 
 // meta data related to save files
-typedef  struct  _SAVES {
-    char filename[MAX_SAVE_FILENAME];
+typedef struct  _SAVES {
+    char filename[MAX_FILENAME]; // filename on the medium. Will have .BUP extension on CD FS and ODEs. 
+    char name[MAX_SAVE_FILENAME]; // selected save name
+    char comment[MAX_SAVE_COMMENT]; // selected save comment
+    unsigned char language;
+    unsigned int date;
     unsigned int datasize;
     unsigned short blocksize;
 } SAVES, *PSAVES;
@@ -47,7 +55,9 @@ int formatDevice(int backupDevice);
 
 // helper functions
 int getBackupDeviceName(unsigned int backupDevice, char** deviceName);
+bool isFileBUPExt(char* filename);
+int parseBupHeaderValues(PBUP_HEADER bupHeader, unsigned int totalBupSize, char* saveName, char* saveComment, unsigned char* saveLanguage, unsigned int* saveDate, unsigned int* saveSize, unsigned short* saveBlocks);
 
 // prototypes to keep compiler happy
-void *memcpy(void *dest, const void *src, unsigned int n);
-char *strncpy(char *dest, const char *src, unsigned int n);
+int snprintf(char *str, size_t size, const char *format, ...);
+

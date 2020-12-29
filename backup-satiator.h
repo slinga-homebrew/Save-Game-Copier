@@ -9,5 +9,6 @@ int satiatorWriteSaveFile(int backupDevice, char* filename, unsigned char* saveD
 int satiatorDeleteSaveFile(int backupDevice, char* filename);
 
 // helper functions
-int satiatorEnter();
-int satiatorExit();
+int satiatorEnter(void);
+int satiatorExit(void);
+int satiatorReadBUPHeader(char* filename, PBUP_HEADER bupHeader);

@@ -43,6 +43,9 @@ int saturnListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 
     for(unsigned int i = 0; i < (unsigned int)saveFilenames.count && i < numSaves; i++)
     {
+        char comment[MAX_SAVE_COMMENT] = {0};
+        unsigned char language = 0;
+        unsigned int date = 0;
         unsigned int numBytes = 0;
         unsigned int numBlocks = 0;
 
@@ -54,14 +57,20 @@ int saturnListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             return -1;
         }
 
-        result = jo_backup_get_file_size(backupDevice, filename, &numBytes, &numBlocks);
+        // query the save metadata
+        result = jo_backup_get_file_info(backupDevice, filename, comment, &language, &date, &numBytes, &numBlocks);
         if(result == false)
         {
             sgc_core_error("Failed to read file size!!");
             return -1;
         }
 
-        strncpy((char*)saves[i].filename, filename, MAX_SAVE_FILENAME);
+        // fill out the SAVES structure
+        snprintf(saves[i].filename, MAX_FILENAME, "%s.BUP", filename);
+        strncpy(saves[i].name, filename, MAX_SAVE_FILENAME);
+        strncpy(saves[i].comment, (char*)comment, sizeof(comment));
+        saves[i].language = language;
+        saves[i].date = date;
         saves[i].datasize = numBytes;
         saves[i].blocksize = numBlocks;
         count++;
@@ -76,6 +85,8 @@ int saturnListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 int saturnReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, unsigned int outBufSize)
 {
     unsigned char* saveData = NULL;
+    PBUP_HEADER temp = NULL;
+    int result = 0;
 
     if(outBuffer == NULL || filename == NULL)
     {
@@ -83,11 +94,12 @@ int saturnReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffe
         return -1;
     }
 
-    if(outBufSize == 0 || outBufSize > MAX_SAVE_SIZE)
+    if(outBufSize < sizeof(BUP_HEADER) || outBufSize > (MAX_SAVE_SIZE + sizeof(BUP_HEADER)))
     {
         sgc_core_error("Save file size is invalid %d!!", outBufSize);
         return -2;
     }
+    temp = (PBUP_HEADER)outBuffer;
 
     // read the file from the backup device
     // jo engine mallocs a buffer for us
@@ -98,8 +110,22 @@ int saturnReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffe
         return -3;
     }
 
+    // query the save metadata
+    unsigned int blockSize = 0;
+    result = jo_backup_get_file_info(backupDevice, filename, (char*)&temp->dir.comment, &temp->dir.language, &temp->dir.date, &temp->dir.datasize, &blockSize);
+
+    if(result == false)
+    {
+        sgc_core_error("Failed to save metadata  size!!");
+        return -1;
+    }
+    memcpy(temp->magic, VMEM_MAGIC_STRING, VMEM_MAGIC_STRING_LEN);
+    strncpy((char*)temp->dir.filename, filename, MAX_SAVE_FILENAME);
+    temp->date = temp->dir.date; // date is duplicated
+    temp->dir.blocksize = blockSize;
+
     // copy the save game data and free the jo engine buffer
-    memcpy(outBuffer, saveData, outBufSize);
+    memcpy(outBuffer + sizeof(BUP_HEADER), saveData, outBufSize);
     jo_free(saveData);
 
     return 0;
@@ -107,21 +133,31 @@ int saturnReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffe
 
 int saturnWriteSaveFile(int backupDevice, char* filename, unsigned char* saveData, unsigned int saveDataLen)
 {
-    bool result;
+    bool result = false;
+    PBUP_HEADER temp = NULL;
+
+    // BUP header is required
+    if(saveDataLen < sizeof(BUP_HEADER))
+    {
+        sgc_core_error("Invalid .BUP header");
+        return -1;
+    }
+
+    temp = (PBUP_HEADER)saveData;
 
     // mount the backup device
     result = jo_backup_mount(backupDevice);
     if(result == false)
     {
         sgc_core_error("Failed to mount backup device %d!!", backupDevice);
-        return -1;
+        return -2;
     }
 
-    result = jo_backup_save_file_contents(backupDevice, filename, "SGC", saveData, saveDataLen);
+    result = jo_backup_save_file_contents(backupDevice, filename, (char*)temp->dir.comment, saveData + sizeof(BUP_HEADER), saveDataLen - sizeof(BUP_HEADER));
     if(result == false)
     {
         sgc_core_error("Failed to write save backup device %d!!", backupDevice);
-        return -1;
+        return -3;
     }
 
     return 0;

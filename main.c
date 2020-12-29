@@ -47,13 +47,15 @@ void jo_main(void)
     // check if external memory is present
     // check if satiator is present
 
-    // allocate our save file buffer
-    g_Game.saveFileData = jo_malloc(MAX_SAVE_SIZE);
-    if(g_Game.saveFileData == NULL)
+    // allocate our save file buffe
+
+    g_Game.saveBupHeader = jo_malloc(sizeof(BUP_HEADER) + MAX_SAVE_SIZE);
+    if(g_Game.saveBupHeader == NULL)
     {
         sgc_core_error("Failed to allocated save file data buffer!!");
         return;
     }
+    g_Game.saveFileData = (unsigned char*)(g_Game.saveBupHeader + 1);
 
     // increase the default heap size. LWRAM is not being used
     jo_add_memory_zone((unsigned char *)LWRAM, LWRAM_HEAP_SIZE);
@@ -104,12 +106,14 @@ void debugOutput_draw()
     //jo_printf(2, 0, "Memory Usage: %d Frag: %d" , jo_memory_usage_percent(), jo_memory_fragmentation());
     //jo_printf(2, 1, "Save: %d CO: %d" , g_Game.numSaves, g_Game.cursorOffset);
 
-    // debug the state
-    jo_printf(2, 0, "State depth: %d      ", g_Game.numStates);
-    for(int i = 0; i < MAX_STATES; i++)
-    {
-        jo_printf(2 + (i*2), 1, "%d      ", g_Game.previousStates[i]);
-    }
+    //// debug the state
+    //jo_printf(2, 0, "State depth: %d      ", g_Game.numStates);
+    //for(int i = 0; i < MAX_STATES; i++)
+    //{
+        //jo_printf(2 + (i*2), 1, "%d      ", g_Game.previousStates[i]);
+    //}
+
+    //jo_printf(2, 25, "save name: %s", g_Game.saveName);
 }
 
 // restarts the program if controller one presses ABC+Start
@@ -445,9 +449,10 @@ unsigned int initMenuOptions(int newState)
                 numMenuOptions++;
             }
 
-            g_Game.menuOptions[numMenuOptions].optionText = "Write to Memory";
-            g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_WRITE_MEMORY;
-            numMenuOptions++;
+            // TODO: temporarily disable write to memory option
+            //g_Game.menuOptions[numMenuOptions].optionText = "Write to Memory";
+            //g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_WRITE_MEMORY;
+            //numMenuOptions++;
 
             // this check should really be isBackupDeviceWriteable()
             // for now we just check if it's not the cd
@@ -814,7 +819,7 @@ void listSaves_draw(void)
         int j = 0;
 
         // header
-        jo_printf(OPTIONS_X, OPTIONS_Y, "%-11s %10s %6s", "Filename", "Bytes", "Blocks");
+        jo_printf(OPTIONS_X, OPTIONS_Y, "%-11s  %-10s  %6s", "Save Name", "Comment", "Bytes");
 
         // zero out the save print fields otherwise we will have stale data on the screen
         // when we go to other pages
@@ -826,7 +831,7 @@ void listSaves_draw(void)
         // print up to MAX_SAVES_PER_PAGE saves on the screen
         for(i = (g_Game.cursorOffset / MAX_SAVES_PER_PAGE) * MAX_SAVES_PER_PAGE, j = 0; i < g_Game.numSaves && j < MAX_SAVES_PER_PAGE; i++, j++)
         {
-            jo_printf(OPTIONS_X, OPTIONS_Y + (i % MAX_SAVES_PER_PAGE) + 1, "%-11s %10d %6d", g_Saves[i].filename, g_Saves[i].datasize, g_Saves[i].blocksize);
+            jo_printf(OPTIONS_X, OPTIONS_Y + (i % MAX_SAVES_PER_PAGE) + 1, "%-11s  %-10s  %6d", g_Saves[i].name, g_Saves[i].comment, g_Saves[i].datasize);
         }
 
         g_Game.numStateOptions = g_Game.numSaves;
@@ -838,7 +843,18 @@ void listSaves_draw(void)
 
     if(g_Game.numStateOptions > 0)
     {
-        memcpy(g_Game.saveFilename, g_Saves[g_Game.cursorOffset].filename, MAX_SAVE_FILENAME);
+        // copy the save data
+        strncpy(g_Game.saveFilename, g_Saves[g_Game.cursorOffset].filename, MAX_FILENAME);
+        g_Game.saveFilename[MAX_FILENAME - 1] = '\0';
+
+        strncpy(g_Game.saveName, g_Saves[g_Game.cursorOffset].name, MAX_SAVE_FILENAME);
+        g_Game.saveName[MAX_SAVE_FILENAME - 1] = '\0';
+
+        strncpy(g_Game.saveComment, g_Saves[g_Game.cursorOffset].comment, MAX_SAVE_COMMENT);
+        g_Game.saveComment[MAX_SAVE_COMMENT - 1] = '\0';
+
+        g_Game.saveLanguage = g_Saves[g_Game.cursorOffset].language;
+        g_Game.saveDate = g_Saves[g_Game.cursorOffset].date;
         g_Game.saveFileSize = g_Saves[g_Game.cursorOffset].datasize;
 
         jo_printf(g_Game.cursorPosX, g_Game.cursorPosY + g_Game.cursorOffset % MAX_SAVES_PER_PAGE, ">>");
@@ -904,7 +920,8 @@ void displaySave_draw(void)
 {
     int result = 0;
     int y = 0;
-    unsigned char* saveFileData;
+    unsigned char* saveFileData = NULL;
+    jo_backup_date jo_date = {0};
 
     if(g_Game.state != STATE_DISPLAY_SAVE && g_Game.state != STATE_DISPLAY_MEMORY)
     {
@@ -913,7 +930,7 @@ void displaySave_draw(void)
 
     if(g_Game.state == STATE_DISPLAY_SAVE)
     {
-        saveFileData = g_Game.saveFileData;
+        saveFileData = (unsigned char*)g_Game.saveFileData;
     }
     else
     {
@@ -936,7 +953,7 @@ void displaySave_draw(void)
     {
         if(g_Game.state == STATE_DISPLAY_SAVE)
         {
-            result = readSaveFile(g_Game.backupDevice, g_Game.saveFilename, saveFileData, g_Game.saveFileSize);
+            result = readSaveFile(g_Game.backupDevice, g_Game.saveFilename, (unsigned char*)g_Game.saveBupHeader, g_Game.saveFileSize + sizeof(BUP_HEADER));
             if(result != 0)
             {
                 sgc_core_error("Failed to read the save!!");
@@ -946,7 +963,7 @@ void displaySave_draw(void)
         }
 
         // print messages to the user so that can get an estimate of the time for longer operations
-        result = calculateMD5Hash(saveFileData, g_Game.saveFileSize, g_Game.md5Hash);
+        result = calculateMD5Hash(g_Game.saveFileData, g_Game.saveFileSize, g_Game.md5Hash);
         if(result != 0)
         {
             // something went wrong
@@ -964,10 +981,20 @@ void displaySave_draw(void)
         g_Game.md5Calculated = true;
     }
 
+    // convert between internal date and jo_date
+    bup_getdate(g_Game.saveDate, &jo_date);
+
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Filename: %s        ", g_Game.saveFilename);
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Device: %s        ", g_Game.backupDeviceName);
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Address: 0x%08x-0x%08x        ", saveFileData, saveFileData + g_Game.saveFileSize);
+    y++;
+
+    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Save Name: %s        ", g_Game.saveName);
+    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Comment: %s         ", g_Game.saveComment);
+    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Date: %d/%d/%d %d:%d         ", jo_date.month, jo_date.day, jo_date.year + 1980, jo_date.time, jo_date.min);
+    y++;
+
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Size: %d            ", g_Game.saveFileSize);
+    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Address: 0x%08x-0x%08x        ", saveFileData, saveFileData + g_Game.saveFileSize);
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "MD5: %02x%02x%02x%02x%02x%02x%02x%02x", g_Game.md5Hash[0], g_Game.md5Hash[1], g_Game.md5Hash[2], g_Game.md5Hash[3], g_Game.md5Hash[4], g_Game.md5Hash[5], g_Game.md5Hash[6], g_Game.md5Hash[7]);
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "     %02x%02x%02x%02x%02x%02x%02x%02x", g_Game.md5Hash[8], g_Game.md5Hash[9], g_Game.md5Hash[10], g_Game.md5Hash[11],  g_Game.md5Hash[12], g_Game.md5Hash[13], g_Game.md5Hash[14], g_Game.md5Hash[15]);
 
@@ -1014,13 +1041,12 @@ void displaySave_input(void)
 
     if(g_Game.state == STATE_DISPLAY_SAVE)
     {
-        saveFileData = g_Game.saveFileData;
+        saveFileData = (unsigned char*)g_Game.saveBupHeader;
     }
     else
     {
         saveFileData = (unsigned char*)g_Game.dumpMemoryAddress;
     }
-
 
     // did the player hit start
     if(jo_is_pad1_key_pressed(JO_KEY_START) ||
@@ -1037,7 +1063,7 @@ void displaySave_input(void)
                 {
                     case SAVE_OPTION_INTERNAL:
                     {
-                        result = writeSaveFile(JoInternalMemoryBackup, g_Game.saveFilename, saveFileData, g_Game.saveFileSize);
+                        result = writeSaveFile(JoInternalMemoryBackup, g_Game.saveName, saveFileData, g_Game.saveFileSize + sizeof(BUP_HEADER));
                         if(result != 0)
                         {
                             g_Game.operationStatus = OPERATION_FAIL;
@@ -1048,7 +1074,7 @@ void displaySave_input(void)
                     }
                     case SAVE_OPTION_CARTRIDGE:
                     {
-                        result = writeSaveFile(JoCartridgeMemoryBackup, g_Game.saveFilename, saveFileData, g_Game.saveFileSize);
+                        result = writeSaveFile(JoCartridgeMemoryBackup, g_Game.saveName, saveFileData, g_Game.saveFileSize + sizeof(BUP_HEADER));
                         if(result != 0)
                         {
                             g_Game.operationStatus = OPERATION_FAIL;
@@ -1059,7 +1085,7 @@ void displaySave_input(void)
                     }
                     case SAVE_OPTION_EXTERNAL:
                     {
-                        result = writeSaveFile(JoExternalDeviceBackup, g_Game.saveFilename, saveFileData, g_Game.saveFileSize);
+                        result = writeSaveFile(JoExternalDeviceBackup, g_Game.saveName, saveFileData, g_Game.saveFileSize + sizeof(BUP_HEADER));
                         if(result != 0)
                         {
                             g_Game.operationStatus = OPERATION_FAIL;
@@ -1070,7 +1096,7 @@ void displaySave_input(void)
                     }
                     case SAVE_OPTION_SATIATOR:
                     {
-                        result = writeSaveFile(SatiatorBackup, g_Game.saveFilename, saveFileData, g_Game.saveFileSize);
+                        result = writeSaveFile(SatiatorBackup, g_Game.saveFilename, saveFileData, g_Game.saveFileSize + sizeof(BUP_HEADER));
                         if(result != 0)
                         {
                             g_Game.operationStatus = OPERATION_FAIL;
@@ -1082,7 +1108,7 @@ void displaySave_input(void)
                     case SAVE_OPTION_MODE:
                     {
                         jo_printf(OPTIONS_X, SAVES_Y + g_Game.numMenuOptions + 2, "Operation in progress....        ");
-                        result = writeSaveFile(MODEBackup, g_Game.saveFilename, saveFileData, g_Game.saveFileSize);
+                        result = writeSaveFile(MODEBackup, g_Game.saveFilename, saveFileData, g_Game.saveFileSize + sizeof(BUP_HEADER));
                         if (result != 0)
                         {
                             g_Game.operationStatus = OPERATION_FAIL;

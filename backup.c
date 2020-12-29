@@ -210,3 +210,71 @@ int getBackupDeviceName(unsigned int backupDevice, char** deviceName)
     return 0;
 }
 
+// check if the filename ends with ".BUP"
+bool isFileBUPExt(char* filename)
+{
+    unsigned int len = 0;
+    char* ext = NULL;
+    int result = 0;
+
+    if(!filename)
+    {
+        sgc_core_error("Filename cannot be NULL");
+        return false;
+    }
+
+    len = strlen(filename);
+    if(len < sizeof(BUP_EXTENSION))
+    {
+        return false;
+    }
+
+    ext = &filename[len - strlen(BUP_EXTENSION)];
+    result = strcmp(ext, BUP_EXTENSION);
+    if(result == 0)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+// validates the BUP header and extracts the various fields contained within
+int parseBupHeaderValues(PBUP_HEADER bupHeader, unsigned int totalBupSize, char* saveName, char* saveComment, unsigned char* saveLanguage, unsigned int* saveDate, unsigned int* saveSize, unsigned short* saveBlocks)
+{
+    int result = 0;
+
+    if(!bupHeader || !totalBupSize || !saveName || !saveComment || !saveLanguage || !saveDate || !saveSize || !saveBlocks)
+    {
+        return -1;
+    }
+
+    if(totalBupSize < BUP_HEADER_SIZE)
+    {
+        return -2;
+    }
+
+    result = memcmp(bupHeader->magic, VMEM_MAGIC_STRING, sizeof(bupHeader->magic));
+    if(result != 0)
+    {
+        return -3;
+    }
+
+    if(totalBupSize != bupHeader->dir.datasize + BUP_HEADER_SIZE)
+    {
+       // return -4
+    }
+
+    memcpy(saveName, bupHeader->dir.filename, sizeof(bupHeader->dir.filename));
+    saveName[sizeof(bupHeader->dir.filename) -1] = '\0';
+
+    memcpy(saveComment, bupHeader->dir.comment, sizeof(bupHeader->dir.comment));
+    saveComment[sizeof(bupHeader->dir.comment) -1] = '\0';
+
+    *saveLanguage = bupHeader->dir.language;
+    *saveDate = bupHeader->dir.date;
+    *saveSize = bupHeader->dir.datasize;
+    *saveBlocks = bupHeader->dir.blocksize;
+
+    return 0;
+}

@@ -68,14 +68,47 @@ int satiatorListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             continue;
         }
 
-        strncpy((char*)saves[count].filename, st->name, MAX_SAVE_FILENAME);
-        saves[count].datasize = st->size;
+        result = isFileBUPExt(st->name);
+        if(result == false)
+        {
+            // not a .BUP file, skip
+            continue;
+        }
+
+        strncpy((char*)saves[count].filename, st->name, MAX_FILENAME);
+        saves[count].filename[MAX_FILENAME - 1] = '\0';
+        saves[count].datasize = st->size - sizeof(BUP_HEADER);
         saves[count].blocksize = 0; // blocksize on the Satiator doesn't matter
         count++;
 
         if(count >= numSaves)
         {
             break;
+        }
+    }
+	
+    // for each file found, read the BUP header and parse the metadata
+    for(unsigned int i = 0; i < count; i++)
+    {
+        BUP_HEADER bupHeader = {0};
+
+        result = satiatorReadBUPHeader(saves[i].filename, &bupHeader);
+        if(result != 0)
+        {
+            sgc_core_error("bup header %s", saves[i].filename);
+            continue;
+        }
+
+        result = parseBupHeaderValues(&bupHeader, saves[count].datasize + sizeof(BUP_HEADER), saves[i].name, saves[i].comment, &saves[i].language, &saves[i].date, &saves[i].datasize, &saves[i].blocksize);
+        if(result != 0)
+        {
+            sgc_core_error("Failed with %d", result);
+
+
+            // BUGBUG: handle error conditions gracefully
+            strncpy(saves[i].name, "Error", MAX_SAVE_FILENAME);
+
+            continue;
         }
     }
 
@@ -97,7 +130,7 @@ int satiatorReadSaveFile(int backupDevice, char* filename, unsigned char* outBuf
     result = satiatorEnter();
     if(result == 0)
     {
-        sgc_core_error("Failed to detect satiator");
+        sgc_core_error("Failed to detect satiator %d", result);
         return -1;
     }
 
@@ -113,6 +146,7 @@ int satiatorReadSaveFile(int backupDevice, char* filename, unsigned char* outBuf
         return -2;
     }
 
+    sgc_core_error("sat: %s", filename);
     fd = s_open(filename, FA_READ);
     if(fd < 0)
     {
@@ -233,7 +267,7 @@ int satiatorDeleteSaveFile(int backupDevice, char* filename)
     if(result != 0)
     {
         sgc_core_error("Failed to detect satiator");
-        return -1;
+        //return -1;
     }
 
     if(filename == NULL)
@@ -278,4 +312,52 @@ int satiatorExit(void)
     //s_mode(S_MODE_CDROM);
 
     return 0;
+}
+
+// read the bup header
+int satiatorReadBUPHeader(char* filename, PBUP_HEADER bupHeader)
+{
+    int result = 0;
+    int fd = 0;
+    bool openedFile = false;
+
+    if(!filename || !bupHeader)
+    {
+        return -1;
+    }
+
+    fd = s_open(filename, FA_READ);
+    if(fd < 0)
+    {
+        sgc_core_error("readSatiatorSaveFile: Failed to open satiator file!!");
+        return -2;
+    }
+
+    // read the .BUP header
+    result = s_read(fd, (unsigned char*)bupHeader, sizeof(BUP_HEADER));
+    if(result <= 0)
+    {
+        sgc_core_error("Bad read result: %x", result);
+        result = -3;
+        goto exit;
+    }
+
+    openedFile = true;
+
+    if(result < (int)sizeof(BUP_HEADER))
+    {
+        sgc_core_error("bup header is too small");
+        result = -4;
+        goto exit;
+    }
+
+    result = 0;
+
+exit:
+    if(openedFile == true)
+    {
+        s_close(fd);
+    }
+
+    return result;
 }
