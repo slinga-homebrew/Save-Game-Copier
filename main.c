@@ -89,7 +89,7 @@ void jo_main(void)
     jo_core_add_callback(credits_input);
 
     // debug output
-    //jo_core_add_callback(debugOutput_draw);
+    jo_core_add_callback(debugOutput_draw);
 
     queryBackupDevices();
 
@@ -113,7 +113,8 @@ void debugOutput_draw()
         //jo_printf(2 + (i*2), 1, "%d      ", g_Game.previousStates[i]);
     //}
 
-    //jo_printf(2, 25, "save name: %s", g_Game.saveName);
+    jo_printf(2, 25, "save name: %s", g_Game.saveName);
+    jo_printf(2, 26, "file name: %s", g_Game.saveFilename);
 }
 
 // restarts the program if controller one presses ABC+Start
@@ -749,7 +750,7 @@ int compareSaveName (const void * a, const void * b)
     PSAVES aSave = (PSAVES)a;
     PSAVES bSave = (PSAVES)b;
 
-    return strcmp(aSave->filename, bSave->filename);
+    return strcmp(aSave->name, bSave->name);
 }
 
 // draws the list saves screen

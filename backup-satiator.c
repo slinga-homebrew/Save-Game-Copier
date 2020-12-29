@@ -86,7 +86,7 @@ int satiatorListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             break;
         }
     }
-	
+
     // for each file found, read the BUP header and parse the metadata
     for(unsigned int i = 0; i < count; i++)
     {
@@ -131,7 +131,7 @@ int satiatorReadSaveFile(int backupDevice, char* filename, unsigned char* outBuf
     if(result == 0)
     {
         sgc_core_error("Failed to detect satiator %d", result);
-        return -1;
+        //return -1;
     }
 
     if(outBuffer == NULL || filename == NULL)

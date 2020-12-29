@@ -108,7 +108,7 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             continue;
         }
 
-        strncpy((char*)saves[count].filename, SatSaves[n].Name, MAX_SAVE_FILENAME);
+        strncpy((char*)saves[count].filename, SatSaves[n].Name, MAX_FILENAME);
 
         count++;
 
