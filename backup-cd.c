@@ -11,12 +11,13 @@ bool cdIsBackupDeviceAvailable(int backupDevice)
     return true;
 }
 
-// queries the saves on the CD device and fills out the fileSaves array
+// queries the saves on the CD device and fills out the saves array
 int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 {
     int count = 0;
     GfsHn gfs = 0;
     char* sub_dir = "SAVES";
+    BUP_HEADER bupHeader = {0};
 
     if(backupDevice != CdMemoryBackup)
     {
@@ -42,22 +43,40 @@ int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 
         // query the file size
         GFS_GetFileInfo(gfs, NULL, NULL, (Sint32*)&numBytes, NULL);
+        GFS_Close(gfs);
 
         filename = (char*)GFS_IdToName(i+2);
 
         if(filename && numBytes)
         {
-            char tempName[MAX_SAVE_FILENAME] = {0};
+            bool result = false;
 
-            cdToBackupName(filename, tempName);
+            result = isFileBUPExt(filename);
+            if(result == false)
+            {
+                // not a .BUP file, skip
+                //sgc_core_error("Not a .BUP %s", filename);
+                continue;
+            }
 
-            strncpy((char*)saves[count].filename, tempName, MAX_SAVE_FILENAME);
-            saves[i].datasize = numBytes;
-            saves[i].blocksize = 0; // blocksize on the cd doesn't matter
+            result = cdReadBUPHeader(filename, &bupHeader);
+            if(result != 0)
+            {
+                sgc_core_error("Failed to read .BUP %s (%d)", filename, result);
+                continue;
+            }
+
+            result = parseBupHeaderValues(&bupHeader, numBytes, saves[count].name, saves[count].comment, &saves[count].language, &saves[count].date, &saves[count].datasize, &saves[count].blocksize);
+            if(result != 0)
+            {
+                sgc_core_error("parseBup fail %s (%d)", filename, result);
+                continue;
+            }
+
+            // copy over the filename as well
+            strncpy((char*)saves[i].filename, filename, MAX_SAVE_FILENAME);
             count++;
         }
-
-        GFS_Close(gfs);
     }
 
     if (sub_dir != JO_NULL)
@@ -71,7 +90,6 @@ int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 // read the save game
 int cdReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, unsigned int outSize)
 {
-    char cdFilename[MAX_SAVE_FILENAME + 1] = {0};
     unsigned char* saveData = NULL;
     char* sub_dir = "SAVES";
     int length = 0;
@@ -93,14 +111,12 @@ int cdReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, u
         return -2;
     }
 
-    backupNameToCDName(filename, cdFilename);
-
     if(sub_dir != JO_NULL)
     {
         jo_fs_cd(sub_dir);
     }
 
-    saveData = (unsigned char*)jo_fs_read_file(cdFilename, &length);
+    saveData = (unsigned char*)jo_fs_read_file(filename, &length);
 
     if(sub_dir != JO_NULL)
     {
@@ -119,47 +135,52 @@ int cdReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, u
     return -3;
 }
 
-// removes the "." in an 8.3 filename
-void cdToBackupName(char* input, char* output)
+// read the bup header
+int cdReadBUPHeader(char* filename, PBUP_HEADER bupHeader)
 {
-    int j = 0;
+    int result = 0;
+    jo_file joFile = {0};
+    bool openedFile = false;
 
-    for(int i = 0; i < MAX_SAVE_FILENAME; i++)
+    if(!filename || !bupHeader)
     {
-        if(input[i] == '.')
-        {
-            continue;
-        }
-
-        if(input[i] == '\0')
-        {
-            break;
-        }
-
-        // not a period or a NULL, copy it over
-        output[j] = input[i];
-        j++;
+        return -1;
     }
 
-    return;
-}
-
-// converts an 11 character filename to 8.3
-// output buffer must be at least MAX_SAVE_FILENAME + 1
-void backupNameToCDName(char* input, char* output)
-{
-    for(int i = 0; i < MAX_SAVE_FILENAME; i++)
+    result = jo_fs_open(&joFile, filename);
+    if(result != true)
     {
-        if(i < 8)
-        {
-            output[i] = input[i];
-        }
-        else
-        {
-            output[i + 1] = input[i];
-        }
+        sgc_core_error("failed to open %s", filename);
+        result = -2;
+        goto exit;
     }
 
-    output[8] = '.';
-    return;
+    openedFile = true;
+
+    // read the .BUP header
+    result = jo_fs_read_next_bytes(&joFile, (char*)bupHeader, sizeof(BUP_HEADER));
+    if(result < 0)
+    {
+        sgc_core_error("failed to read bup header %d", result);
+        result = -3;
+        goto exit;
+    }
+
+    if(result < (int)sizeof(BUP_HEADER))
+    {
+        sgc_core_error("bup header is too small");
+        result = -4;
+        goto exit;
+    }
+
+    result = 0;
+
+exit:
+    if(openedFile == true)
+    {
+        jo_fs_close(&joFile);
+    }
+
+    return result;
 }
+

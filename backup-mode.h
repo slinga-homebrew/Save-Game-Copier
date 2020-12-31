@@ -13,5 +13,6 @@ int modeWriteSaveFile(int backupDevice, char* filename, unsigned char* saveData,
 int modeDeleteSaveFile(int backupDevice, char* filename);
 
 // helper functions
-int modeEnter();
-int modeExit();
+int modeEnter(void);
+int modeExit(void);
+int modeReadBUPHeader(char* filename, PBUP_HEADER bupHeader);

@@ -108,11 +108,3 @@ int calculateMD5Hash(unsigned char* buffer, unsigned int bufferSize, unsigned ch
 
     return 0;
 }
-
-// reboots the Saturn
-// BUGBUG: I would like for this to be in Jo Engine instead
-void rebootSaturn(void)
-{
-    (**(void(**)(void))0x600026C)();
-}
-

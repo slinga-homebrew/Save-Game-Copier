@@ -51,6 +51,7 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 {
     int result = 0;
     unsigned int count = 0;
+    BUP_HEADER bupHeader = {0};
 
     if(backupDevice != MODEBackup)
     {
@@ -82,8 +83,32 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             continue;
         }
 
-        strncpy((char*)saves[count].filename, SatSaves[n].Name, MAX_SAVE_FILENAME);
-        saves[count].datasize = SatSaves[n].Size;
+        result = isFileBUPExt(SatSaves[n].Name);
+        if(result == false)
+        {
+            // not a .BUP file, skip
+            continue;
+        }
+
+        result = modeReadBUPHeader(SatSaves[n].Name, &bupHeader);
+        if(result != 0)
+        {
+            sgc_core_error("bup header %s", SatSaves[n].Name);
+            continue;
+        }
+
+        result = parseBupHeaderValues(&bupHeader, SatSaves[n].Size, saves[count].name, saves[count].comment, &saves[count].language, &saves[count].date, &saves[count].datasize, &saves[count].blocksize);
+        if(result != 0)
+        {
+            sgc_core_error("Failed with %d", result);
+
+
+            // BUGBUG: handle error conditions gracefully
+            strncpy(saves[count].name, "Error", MAX_SAVE_FILENAME);
+            continue;
+        }
+
+        strncpy((char*)saves[count].filename, SatSaves[n].Name, MAX_FILENAME);
 
         count++;
 
@@ -252,7 +277,38 @@ int modeExit(void)
     return 0;
 }
 
-void MODE_WaitVSync()
+void MODE_WaitVSync(void)
 {
     slSynch();
 }
+
+// read the bup header
+int modeReadBUPHeader(char* filename, PBUP_HEADER bupHeader)
+{
+    int result = 0;
+
+    if(!filename || !bupHeader)
+    {
+        return -1;
+    }
+
+    strcpy(tmpFilename, SaveDirectory);
+    strcat(tmpFilename, "/");
+    strcat(tmpFilename, filename);
+
+    result = MODE_OpenFile(tmpFilename, 0);
+    if(result != 0)
+    {
+        sgc_core_error("modeBUP: Failed to open MODE file!!");
+        return -2;
+    }
+
+    MODE_ReadFile((unsigned char*)bupHeader, 0, sizeof(BUP_HEADER));
+
+    // how do we know how many bytes we read??
+
+    MODE_CloseFile();
+
+    return 0;
+}
+
