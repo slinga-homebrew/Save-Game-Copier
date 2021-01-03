@@ -63,8 +63,6 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 
     result = MODE_ReadFileListing(SaveDirectory, SatSaves, MAX_SAVES);
 
-    modeExit();
-
     if(result < 0)
     {
         sgc_core_error("modeListSaveFiles: %d Failed to open SAVES directory", result);
@@ -106,23 +104,6 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             continue;
         }
 
-        result = modeReadBUPHeader(SatSaves[n].Name, &bupHeader);
-        if(result != 0)
-        {
-            sgc_core_error("bup header %s", SatSaves[n].Name);
-            continue;
-        }
-
-        result = parseBupHeaderValues(&bupHeader, SatSaves[n].Size, saves[count].name, saves[count].comment, &saves[count].language, &saves[count].date, &saves[count].datasize, &saves[count].blocksize);
-        if(result != 0)
-        {
-            sgc_core_error("Failed with %d", result);
-
-            // BUGBUG: handle error conditions gracefully
-            strncpy(saves[count].name, "Error", MAX_SAVE_FILENAME);
-            continue;
-        }
-
         strncpy((char*)saves[count].filename, SatSaves[n].Name, MAX_FILENAME);
 
         saves[count].datasize = SatSaves[n].Size;
@@ -155,6 +136,8 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             continue;
         }
     }
+
+	modeExit();
 
     return count;
 }
@@ -332,13 +315,10 @@ int modeReadBUPHeader(char* filename, PBUP_HEADER bupHeader)
     strcat(tmpFilename, "/");
     strcat(tmpFilename, filename);
 
-    modeEnter();
-
     result = MODE_OpenFile(tmpFilename, 0);
     if(result != 0)
     {
         sgc_core_error("modeBUP: Failed to open MODE file!!");
-        modeExit();
         return -2;
     }
 
@@ -347,8 +327,6 @@ int modeReadBUPHeader(char* filename, PBUP_HEADER bupHeader)
     memcpy((unsigned char*)bupHeader, SectorBuffer, sizeof(BUP_HEADER));
 
     MODE_CloseFile();
-
-    modeExit();
 
     return 0;
 }
