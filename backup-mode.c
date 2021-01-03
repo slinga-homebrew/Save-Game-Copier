@@ -49,7 +49,7 @@ bool modeIsBackupDeviceAvailable(int backupDevice)
 // queries the saves on the MODE and fills out the saves array
 int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 {
-	int len = 0;
+    int len = 0;
     int result = 0;
     unsigned int count = 0;
     BUP_HEADER bupHeader = {0};
@@ -71,8 +71,6 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
         return -2;
     }
 
-    sgc_core_error("found %d files", result);
-
     // loop through the files in the directory
     for (int n = 0; n < result; ++n)
     {
@@ -88,24 +86,26 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             continue;
         }
 
-		len = strlen(SatSaves[n].Name);
+        len = strlen(SatSaves[n].Name);
 
-		if (len < 4)
-			continue;
-		//dunno what's wrong with that function
-		/*
+        if (len < 4)
+            continue;
 
+        //dunno what's wrong with that function
+        /*
         result = isFileBUPExt(SatSaves[n].Name);
         if(result == false)
         {
             // not a .BUP file, skip
             continue;
         }
-		*/
-		if (memcmp(SatSaves[n].Name + len - 4, BUP_EXTENSION, 4) != 0)
-			continue;
+        */
 
-      sgc_core_error("modeReadBUPHeader");
+        if (memcmp(SatSaves[n].Name + len - 4, BUP_EXTENSION, 4) != 0)
+        {
+            continue;
+        }
+
         result = modeReadBUPHeader(SatSaves[n].Name, &bupHeader);
         if(result != 0)
         {
@@ -113,12 +113,10 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             continue;
         }
 
-        sgc_core_error("parseBUPHeader");
         result = parseBupHeaderValues(&bupHeader, SatSaves[n].Size, saves[count].name, saves[count].comment, &saves[count].language, &saves[count].date, &saves[count].datasize, &saves[count].blocksize);
         if(result != 0)
         {
             sgc_core_error("Failed with %d", result);
-
 
             // BUGBUG: handle error conditions gracefully
             strncpy(saves[count].name, "Error", MAX_SAVE_FILENAME);
@@ -127,8 +125,8 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 
         strncpy((char*)saves[count].filename, SatSaves[n].Name, MAX_FILENAME);
 
-		saves[count].datasize = SatSaves[n].Size;
-		saves[count].blocksize = 0;
+        saves[count].datasize = SatSaves[n].Size;
+        saves[count].blocksize = 0;
 
         count++;
 
@@ -137,30 +135,27 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             break;
         }
     }
-	
-	for (unsigned int n = 0; n < count; ++n)
-	{
-		result = modeReadBUPHeader(saves[n].filename, &bupHeader);
-		if (result != 0)
-		{
-			sgc_core_error("bup header %s", saves[n].filename);
-			continue;
-		}
 
-		result = parseBupHeaderValues(&bupHeader, saves[n].datasize, saves[n].name, saves[n].comment, &saves[n].language, &saves[n].date, &saves[n].datasize, &saves[n].blocksize);
-		if (result != 0)
-		{
-			sgc_core_error("Failed with %d %s", result, saves[n].filename);
+    for (unsigned int n = 0; n < count; ++n)
+    {
+        result = modeReadBUPHeader(saves[n].filename, &bupHeader);
+        if (result != 0)
+        {
+            sgc_core_error("bup header %s", saves[n].filename);
+            continue;
+        }
 
+        result = parseBupHeaderValues(&bupHeader, saves[n].datasize, saves[n].name, saves[n].comment, &saves[n].language, &saves[n].date, &saves[n].datasize, &saves[n].blocksize);
+        if (result != 0)
+        {
+            sgc_core_error("Failed with %d %s", result, saves[n].filename);
 
-			// BUGBUG: handle error conditions gracefully
-			strncpy(saves[n].name, "Error", MAX_SAVE_FILENAME);
-			continue;
-		}
-	}
-	
+            // BUGBUG: handle error conditions gracefully
+            strncpy(saves[n].name, "Error", MAX_SAVE_FILENAME);
+            continue;
+        }
+    }
 
-    sgc_core_error("end modeListSaveFiles");
     return count;
 }
 
@@ -333,14 +328,12 @@ int modeReadBUPHeader(char* filename, PBUP_HEADER bupHeader)
         return -1;
     }
 
-    sgc_core_error("before strcpy");
     strcpy(tmpFilename, SaveDirectory);
     strcat(tmpFilename, "/");
     strcat(tmpFilename, filename);
 
     modeEnter();
 
-    sgc_core_error("before open %s", tmpFilename);
     result = MODE_OpenFile(tmpFilename, 0);
     if(result != 0)
     {
@@ -349,13 +342,11 @@ int modeReadBUPHeader(char* filename, PBUP_HEADER bupHeader)
         return -2;
     }
 
-	//MODE always reads in sector chunks, so we would be overwritting the stack if reading directly to the header buffer
-	MODE_ReadFile(SectorBuffer, 0, 2048);
+    //MODE always reads in sector chunks, so we would be overwritting the stack if reading directly to the header buffer
+    MODE_ReadFile(SectorBuffer, 0, 2048);
     memcpy((unsigned char*)bupHeader, SectorBuffer, sizeof(BUP_HEADER));
 
     MODE_CloseFile();
-
-    sgc_core_error("end modeReadBUPHeader");
 
     modeExit();
 

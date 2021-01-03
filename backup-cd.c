@@ -74,7 +74,7 @@ int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             }
 
             // copy over the filename as well
-            strncpy((char*)saves[i].filename, filename, MAX_SAVE_FILENAME);
+            strncpy((char*)saves[count].filename, filename, MAX_FILENAME);
             count++;
         }
     }
