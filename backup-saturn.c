@@ -153,7 +153,7 @@ int saturnWriteSaveFile(int backupDevice, char* filename, unsigned char* saveDat
         return -2;
     }
 
-    result = jo_backup_save_file_contents(backupDevice, filename, (char*)temp->dir.comment, saveData + sizeof(BUP_HEADER), saveDataLen - sizeof(BUP_HEADER));
+    result = jo_backup_save_file_contents_on_partition(backupDevice, filename, (char*)temp->dir.comment, temp->dir.language, temp->dir.date, saveData + sizeof(BUP_HEADER), saveDataLen - sizeof(BUP_HEADER), 0);
     if(result == false)
     {
         sgc_core_error("Failed to write save backup device %d!!", backupDevice);
