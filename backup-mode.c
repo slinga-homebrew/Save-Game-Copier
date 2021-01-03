@@ -49,6 +49,7 @@ bool modeIsBackupDeviceAvailable(int backupDevice)
 // queries the saves on the MODE and fills out the saves array
 int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 {
+	int len = 0;
     int result = 0;
     unsigned int count = 0;
     BUP_HEADER bupHeader = {0};
@@ -87,15 +88,24 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             continue;
         }
 
-        sgc_core_error("isBUP() %s", SatSaves[n].Name);
+		len = strlen(SatSaves[n].Name);
+
+		if (len < 4)
+			continue;
+		//dunno what's wrong with that function
+		/*
+
         result = isFileBUPExt(SatSaves[n].Name);
         if(result == false)
         {
             // not a .BUP file, skip
             continue;
         }
+		*/
+		if (memcmp(SatSaves[n].Name + len - 4, BUP_EXTENSION, 4) != 0)
+			continue;
 
-        sgc_core_error("modeReadBUPHeader");
+      sgc_core_error("modeReadBUPHeader");
         result = modeReadBUPHeader(SatSaves[n].Name, &bupHeader);
         if(result != 0)
         {
@@ -115,8 +125,10 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             continue;
         }
 
-        sgc_core_error("strncpy");
         strncpy((char*)saves[count].filename, SatSaves[n].Name, MAX_FILENAME);
+
+		saves[count].datasize = SatSaves[n].Size;
+		saves[count].blocksize = 0;
 
         count++;
 
@@ -125,6 +137,28 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             break;
         }
     }
+	
+	for (unsigned int n = 0; n < count; ++n)
+	{
+		result = modeReadBUPHeader(saves[n].filename, &bupHeader);
+		if (result != 0)
+		{
+			sgc_core_error("bup header %s", saves[n].filename);
+			continue;
+		}
+
+		result = parseBupHeaderValues(&bupHeader, saves[n].datasize, saves[n].name, saves[n].comment, &saves[n].language, &saves[n].date, &saves[n].datasize, &saves[n].blocksize);
+		if (result != 0)
+		{
+			sgc_core_error("Failed with %d %s", result, saves[n].filename);
+
+
+			// BUGBUG: handle error conditions gracefully
+			strncpy(saves[n].name, "Error", MAX_SAVE_FILENAME);
+			continue;
+		}
+	}
+	
 
     sgc_core_error("end modeListSaveFiles");
     return count;
@@ -315,11 +349,10 @@ int modeReadBUPHeader(char* filename, PBUP_HEADER bupHeader)
         return -2;
     }
 
-    sgc_core_error("before read");
-    MODE_ReadFile((unsigned char*)bupHeader, 0, sizeof(BUP_HEADER));
+	//MODE always reads in sector chunks, so we would be overwritting the stack if reading directly to the header buffer
+	MODE_ReadFile(SectorBuffer, 0, 2048);
+    memcpy((unsigned char*)bupHeader, SectorBuffer, sizeof(BUP_HEADER));
 
-    // how do we know how many bytes we read??
-    sgc_core_error("before close file");
     MODE_CloseFile();
 
     sgc_core_error("end modeReadBUPHeader");
