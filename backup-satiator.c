@@ -146,7 +146,6 @@ int satiatorReadSaveFile(int backupDevice, char* filename, unsigned char* outBuf
         return -2;
     }
 
-    sgc_core_error("sat: %s", filename);
     fd = s_open(filename, FA_READ);
     if(fd < 0)
     {

@@ -62,12 +62,16 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
     modeEnter();
 
     result = MODE_ReadFileListing(SaveDirectory, SatSaves, MAX_SAVES);
+
+    modeExit();
+
     if(result < 0)
     {
         sgc_core_error("modeListSaveFiles: %d Failed to open SAVES directory", result);
-        modeExit();
         return -2;
     }
+
+    sgc_core_error("found %d files", result);
 
     // loop through the files in the directory
     for (int n = 0; n < result; ++n)
@@ -90,6 +94,7 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 			continue;
 		//dunno what's wrong with that function
 		/*
+
         result = isFileBUPExt(SatSaves[n].Name);
         if(result == false)
         {
@@ -99,8 +104,28 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 		*/
 		if (memcmp(SatSaves[n].Name + len - 4, BUP_EXTENSION, 4) != 0)
 			continue;
+
+      sgc_core_error("modeReadBUPHeader");
+        result = modeReadBUPHeader(SatSaves[n].Name, &bupHeader);
+        if(result != 0)
+        {
+            sgc_core_error("bup header %s", SatSaves[n].Name);
+            continue;
+        }
+
+        sgc_core_error("parseBUPHeader");
+        result = parseBupHeaderValues(&bupHeader, SatSaves[n].Size, saves[count].name, saves[count].comment, &saves[count].language, &saves[count].date, &saves[count].datasize, &saves[count].blocksize);
+        if(result != 0)
+        {
+            sgc_core_error("Failed with %d", result);
+
+
+            // BUGBUG: handle error conditions gracefully
+            strncpy(saves[count].name, "Error", MAX_SAVE_FILENAME);
+            continue;
+        }
+
         strncpy((char*)saves[count].filename, SatSaves[n].Name, MAX_FILENAME);
-		//strncpy((char*)saves[count].name, SatSaves[n].Name, MAX_FILENAME);
 
 		saves[count].datasize = SatSaves[n].Size;
 		saves[count].blocksize = 0;
@@ -135,8 +160,7 @@ int modeListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 	}
 	
 
-    modeExit();
-
+    sgc_core_error("end modeListSaveFiles");
     return count;
 }
 
@@ -309,14 +333,19 @@ int modeReadBUPHeader(char* filename, PBUP_HEADER bupHeader)
         return -1;
     }
 
+    sgc_core_error("before strcpy");
     strcpy(tmpFilename, SaveDirectory);
     strcat(tmpFilename, "/");
     strcat(tmpFilename, filename);
 
+    modeEnter();
+
+    sgc_core_error("before open %s", tmpFilename);
     result = MODE_OpenFile(tmpFilename, 0);
     if(result != 0)
     {
         sgc_core_error("modeBUP: Failed to open MODE file!!");
+        modeExit();
         return -2;
     }
 
@@ -326,6 +355,9 @@ int modeReadBUPHeader(char* filename, PBUP_HEADER bupHeader)
 
     MODE_CloseFile();
 
+    sgc_core_error("end modeReadBUPHeader");
+
+    modeExit();
+
     return 0;
 }
-
