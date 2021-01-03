@@ -12,18 +12,21 @@ SGC is for copying save games to a Saturn. To copy save games from Saturn -> PC 
 ![MODE](screenshots/mode.png)
 ![Dump](screenshots/dump.png)
 
-## Save Games Format
-The save games are stored in a raw format (no header, no encoding, no metadata, etc). Many emulators add a header to the save. When working with a save from an emulator I recommend using [ss-save-parser](https://github.com/hitomi2500/ss-save-parser) and extracting as raw without any extra information.
+## Save Games Format (.BUP)
+SGC uses saves in the .BUP save format. The .BUP format consists of the metadata along with the raw save itself. The format is documented in [Save Game BUP Scripts](https://github.com/slinga-homebrew/Save-Game-BUP-Scripts) along with a script to convert between .BUP and raw saves. 
 
-All saves on the Saturn MUST have 11 character names. All files on a CD are limited to 8 character names with 3 character extensions. If you want your ISO to work properly on a Saturn you have to rename the file to an 8.3 character file. For example if the file your adding is FPS_6MEN_01, rename to FPS_6MEN._01.
+* All files on a CD are limited to 8 character names plus 3 characters for the .BUP extension.
+* The .BUP extension is required. 
+
+* If you want your ISO to work properly on a Saturn you have to rename the file to an 8.3 character file. For example if the file you are adding is FPS_6MEN_01.BUP, rename to FPS_6MEN.BUP.
 
 Additional examples:
-GRANDIA_001 -> GRANDIA_.001
-_DEATHTANK_ -> _DEATHTA.NK_
-THREE_DIRTY -> THREE_DI.RTY
-SGC automatically renames it back for you.
+GRANDIA_001.BUP -> GRANDIA_.BUP
+THREE_DIRTY.BUP -> THREE_DI.BUP
 
-## Adding Custom Save Games
+MODE and Satiator can use longer 14.3 filenames. 
+
+## Adding Custom Save Games to the SGC ISO
 There are two ways to add your custom save game files to SGC:
 1) (Windows) Using something like WinISO add your save game file to the SAVES directory. Again read the instructions in "Save Game Format" so you have the correct type of file and filename. The filename must be in the 8.3 format.
 1) (Linux)
@@ -52,10 +55,12 @@ dd conv=notrunc if=sgc_original.iso of=sgc_modified.iso bs=1 count=32768
 I don't own a Satiator so my testing has solely been with the [Satiator Yabause fork](https://github.com/satiator/satiator-yabause). When using a Satiator:
 * Make sure you upgrade to the latest firmware. There have been firmware fixes
 * Create a "SAVES" directory on the root of the drive. SGC is hardcoded to use that folder. Copy saves to and from that folder.
+* Saves must use the .BUP file extensions or they will not be visible. Filenames can be 11 characters + 3 more for the extension. 
 
 ## MODE Support
 * Ensure you are running firmware >= 1.04
-* Create a "SATSAVES" directory on the root of the SD card. SGC is hardcoded to use that folder and the SD card HDD is not supported yet. Ensure copied saves don't have a . separating name and extension, otherwise they will error when importing. FPS_6MEN_01 will work, FPS_6MEN._01 won't.
+* Create a "SATSAVES" directory on the root of the SD card. SGC is hardcoded to use that folder and the SD card HDD is not supported yet. 
+* Saves must use the .BUP file extensions or they will not be visible. Filenames can be 11 characters + 3 more for the extension. 
 * You must use the cue file named *game_cue_for_mode.cue* **INSTEAD OF** *game.cue* file. Ensure only 1 cue is present along with game.iso file. This is required because MODE needs a large TOC for the command interface.
 
 ## Dumping Memory
