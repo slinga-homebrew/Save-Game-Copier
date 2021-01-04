@@ -135,6 +135,7 @@ int saturnWriteSaveFile(int backupDevice, char* filename, unsigned char* saveDat
 {
     bool result = false;
     PBUP_HEADER temp = NULL;
+    jo_backup saveMeta = {0};
 
     // BUP header is required
     if(saveDataLen < sizeof(BUP_HEADER))
@@ -153,7 +154,15 @@ int saturnWriteSaveFile(int backupDevice, char* filename, unsigned char* saveDat
         return -2;
     }
 
-    result = jo_backup_save_file_contents_on_partition(backupDevice, filename, (char*)temp->dir.comment, temp->dir.language, temp->dir.date, saveData + sizeof(BUP_HEADER), saveDataLen - sizeof(BUP_HEADER), 0);
+    saveMeta.backup_device = backupDevice;
+    saveMeta.fname = filename;
+    saveMeta.comment = (char*)temp->dir.comment;
+    saveMeta.contents = saveData + sizeof(BUP_HEADER);
+    saveMeta.content_size = saveDataLen - sizeof(BUP_HEADER);
+    saveMeta.language_num = temp->dir.language;
+    saveMeta.save_timestamp = temp->dir.date;
+
+    result = jo_backup_save(&saveMeta);
     if(result == false)
     {
         sgc_core_error("Failed to write save backup device %d!!", backupDevice);

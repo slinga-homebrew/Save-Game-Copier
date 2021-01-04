@@ -89,7 +89,7 @@ void jo_main(void)
     jo_core_add_callback(credits_input);
 
     // debug output
-    jo_core_add_callback(debugOutput_draw);
+    //jo_core_add_callback(debugOutput_draw);
 
     queryBackupDevices();
 
