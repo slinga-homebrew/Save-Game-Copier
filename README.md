@@ -71,18 +71,19 @@ SGC also supports advanced feature to arbitrary dump memory. This can allow you 
 * etc
 
 ## Issues
+* Non-English save game comments are not displayed. This is a limitation of the print routine I'm using. However the comments are copied correctly and can be viewed within the Saturn BIOS. I'm researching a workaround.  
 * Once you access the Satiator you can no longer list the saves in the "CD Memory" option. I don't know if this is an issue with Satiator or the Satiator-Yabause fork I am testing with. If you really want to transfer multiple "CD Memory" saves to your Satiator, transfer them to your Internal Memory first. From there you can transfer multiple saves to the Satiator without issue. Or since you have a Satiator you can just put the saves on your SD card...
 * Some Satiator users have reported the first transfer takes ~90 seconds and then all other transfers are fast. Professor Abrasive is aware of the issue. It's possible the issue is related to the SD card itself. Try running a chkdsk.
 
 ## Troubleshooting
- When debugging saves that don't work, load SGC on both systems and verify the MD5 hash and file size of both saves. The most likely issue is that of metadata being included. The other common issue is the name of the file.
+When debugging saves that don't work, load SGC on both systems and verify the MD5 hash and file size of both saves. The most likely issue is that of metadata being included. The other common issue is the name of the file.
 
- SGC uses a dynamic menu and will remove devices it doesn't detect from your menu. If SGC is having trouble seeing your backup cartridge make sure the builtin Saturn memory manager can see the cartridge. Most likely the Saturn can't see the cartridge and therefore neither can SGC.
+SGC uses a dynamic menu and will remove devices it doesn't detect from your menu. If SGC is having trouble seeing your backup cartridge make sure the builtin Saturn memory manager can see the cartridge. Most likely the Saturn can't see the cartridge and therefore neither can SGC.
 
- MODE is not detected. Make sure you use the game_cure_for_mode.cue otherwise the MODE will not be detected.
+MODE is not detected. Make sure you use the game_cure_for_mode.cue otherwise the MODE will not be detected.
 
 ## Saturn Save Games Collect Project
-Want to share your save games on the web? Send them to the [Save Games Collect](https://ppcenter.webou.net/pskai/savedata/) project. Made by Cafe-Alpha, the author of the Gamer's Cartridge. Please append a ".RAW" to the save filename before submitting.
+Want to share your save games on the web? Send them to the [Save Games Collect](https://ppcenter.webou.net/pskai/savedata/) project. Made by Cafe-Alpha, the author of the Gamer's Cartridge. Please submit your ".BUP" files. 
 
 ## License
 Licensed under GPL3 to comply with the Iapetus license.
