@@ -403,6 +403,10 @@ unsigned int initMenuOptions(int newState)
             g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_CREDITS;
             numMenuOptions++;
 
+            g_Game.menuOptions[numMenuOptions].optionText = "Exit to CD Player";
+            g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_EXIT;
+            numMenuOptions++;
+
             g_Game.menuOptions[numMenuOptions].optionText = "Reboot";
             g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_REBOOT;
             numMenuOptions++;
@@ -720,6 +724,11 @@ void main_input(void)
                 case MAIN_OPTION_CREDITS:
                 {
                     transitionToState(STATE_CREDITS);
+                    return;
+                }
+                case MAIN_OPTION_EXIT:
+                {
+                    jo_core_exit_to_multiplayer();
                     return;
                 }
                 case MAIN_OPTION_REBOOT:
@@ -1710,8 +1719,7 @@ void collect_draw(void)
     jo_printf(OPTIONS_X - 3, OPTIONS_Y - 1 + y++, "ppcenter.webou.net/pskai/savedata/");
     y++;
 
-    jo_printf(OPTIONS_X - 3, OPTIONS_Y - 1 + y++, "Please append \".RAW\" to the save");
-    jo_printf(OPTIONS_X - 3, OPTIONS_Y - 1 + y++, "filename before sending. ");
+    jo_printf(OPTIONS_X - 3, OPTIONS_Y - 1 + y++, "Please submit your \".BUP\" files.");
 
     return;
 }

@@ -31,7 +31,7 @@
 #include "bup_header.h"
 
 // program version, keep this length to avoid having to resize strings
-#define VERSION "3.4.8"
+#define VERSION "3.5.0"
 
 // program states
 #define STATE_UNINITIALIZED      0
@@ -60,7 +60,8 @@
 #define MAIN_OPTION_FORMAT       7
 #define MAIN_OPTION_COLLECT      8
 #define MAIN_OPTION_CREDITS      9
-#define MAIN_OPTION_REBOOT      10
+#define MAIN_OPTION_EXIT         10
+#define MAIN_OPTION_REBOOT       11
 
 #define SAVE_OPTION_INTERNAL     0
 #define SAVE_OPTION_CARTRIDGE    1
@@ -92,7 +93,7 @@
 
 #define CURSOR_X                 HEADING_X
 
-#define MAIN_NUM_OPTIONS             9
+#define MAIN_NUM_OPTIONS             10
 #define FORMAT_NUM_OPTIONS           3
 #define FORMAT_VERIFY_NUM_OPTIONS    2
 #define SAVES_NUM_OPTIONS            6
