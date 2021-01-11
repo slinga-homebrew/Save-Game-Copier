@@ -1030,6 +1030,12 @@ void displaySave_draw(void)
     else if(g_Game.operationStatus == OPERATION_FAIL)
     {
         y++;
+        jo_printf(OPTIONS_X, SAVES_Y + y++, "Failed to copy the save, ");
+        jo_printf(OPTIONS_X, SAVES_Y + y++, "possibly due to a lack of space.  ");
+    }
+    else if(g_Game.operationStatus == OPERATION_FAIL_DELETE)
+    {
+        y++;
         jo_printf(OPTIONS_X, SAVES_Y + y++, "Failed to perform operation.     ");
     }
 
@@ -1139,14 +1145,14 @@ void displaySave_input(void)
                         // BUGBUG: don't list this option for STATE_DISPLAY_MEMORY
                         if(g_Game.state == STATE_DISPLAY_MEMORY)
                         {
-                            g_Game.operationStatus = OPERATION_FAIL;
+                            g_Game.operationStatus = OPERATION_FAIL_DELETE;
                             return;
                         }
 
                         result = deleteSaveFile(g_Game.backupDevice, g_Game.saveFilename);
                         if(result != 0)
                         {
-                            g_Game.operationStatus = OPERATION_FAIL;
+                            g_Game.operationStatus = OPERATION_FAIL_DELETE;
                             return;
                         }
                         g_Game.operationStatus = OPERATION_SUCCESS;

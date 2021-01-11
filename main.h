@@ -77,6 +77,7 @@
 #define OPERATION_UNINIT         0
 #define OPERATION_SUCCESS        1
 #define OPERATION_FAIL           2
+#define OPERATION_FAIL_DELETE    3
 
 // position of the heading text
 #define HEADING_X                2
