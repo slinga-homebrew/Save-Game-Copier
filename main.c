@@ -1062,12 +1062,12 @@ void displaySave_input(void)
     if(g_Game.state == STATE_DISPLAY_SAVE)
     {
         saveFileData = (unsigned char*)g_Game.saveBupHeader;
-        saveFileSize = (unsigned char*)g_Game.saveFileSize + sizeof(BUP_HEADER);
+        saveFileSize = g_Game.saveFileSize + sizeof(BUP_HEADER);
     }
     else
     {
         saveFileData = (unsigned char*)g_Game.dumpMemoryAddress;
-        saveFileSize = (unsigned char*)g_Game.dumpMemorySize;
+        saveFileSize = g_Game.dumpMemorySize;
     }
 
     // did the player hit start
