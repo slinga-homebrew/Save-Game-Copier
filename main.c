@@ -931,6 +931,7 @@ void displaySave_draw(void)
     int result = 0;
     int y = 0;
     unsigned char* saveFileData = NULL;
+    unsigned int saveFileSize = 0;
     jo_backup_date jo_date = {0};
 
     if(g_Game.state != STATE_DISPLAY_SAVE && g_Game.state != STATE_DISPLAY_MEMORY)
@@ -940,11 +941,13 @@ void displaySave_draw(void)
 
     if(g_Game.state == STATE_DISPLAY_SAVE)
     {
-        saveFileData = (unsigned char*)g_Game.saveFileData;
+        saveFileData = (unsigned char*)g_Game.saveBupHeader  + sizeof(BUP_HEADER);
+        saveFileSize =  g_Game.saveFileSize;
     }
     else
     {
         saveFileData = (unsigned char*)g_Game.dumpMemoryAddress;
+        saveFileSize =  g_Game.dumpMemorySize;
     }
 
     // heading
@@ -973,7 +976,7 @@ void displaySave_draw(void)
         }
 
         // print messages to the user so that can get an estimate of the time for longer operations
-        result = calculateMD5Hash(g_Game.saveFileData, g_Game.saveFileSize, g_Game.md5Hash);
+        result = calculateMD5Hash(saveFileData, saveFileSize, g_Game.md5Hash);
         if(result != 0)
         {
             // something went wrong
@@ -1004,7 +1007,7 @@ void displaySave_draw(void)
     y++;
 
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Size: %d            ", g_Game.saveFileSize);
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Address: 0x%08x-0x%08x        ", saveFileData, saveFileData + g_Game.saveFileSize);
+    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Address: 0x%08x-0x%08x        ", saveFileData, saveFileData + saveFileSize);
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "MD5: %02x%02x%02x%02x%02x%02x%02x%02x", g_Game.md5Hash[0], g_Game.md5Hash[1], g_Game.md5Hash[2], g_Game.md5Hash[3], g_Game.md5Hash[4], g_Game.md5Hash[5], g_Game.md5Hash[6], g_Game.md5Hash[7]);
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "     %02x%02x%02x%02x%02x%02x%02x%02x", g_Game.md5Hash[8], g_Game.md5Hash[9], g_Game.md5Hash[10], g_Game.md5Hash[11],  g_Game.md5Hash[12], g_Game.md5Hash[13], g_Game.md5Hash[14], g_Game.md5Hash[15]);
 
@@ -1048,7 +1051,8 @@ void displaySave_input(void)
 {
     int result = 0;
     unsigned int option = 0;
-    unsigned char* saveFileData;
+    unsigned char* saveFileData = NULL;
+    unsigned int saveFileSize = 0;
 
     if(g_Game.state != STATE_DISPLAY_SAVE && g_Game.state != STATE_DISPLAY_MEMORY)
     {
@@ -1058,10 +1062,12 @@ void displaySave_input(void)
     if(g_Game.state == STATE_DISPLAY_SAVE)
     {
         saveFileData = (unsigned char*)g_Game.saveBupHeader;
+        saveFileSize = (unsigned char*)g_Game.saveFileSize + sizeof(BUP_HEADER);
     }
     else
     {
         saveFileData = (unsigned char*)g_Game.dumpMemoryAddress;
+        saveFileSize = (unsigned char*)g_Game.dumpMemorySize;
     }
 
     // did the player hit start
@@ -1079,7 +1085,7 @@ void displaySave_input(void)
                 {
                     case SAVE_OPTION_INTERNAL:
                     {
-                        result = writeSaveFile(JoInternalMemoryBackup, g_Game.saveName, saveFileData, g_Game.saveFileSize + sizeof(BUP_HEADER));
+                        result = writeSaveFile(JoInternalMemoryBackup, g_Game.saveName, saveFileData, saveFileSize);
                         if(result != 0)
                         {
                             g_Game.operationStatus = OPERATION_FAIL;
@@ -1090,7 +1096,7 @@ void displaySave_input(void)
                     }
                     case SAVE_OPTION_CARTRIDGE:
                     {
-                        result = writeSaveFile(JoCartridgeMemoryBackup, g_Game.saveName, saveFileData, g_Game.saveFileSize + sizeof(BUP_HEADER));
+                        result = writeSaveFile(JoCartridgeMemoryBackup, g_Game.saveName, saveFileData, saveFileSize);
                         if(result != 0)
                         {
                             g_Game.operationStatus = OPERATION_FAIL;
@@ -1101,7 +1107,7 @@ void displaySave_input(void)
                     }
                     case SAVE_OPTION_EXTERNAL:
                     {
-                        result = writeSaveFile(JoExternalDeviceBackup, g_Game.saveName, saveFileData, g_Game.saveFileSize + sizeof(BUP_HEADER));
+                        result = writeSaveFile(JoExternalDeviceBackup, g_Game.saveName, saveFileData, saveFileSize);
                         if(result != 0)
                         {
                             g_Game.operationStatus = OPERATION_FAIL;
@@ -1112,7 +1118,7 @@ void displaySave_input(void)
                     }
                     case SAVE_OPTION_SATIATOR:
                     {
-                        result = writeSaveFile(SatiatorBackup, g_Game.saveFilename, saveFileData, g_Game.saveFileSize + sizeof(BUP_HEADER));
+                        result = writeSaveFile(SatiatorBackup, g_Game.saveFilename, saveFileData, saveFileSize);
                         if(result != 0)
                         {
                             g_Game.operationStatus = OPERATION_FAIL;
@@ -1124,7 +1130,7 @@ void displaySave_input(void)
                     case SAVE_OPTION_MODE:
                     {
                         jo_printf(OPTIONS_X, SAVES_Y + g_Game.numMenuOptions + 2, "Operation in progress....        ");
-                        result = writeSaveFile(MODEBackup, g_Game.saveFilename, saveFileData, g_Game.saveFileSize + sizeof(BUP_HEADER));
+                        result = writeSaveFile(MODEBackup, g_Game.saveFilename, saveFileData, saveFileSize);
                         if (result != 0)
                         {
                             g_Game.operationStatus = OPERATION_FAIL;
@@ -1653,12 +1659,12 @@ void dumpMemory_input(void)
 
             if(g_Game.state == STATE_DUMP_MEMORY)
             {
-            // set globals based on the memory address and size being copied
-            snprintf(g_Game.saveFilename, MAX_SAVE_FILENAME, "%08X.DM", g_Game.dumpMemoryAddress);
-            g_Game.saveFileSize = g_Game.dumpMemorySize;
+                // set globals based on the memory address and size being copied
+                snprintf(g_Game.saveFilename, MAX_SAVE_FILENAME, "%08X.DM", g_Game.dumpMemoryAddress);
+                g_Game.saveFileSize = g_Game.dumpMemorySize;
 
-            transitionToState(STATE_DISPLAY_MEMORY);
-            return;
+                transitionToState(STATE_DISPLAY_MEMORY);
+                return;
             }
             else // STATE_WRITE_MEMORY
             {
