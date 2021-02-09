@@ -11,6 +11,10 @@
 #define MAX_FILENAME            32
 #define MAX_SAVES               255
 
+// all devices should standardize on this directory
+// for storing saves
+#define SAVES_DIRECTORY "SATSAVES"
+
 #define SatiatorBackup (JoExternalDeviceBackup + 1)
 #define CdMemoryBackup (SatiatorBackup + 1)
 #define MemoryBackup (CdMemoryBackup + 1)
@@ -18,7 +22,7 @@
 
 // meta data related to save files
 typedef struct  _SAVES {
-    char filename[MAX_FILENAME]; // filename on the medium. Will have .BUP extension on CD FS and ODEs. 
+    char filename[MAX_FILENAME]; // filename on the medium. Will have .BUP extension on CD FS and ODEs.
     char name[MAX_SAVE_FILENAME]; // selected save name
     char comment[MAX_SAVE_COMMENT]; // selected save comment
     unsigned char language;

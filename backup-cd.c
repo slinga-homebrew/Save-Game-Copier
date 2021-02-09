@@ -16,7 +16,7 @@ int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 {
     int count = 0;
     GfsHn gfs = 0;
-    char* sub_dir = "SAVES";
+    char* sub_dir = SAVES_DIRECTORY;
     BUP_HEADER bupHeader = {0};
 
     if(backupDevice != CdMemoryBackup)
@@ -91,7 +91,7 @@ int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 int cdReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, unsigned int outSize)
 {
     unsigned char* saveData = NULL;
-    char* sub_dir = "SAVES";
+    char* sub_dir = SAVES_DIRECTORY;
     int length = 0;
 
     if(backupDevice != CdMemoryBackup)
