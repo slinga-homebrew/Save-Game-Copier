@@ -47,7 +47,7 @@ int satiatorListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
     result = s_opendir(".");
     if(result != 0)
     {
-        sgc_core_error("readSatiatorSaveFiles: Failed to open SAVES directory");
+        sgc_core_error("readSatiatorSaveFiles: Failed to open SATSAVES directory");
         return -2;
     }
 
@@ -130,7 +130,8 @@ int satiatorReadSaveFile(int backupDevice, char* filename, unsigned char* outBuf
     result = satiatorEnter();
     if(result == 0)
     {
-        sgc_core_error("Failed to detect satiator %d", result);
+        // why is it failing to detect now??
+        //sgc_core_error("Failed to detect satiator %d", result);
         //return -1;
     }
 
@@ -297,7 +298,7 @@ int satiatorEnter(void)
     {
         return -1;
     }
-    s_chdir("/SAVES");
+    s_chdir("/SATSAVES");
     return 0;
 }
 

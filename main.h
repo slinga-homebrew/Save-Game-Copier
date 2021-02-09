@@ -31,7 +31,7 @@
 #include "bup_header.h"
 
 // program version, keep this length to avoid having to resize strings
-#define VERSION "3.5.1"
+#define VERSION "3.6.0"
 
 // program states
 #define STATE_UNINITIALIZED      0
