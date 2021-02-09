@@ -28,7 +28,7 @@ MODE and Satiator can use longer 14.3 filenames.
 
 ## Adding Custom Save Games to the SGC ISO
 There are two ways to add your custom save game files to SGC:
-1) (Windows) Using something like WinISO add your save game file to the SAVES directory. Again read the instructions in "Save Game Format" so you have the correct type of file and filename. The filename must be in the 8.3 format.
+1) (Windows) Using something like WinISO add your save game file to the SATSAVES directory. Again read the instructions in "Save Game Format" so you have the correct type of file and filename. The filename must be in the 8.3 format.
 1) (Linux)
 ```
 # mount the original
@@ -39,7 +39,7 @@ tar cf - . | (cd /tmp/sgc_custom; tar xfp -)
 
 # make the necessary changes
 # remember that filenames must be in 8.3 format
-cd /tmp/sgc_custom/SAVES
+cd /tmp/sgc_custom/SATSAVES
 <add\delete saves as needed>
 
 # convert your changes back into an iso
@@ -49,12 +49,12 @@ mkisofs -o sgc_modified.iso /tmp/sgc_custom
 dd conv=notrunc if=sgc_original.iso of=sgc_modified.iso bs=1 count=32768
 ```
 
-2) If you are comfortable compiling SGC, you can also add saves at build time. Checkout SGC from source. Add your save game files (in a raw format) to cd/SAVES/ and recompile. Again read the instructions in "Save Game Format" so you have the correct type of file and filename.  The newly built ISO will include your saves.
+2) If you are comfortable compiling SGC, you can also add saves at build time. Checkout SGC from source. Add your save game files (in a raw format) to cd/SATSAVES/ and recompile. Again read the instructions in "Save Game Format" so you have the correct type of file and filename.  The newly built ISO will include your saves.
 
 ## Satiator Support
 I don't own a Satiator so my testing has solely been with the [Satiator Yabause fork](https://github.com/satiator/satiator-yabause). When using a Satiator:
 * Make sure you upgrade to the latest firmware. There have been firmware fixes
-* Create a "SAVES" directory on the root of the drive. SGC is hardcoded to use that folder. Copy saves to and from that folder.
+* Create a "SATSAVES" directory on the root of the drive. SGC is hardcoded to use that folder. Copy saves to and from that folder.
 * Saves must use the .BUP file extensions or they will not be visible. Filenames can be 11 characters + 3 more for the extension. 
 
 ## MODE Support
