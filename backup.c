@@ -15,15 +15,7 @@ bool isBackupDeviceAvailable(int backupDevice)
             return saturnIsBackupDeviceAvailable(backupDevice);
 
         case SatiatorBackup:
-        {
-            bool result;
-
-            satiatorEnter();
-            result = satiatorIsBackupDeviceAvailable(backupDevice);
-            satiatorExit();
-
-            return result;
-        }
+            return satiatorIsBackupDeviceAvailable(backupDevice);
 
         case MODEBackup:
             return modeIsBackupDeviceAvailable(backupDevice);
@@ -50,15 +42,7 @@ int listSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             return saturnListSaveFiles(backupDevice, saves, numSaves);
 
         case SatiatorBackup:
-        {
-            int result;
-
-            satiatorEnter();
-            result = satiatorListSaveFiles(backupDevice, saves, numSaves);
-            satiatorExit();
-
-            return result;
-        }
+            return satiatorListSaveFiles(backupDevice, saves, numSaves);
 
         case MODEBackup:
             return modeListSaveFiles(backupDevice, saves, numSaves);
@@ -85,15 +69,7 @@ int readSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, uns
             return saturnReadSaveFile(backupDevice, filename, outBuffer, outSize);
 
         case SatiatorBackup:
-        {
-            int result;
-
-            satiatorEnter();
-            result = satiatorReadSaveFile(backupDevice, filename, outBuffer, outSize);
-            satiatorExit();
-
-            return result;
-        }
+            return satiatorReadSaveFile(backupDevice, filename, outBuffer, outSize);
 
         case MODEBackup:
             return modeReadSaveFile(backupDevice, filename, outBuffer, outSize);
@@ -120,15 +96,7 @@ int writeSaveFile(int backupDevice, char* filename, unsigned char* inBuffer, uns
             return saturnWriteSaveFile(backupDevice, filename, inBuffer, inSize);
 
         case SatiatorBackup:
-        {
-            int result;
-
-            satiatorEnter();
-            result = satiatorWriteSaveFile(backupDevice, filename, inBuffer, inSize);
-            satiatorExit();
-
-            return result;
-        }
+            return satiatorWriteSaveFile(backupDevice, filename, inBuffer, inSize);
 
         case MODEBackup:
             return modeWriteSaveFile(backupDevice, filename, inBuffer, inSize);
@@ -153,15 +121,7 @@ int deleteSaveFile(int backupDevice, char* filename)
             return saturnDeleteSaveFile(backupDevice, filename);
 
         case SatiatorBackup:
-        {
-            int result;
-
-            satiatorEnter();
-            result = satiatorDeleteSaveFile(backupDevice, filename);
-            satiatorExit();
-
-            return result;
-        }
+            return satiatorDeleteSaveFile(backupDevice, filename);
 
         case MODEBackup:
             return modeDeleteSaveFile(backupDevice, filename);
@@ -221,13 +181,13 @@ int getBackupDeviceName(unsigned int backupDevice, char** deviceName)
     switch(backupDevice)
     {
         case JoInternalMemoryBackup:
-            *deviceName = "Internal Backup Memory";
+            *deviceName = "Internal Memory";
             break;
         case JoCartridgeMemoryBackup:
-            *deviceName = "Cartridge Backup Memory";
+            *deviceName = "Cartridge Memory";
             break;
         case JoExternalDeviceBackup:
-            *deviceName = "External Backup Device";
+            *deviceName = "External Device";
             break;
         case SatiatorBackup:
             *deviceName = "Satiator";
@@ -239,7 +199,7 @@ int getBackupDeviceName(unsigned int backupDevice, char** deviceName)
             *deviceName = "CD File System";
             break;
         case MemoryBackup:
-            *deviceName = "(Advanced) RAM";
+            *deviceName = "RAM";
             break;
 
         default:
