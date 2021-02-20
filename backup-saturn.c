@@ -61,8 +61,8 @@ int saturnListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
         result = jo_backup_get_file_info(backupDevice, filename, comment, &language, &date, &numBytes, &numBlocks);
         if(result == false)
         {
-            sgc_core_error("Failed to read file size!!");
-            return -1;
+            //sgc_core_error("Failed to read file size!!");
+            continue;
         }
 
         // fill out the SAVES structure
