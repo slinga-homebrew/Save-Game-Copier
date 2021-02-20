@@ -309,7 +309,7 @@ int satiatorExit(void)
 
     // BUGBUG: this doesn't quite work correctly
     //s_chdir("..");
-    s_mode(s_cdrom);
+    //s_mode(S_MODE_CDROM);
 
     return 0;
 }
