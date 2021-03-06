@@ -105,7 +105,7 @@
 #define MAX_SAVE_FILENAME       12
 #define MAX_SAVE_COMMENT        11
 #define MAX_SAVES               255
-#define MAX_SAVES_PER_PAGE      10
+#define MAX_SAVES_PER_PAGE      15
 #define MAX_FILENAME            32 // maximum length of the filename on the backup medium
                                    // internal memory - this will be 11 characters
                                    // cd - 8.3
