@@ -34,6 +34,7 @@
 #include "main.h"
 #include "util.h"
 #include "backup.h"
+#include "backup-satiator.h" // needed for satiatorReboot()
 
 GAME g_Game = {0};
 SAVES g_Saves[MAX_SAVES] = {0};
@@ -407,6 +408,13 @@ unsigned int initMenuOptions(int newState)
             g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_EXIT;
             numMenuOptions++;
 
+            if(g_Game.deviceSatiatorBackup == true)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Exit to Satiator";
+                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_EXIT_SATIATOR;
+                numMenuOptions++;
+            }
+
             g_Game.menuOptions[numMenuOptions].optionText = "Reboot";
             g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_REBOOT;
             numMenuOptions++;
@@ -729,6 +737,11 @@ void main_input(void)
                 case MAIN_OPTION_EXIT:
                 {
                     jo_core_exit_to_multiplayer();
+                    return;
+                }
+                case MAIN_OPTION_EXIT_SATIATOR:
+                {
+                    satiatorReboot();
                     return;
                 }
                 case MAIN_OPTION_REBOOT:

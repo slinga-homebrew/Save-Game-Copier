@@ -12,3 +12,4 @@ int satiatorDeleteSaveFile(int backupDevice, char* filename);
 int satiatorEnter(void);
 int satiatorExit(void);
 int satiatorReadBUPHeader(char* filename, PBUP_HEADER bupHeader);
+void satiatorReboot(void);

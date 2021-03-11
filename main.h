@@ -31,7 +31,7 @@
 #include "bup_header.h"
 
 // program version, keep this length to avoid having to resize strings
-#define VERSION "3.6.1"
+#define VERSION "3.6.3"
 
 // program states
 #define STATE_UNINITIALIZED      0
@@ -50,18 +50,20 @@
 #define MAX_STATES              16 // how many states to record
 
 // option selected on the main screen
-#define MAIN_OPTION_INTERNAL     0
-#define MAIN_OPTION_CARTRIDGE    1
-#define MAIN_OPTION_EXTERNAL     2
-#define MAIN_OPTION_SATIATOR     3
-#define MAIN_OPTION_MODE         4
-#define MAIN_OPTION_CD           5
-#define MAIN_OPTION_DUMP_MEMORY  6
-#define MAIN_OPTION_FORMAT       7
-#define MAIN_OPTION_COLLECT      8
-#define MAIN_OPTION_CREDITS      9
-#define MAIN_OPTION_EXIT         10
-#define MAIN_OPTION_REBOOT       11
+#define MAIN_OPTION_INTERNAL      0
+#define MAIN_OPTION_CARTRIDGE     1
+#define MAIN_OPTION_EXTERNAL      2
+#define MAIN_OPTION_SATIATOR      3
+#define MAIN_OPTION_MODE          4
+#define MAIN_OPTION_CD            5
+#define MAIN_OPTION_DUMP_MEMORY   6
+#define MAIN_OPTION_FORMAT        7
+#define MAIN_OPTION_COLLECT       8
+#define MAIN_OPTION_CREDITS       9
+#define MAIN_OPTION_EXIT          10
+#define MAIN_OPTION_REBOOT        11
+#define MAIN_OPTION_EXIT_SATIATOR 12
+
 
 #define SAVE_OPTION_INTERNAL     0
 #define SAVE_OPTION_CARTRIDGE    1

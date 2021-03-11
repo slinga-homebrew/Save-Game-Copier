@@ -361,3 +361,19 @@ exit:
 
     return result;
 }
+
+// relaunch the satiator menu
+void satiatorReboot(void)
+{
+    s_mode(s_api);
+    for (volatile int i=0; i<2000; i++)
+        ;
+
+    int (**bios_get_mpeg_rom)(uint32_t index, uint32_t size, uint32_t addr) = (void*)0x06000298;
+    (*bios_get_mpeg_rom)(2, 2, 0x200000);
+
+    ((void(*)(void))0x200000)();
+    
+    // should never get here
+}
+
