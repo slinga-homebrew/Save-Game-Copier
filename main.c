@@ -1,32 +1,32 @@
 // Save Game Copier - a utility that copies Sega Saturn save game files
 
 /*
-** Jo Sega Saturn Engine
-** Copyright (c) 2012-2017, Johannes Fetz (johannesfetz@gmail.com)
-** All rights reserved.
-**
-** Redistribution and use in source and binary forms, with or without
-** modification, are permitted provided that the following conditions are met:
-**     * Redistributions of source code must retain the above copyright
-**       notice, this list of conditions and the following disclaimer.
-**     * Redistributions in binary form must reproduce the above copyright
-**       notice, this list of conditions and the following disclaimer in the
-**       documentation and/or other materials provided with the distribution.
-**     * Neither the name of the Johannes Fetz nor the
-**       names of its contributors may be used to endorse or promote products
-**       derived from this software without specific prior written permission.
-**
-** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-** ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-** WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-** DISCLAIMED. IN NO EVENT SHALL Johannes Fetz BE LIABLE FOR ANY
-** DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-** (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-** LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-** ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-** SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ * * Jo Sega Saturn Engine
+ ** Copyright (c) 2012-2017, Johannes Fetz (johannesfetz@gmail.com)
+ ** All rights reserved.
+ **
+ ** Redistribution and use in source and binary forms, with or without
+ ** modification, are permitted provided that the following conditions are met:
+ **     * Redistributions of source code must retain the above copyright
+ **       notice, this list of conditions and the following disclaimer.
+ **     * Redistributions in binary form must reproduce the above copyright
+ **       notice, this list of conditions and the following disclaimer in the
+ **       documentation and/or other materials provided with the distribution.
+ **     * Neither the name of the Johannes Fetz nor the
+ **       names of its contributors may be used to endorse or promote products
+ **       derived from this software without specific prior written permission.
+ **
+ ** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ** ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ ** WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ ** DISCLAIMED. IN NO EVENT SHALL Johannes Fetz BE LIABLE FOR ANY
+ ** DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ ** (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ ** LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ ** ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ ** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ ** SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include <jo/jo.h>
 #include "STDLIB.H"
@@ -111,7 +111,7 @@ void debugOutput_draw()
     //jo_printf(2, 0, "State depth: %d      ", g_Game.numStates);
     //for(int i = 0; i < MAX_STATES; i++)
     //{
-        //jo_printf(2 + (i*2), 1, "%d      ", g_Game.previousStates[i]);
+    //jo_printf(2 + (i*2), 1, "%d      ", g_Game.previousStates[i]);
     //}
 
     jo_printf(2, 25, "save name: %s", g_Game.saveName);
@@ -138,6 +138,7 @@ void queryBackupDevices(void)
         g_Game.deviceInternalMemoryBackup = isBackupDeviceAvailable(JoInternalMemoryBackup);
         g_Game.deviceCartridgeMemoryBackup = isBackupDeviceAvailable(JoCartridgeMemoryBackup);
         g_Game.deviceExternalDeviceBackup = isBackupDeviceAvailable(JoExternalDeviceBackup);
+        g_Game.deviceActionReplayBackup = isBackupDeviceAvailable(ActionReplayBackup);
         g_Game.deviceSatiatorBackup = isBackupDeviceAvailable(SatiatorBackup);
         g_Game.deviceCdMemoryBackup = isBackupDeviceAvailable(CdMemoryBackup);
 
@@ -153,6 +154,7 @@ void queryBackupDevices(void)
         g_Game.deviceInternalMemoryBackup = true;
         g_Game.deviceCartridgeMemoryBackup = true;
         g_Game.deviceExternalDeviceBackup = true;
+        g_Game.deviceActionReplayBackup = true;
         g_Game.deviceSatiatorBackup = true;
         g_Game.deviceCdMemoryBackup = true;
         g_Game.deviceModeBackup = true;
@@ -364,6 +366,13 @@ unsigned int initMenuOptions(int newState)
                 numMenuOptions++;
             }
 
+            if(g_Game.deviceActionReplayBackup == true)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Action Replay (Beta Read-Only)";
+                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_ACTION_REPLAY;
+                numMenuOptions++;
+            }
+
             if(g_Game.deviceSatiatorBackup == true)
             {
                 g_Game.menuOptions[numMenuOptions].optionText = "Satiator";
@@ -469,7 +478,7 @@ unsigned int initMenuOptions(int newState)
 
             // this check should really be isBackupDeviceWriteable()
             // for now we just check if it's not the cd
-            if(g_Game.backupDevice != CdMemoryBackup && g_Game.backupDevice != MemoryBackup)
+            if(g_Game.backupDevice != CdMemoryBackup && g_Game.backupDevice != MemoryBackup && g_Game.backupDevice != ActionReplayBackup)
             {
                 g_Game.menuOptions[numMenuOptions].optionText = "Delete Save";
                 g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_DELETE;
@@ -666,8 +675,8 @@ void main_input(void)
 
     // did the player hit start
     if(jo_is_pad1_key_pressed(JO_KEY_START) ||
-       jo_is_pad1_key_pressed(JO_KEY_A) ||
-       jo_is_pad1_key_pressed(JO_KEY_C))
+        jo_is_pad1_key_pressed(JO_KEY_A) ||
+        jo_is_pad1_key_pressed(JO_KEY_C))
     {
         if(g_Game.input.pressedStartAC == false)
         {
@@ -692,6 +701,12 @@ void main_input(void)
                 case MAIN_OPTION_EXTERNAL:
                 {
                     g_Game.backupDevice = JoExternalDeviceBackup;
+                    transitionToState(STATE_LIST_SAVES);
+                    return;
+                }
+                case MAIN_OPTION_ACTION_REPLAY:
+                {
+                    g_Game.backupDevice = ActionReplayBackup;
                     transitionToState(STATE_LIST_SAVES);
                     return;
                 }
@@ -801,11 +816,12 @@ void listSaves_draw(void)
 
         // BUP devices
         if(g_Game.backupDevice == JoInternalMemoryBackup ||
-           g_Game.backupDevice == JoCartridgeMemoryBackup ||
-           g_Game.backupDevice == JoExternalDeviceBackup ||
-           g_Game.backupDevice == CdMemoryBackup ||
-           g_Game.backupDevice == SatiatorBackup ||
-           g_Game.backupDevice == MODEBackup)
+            g_Game.backupDevice == JoCartridgeMemoryBackup ||
+            g_Game.backupDevice == JoExternalDeviceBackup ||
+            g_Game.backupDevice == CdMemoryBackup ||
+            g_Game.backupDevice == SatiatorBackup ||
+            g_Game.backupDevice == ActionReplayBackup ||
+            g_Game.backupDevice == MODEBackup)
         {
             jo_memset(g_Saves, 0, sizeof(g_Saves));
             g_Game.listedSaves = true;
@@ -830,7 +846,7 @@ void listSaves_draw(void)
         }
         else
         {
-            // TODO: add Satiator support here
+            // TODO: I forgot why this was here >_<
             g_Game.listedSaves = true;
             g_Game.numSaves = 0;
         }
@@ -897,8 +913,8 @@ void listSaves_input(void)
 
     // did the player hit start
     if(jo_is_pad1_key_pressed(JO_KEY_START) ||
-       jo_is_pad1_key_pressed(JO_KEY_A) ||
-       jo_is_pad1_key_pressed(JO_KEY_C))
+        jo_is_pad1_key_pressed(JO_KEY_A) ||
+        jo_is_pad1_key_pressed(JO_KEY_C))
     {
         if(g_Game.input.pressedStartAC == false)
         {
@@ -1085,8 +1101,8 @@ void displaySave_input(void)
 
     // did the player hit start
     if(jo_is_pad1_key_pressed(JO_KEY_START) ||
-       jo_is_pad1_key_pressed(JO_KEY_A) ||
-       jo_is_pad1_key_pressed(JO_KEY_C))
+        jo_is_pad1_key_pressed(JO_KEY_A) ||
+        jo_is_pad1_key_pressed(JO_KEY_C))
     {
         if(g_Game.input.pressedStartAC == false)
         {
@@ -1222,7 +1238,7 @@ void format_draw(void)
 
     y = 0;
 
-        // options
+    // options
     for(unsigned int i = 0; i < g_Game.numMenuOptions; i++)
     {
         jo_printf(OPTIONS_X, OPTIONS_Y + i, g_Game.menuOptions[i].optionText);
@@ -1247,8 +1263,8 @@ void format_input(void)
 
     // did the player hit start
     if(jo_is_pad1_key_pressed(JO_KEY_START) ||
-       jo_is_pad1_key_pressed(JO_KEY_A) ||
-       jo_is_pad1_key_pressed(JO_KEY_C))
+        jo_is_pad1_key_pressed(JO_KEY_A) ||
+        jo_is_pad1_key_pressed(JO_KEY_C))
     {
         if(g_Game.input.pressedStartAC == false)
         {
@@ -1369,8 +1385,8 @@ void formatVerify_input(void)
 
     // did the player hit start
     if(jo_is_pad1_key_pressed(JO_KEY_START) ||
-       jo_is_pad1_key_pressed(JO_KEY_A) ||
-       jo_is_pad1_key_pressed(JO_KEY_C))
+        jo_is_pad1_key_pressed(JO_KEY_A) ||
+        jo_is_pad1_key_pressed(JO_KEY_C))
     {
         if(g_Game.input.pressedStartAC == false)
         {
@@ -1446,7 +1462,7 @@ void dumpMemory_draw(void)
     // heading
     if(g_Game.state == STATE_DUMP_MEMORY)
     {
-    jo_printf(HEADING_X, HEADING_Y + y++, "Dump Memory");
+        jo_printf(HEADING_X, HEADING_Y + y++, "Dump Memory");
     }
     else
     {
@@ -1659,14 +1675,14 @@ void dumpMemory_input(void)
 
     // did the player hit start
     if(jo_is_pad1_key_pressed(JO_KEY_START) ||
-       jo_is_pad1_key_pressed(JO_KEY_A) ||
-       jo_is_pad1_key_pressed(JO_KEY_C))
+        jo_is_pad1_key_pressed(JO_KEY_A) ||
+        jo_is_pad1_key_pressed(JO_KEY_C))
     {
         // it doesn't make sense to continue if the dump memory size or address
         // are zero so just ignore it and do nothing
         if(g_Game.input.pressedStartAC == false &&
-           g_Game.dumpMemorySize != 0 &&
-           g_Game.dumpMemoryAddress != 0)
+            g_Game.dumpMemorySize != 0 &&
+            g_Game.dumpMemoryAddress != 0)
         {
             g_Game.input.pressedStartAC = true;
 
@@ -1760,12 +1776,12 @@ void collect_input(void)
 
     // did the player hit start
     if(jo_is_pad1_key_pressed(JO_KEY_START) ||
-       jo_is_pad1_key_pressed(JO_KEY_A) ||
-       jo_is_pad1_key_pressed(JO_KEY_B) ||
-       jo_is_pad1_key_pressed(JO_KEY_C))
+        jo_is_pad1_key_pressed(JO_KEY_A) ||
+        jo_is_pad1_key_pressed(JO_KEY_B) ||
+        jo_is_pad1_key_pressed(JO_KEY_C))
     {
         if(g_Game.input.pressedStartAC == false &&
-           g_Game.input.pressedB == false)
+            g_Game.input.pressedB == false)
         {
             g_Game.input.pressedStartAC = true;
             g_Game.input.pressedB = true;
@@ -1841,12 +1857,12 @@ void credits_input(void)
 
     // did the player hit start
     if(jo_is_pad1_key_pressed(JO_KEY_START) ||
-       jo_is_pad1_key_pressed(JO_KEY_A) ||
-       jo_is_pad1_key_pressed(JO_KEY_B) ||
-       jo_is_pad1_key_pressed(JO_KEY_C))
+        jo_is_pad1_key_pressed(JO_KEY_A) ||
+        jo_is_pad1_key_pressed(JO_KEY_B) ||
+        jo_is_pad1_key_pressed(JO_KEY_C))
     {
         if(g_Game.input.pressedStartAC == false &&
-           g_Game.input.pressedB == false)
+            g_Game.input.pressedB == false)
         {
             g_Game.input.pressedStartAC = true;
             g_Game.input.pressedB = true;

@@ -1,5 +1,6 @@
 #include "backup.h"
 #include "backup-saturn.h"
+#include "backends/actionreplay.h"
 #include "backup-mode.h"
 #include "backup-satiator.h"
 #include "backup-cd.h"
@@ -13,6 +14,9 @@ bool isBackupDeviceAvailable(int backupDevice)
         case JoCartridgeMemoryBackup:
         case JoExternalDeviceBackup:
             return saturnIsBackupDeviceAvailable(backupDevice);
+
+        case ActionReplayBackup:
+            return actionReplayIsBackupDeviceAvailable(backupDevice);
 
         case SatiatorBackup:
             return satiatorIsBackupDeviceAvailable(backupDevice);
@@ -41,6 +45,9 @@ int listSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
         case JoExternalDeviceBackup:
             return saturnListSaveFiles(backupDevice, saves, numSaves);
 
+        case ActionReplayBackup:
+            return actionReplayListSaveFiles(backupDevice, saves, numSaves);
+
         case SatiatorBackup:
             return satiatorListSaveFiles(backupDevice, saves, numSaves);
 
@@ -67,6 +74,9 @@ int readSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, uns
         case JoCartridgeMemoryBackup:
         case JoExternalDeviceBackup:
             return saturnReadSaveFile(backupDevice, filename, outBuffer, outSize);
+
+        case ActionReplayBackup:
+            return actionReplayReadSaveFile(backupDevice, filename, outBuffer, outSize);
 
         case SatiatorBackup:
             return satiatorReadSaveFile(backupDevice, filename, outBuffer, outSize);
@@ -188,6 +198,9 @@ int getBackupDeviceName(unsigned int backupDevice, char** deviceName)
             break;
         case JoExternalDeviceBackup:
             *deviceName = "External Device";
+            break;
+        case ActionReplayBackup:
+            *deviceName = "Action Replay (Beta Read-Only)";
             break;
         case SatiatorBackup:
             *deviceName = "Satiator";

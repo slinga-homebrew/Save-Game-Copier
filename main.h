@@ -31,7 +31,7 @@
 #include "bup_header.h"
 
 // program version, keep this length to avoid having to resize strings
-#define VERSION "3.6.3"
+#define VERSION "3.6.5"
 
 // program states
 #define STATE_UNINITIALIZED      0
@@ -63,7 +63,7 @@
 #define MAIN_OPTION_EXIT          10
 #define MAIN_OPTION_REBOOT        11
 #define MAIN_OPTION_EXIT_SATIATOR 12
-
+#define MAIN_OPTION_ACTION_REPLAY 13
 
 #define SAVE_OPTION_INTERNAL     0
 #define SAVE_OPTION_CARTRIDGE    1
@@ -170,6 +170,7 @@ typedef struct _GAME
     bool deviceInternalMemoryBackup;
     bool deviceCartridgeMemoryBackup;
     bool deviceExternalDeviceBackup;
+    bool deviceActionReplayBackup;
     bool deviceSatiatorBackup;
     bool deviceCdMemoryBackup;
 	bool deviceModeBackup;
