@@ -1,5 +1,5 @@
 # Save Game Copier (SGC)
-Copy Sega Saturn save game files to and/or from internal memory, cartridge memory, external devices (e.g. Sega Saturn [Floppy Disk Drive](https://segaretro.org/Saturn_Floppy_Drive)), Satiator ODE, MODE, and CD. Build with [Jo Engine](https://github.com/johannes-fetz/joengine) or download an ISO from [releases](https://github.com/slinga-homebrew/Save-Game-Copier/releases). One of the most useful features of SGC is to create a custom SGC ISO with your own save game files and copy them to your Saturn.
+Copy Sega Saturn save game files to and/or from internal memory, cartridge memory, external devices (e.g. Sega Saturn [Floppy Disk Drive](https://segaretro.org/Saturn_Floppy_Drive)), Action Replay cart, Satiator, MODE, and CD. Build with [Jo Engine](https://github.com/johannes-fetz/joengine) or download an ISO from [releases](https://github.com/slinga-homebrew/Save-Game-Copier/releases). One of the most useful features of SGC is to create a custom SGC ISO with your own save game files and copy them to your Saturn.
 
 SGC is for copying save games to a Saturn. To copy save games from Saturn -> PC use [Save Game Extractor](https://github.com/slinga-homebrew/Save-Game-Extractor).
 
@@ -13,7 +13,7 @@ SGC is for copying save games to a Saturn. To copy save games from Saturn -> PC 
 ![Dump](screenshots/dump.png)
 
 ## Save Games Format (.BUP)
-SGC uses saves in the .BUP save format. The .BUP format consists of the metadata along with the raw save itself. The format is documented in [Save Game BUP Scripts](https://github.com/slinga-homebrew/Save-Game-BUP-Scripts) along with a script to convert between .BUP and raw saves. 
+SGC uses saves in the .BUP save format. The .BUP format consists of the metadata along with the save data itself. The format is documented in [Save Game BUP Scripts](https://github.com/slinga-homebrew/Save-Game-BUP-Scripts) along with a script to convert between .BUP and raw saves. 
 
 * All files on a CD are limited to 8 character names plus 3 characters for the .BUP extension.
 * The .BUP extension is required. 
@@ -28,8 +28,8 @@ MODE and Satiator can use longer 14.3 filenames.
 
 ## Adding Custom Save Games to the SGC ISO
 There are two ways to add your custom save game files to SGC:
-1) (Windows) Using something like WinISO add your save game file to the SATSAVES directory. Again read the instructions in "Save Game Format" so you have the correct type of file and filename. The filename must be in the 8.3 format.
-1) (Linux)
+1a) (Windows) Using something like WinISO add your save game file to the SATSAVES directory. Again read the instructions in "Save Game Format" so you have the correct type of file and filename. The filename must be in the 8.3 format.
+1b) (Linux)
 ```
 # mount the original
 mkdir /tmp/sgc_custom
@@ -49,22 +49,24 @@ mkisofs -o sgc_modified.iso /tmp/sgc_custom
 dd conv=notrunc if=sgc_original.iso of=sgc_modified.iso bs=1 count=32768
 ```
 
-2) If you are comfortable compiling SGC, you can also add saves at build time. Checkout SGC from source. Add your save game files (in a raw format) to cd/SATSAVES/ and recompile. Again read the instructions in "Save Game Format" so you have the correct type of file and filename.  The newly built ISO will include your saves.
+2) If you are comfortable compiling SGC, you can also add saves at build time. Checkout SGC from source. Add your save game files (in a raw format) to cd/SATSAVES/ and recompile. Again read the instructions in "Save Game Format" so you have the correct type of file and filename. The newly built ISO will include your saves.
 
 ## Satiator Support
-I don't own a Satiator so my testing has solely been with the [Satiator Yabause fork](https://github.com/satiator/satiator-yabause). When using a Satiator:
+When using Satiator:
 * Make sure you upgrade to the latest firmware. There have been firmware fixes
 * Create a "SATSAVES" directory on the root of the drive. SGC is hardcoded to use that folder. Copy saves to and from that folder.
 * Saves must use the .BUP file extensions or they will not be visible. Filenames can be 11 characters + 3 more for the extension. 
 
 ## MODE Support
+When using MODE:
 * Ensure you are running firmware >= 1.04
 * Create a "SATSAVES" directory on the root of the SD card. SGC is hardcoded to use that folder and the SD card HDD is not supported yet. 
 * Saves must use the .BUP file extensions or they will not be visible. Filenames can be 11 characters + 3 more for the extension. 
 * You must use the cue file named *game_cue_for_mode.cue* **INSTEAD OF** *game.cue* file. Ensure only 1 cue is present along with game.iso file. This is required because MODE needs a large TOC for the command interface.
+* Set the "Soft Reset" option to "Menu". 
 
 ## Dumping Memory
-SGC also supports advanced feature to arbitrary dump memory. This can allow you to dump:
+SGC also supports an advanced feature to dump arbitrary memory. This can allow you to dump:
 * Saturn BIOS (address: 0x80000, size: 0x80000)
 * Internal backup memory (address: 0x00180000, size: 0x001FFFFF)
 * Cartridge backup memory (address: 0x02000000, size: 0x01FFFFFF)
@@ -101,6 +103,7 @@ Save Game Copier uses code from:
 * Thank you to [Terraonion](https://github.com/Terraonion-dev) for contributing MODE support.
 * Thank you to [RevQuixo](https://github.com/RevQuixo) for numerous bug reports. 
 * Thank you to [Cafe-Alpha](https://github.com/cafe-alpha/) for .BUP file format and advice.  
+* Thank you to [Hitomi2500](https://github.com/hitomi2500) for help parsing Action Replay and advice.  
 * Special thanks to Antime, Ponut, VBT, and everyone else at SegaXtreme keeping the Saturn dev scene alive.
 * Thank you to Takashi for the original Save Game Copier idea back in ~2002.
 * [Shentokk](https://github.com/Shentokk) for information regarding emulator save game extraction
