@@ -2,8 +2,8 @@
 
 #include <jo/jo.h>
 #include <STRING.H>
-#include "util.h"
-#include "bup_header.h"
+#include "../util.h"
+#include "../bup_header.h"
 
 #define MAX_SAVE_SIZE           (256 * 1024) // according to Cafe-Alpha this is the maximum size supported by the BIOS
 #define MAX_SAVE_FILENAME       12

@@ -33,8 +33,8 @@
 #include "STRING.H"
 #include "main.h"
 #include "util.h"
-#include "backup.h"
-#include "backup-satiator.h" // needed for satiatorReboot()
+#include "backends/backend.h"
+#include "backends/satiator.h" // needed for satiatorReboot()
 
 GAME g_Game = {0};
 SAVES g_Saves[MAX_SAVES] = {0};

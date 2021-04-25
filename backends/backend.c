@@ -1,9 +1,9 @@
-#include "backup.h"
-#include "backup-saturn.h"
-#include "backends/actionreplay.h"
-#include "backup-mode.h"
-#include "backup-satiator.h"
-#include "backup-cd.h"
+#include "backend.h"
+#include "saturn.h"
+#include "actionreplay.h"
+#include "mode.h"
+#include "satiator.h"
+#include "cd.h"
 
 // returns true if the backup device is found
 bool isBackupDeviceAvailable(int backupDevice)

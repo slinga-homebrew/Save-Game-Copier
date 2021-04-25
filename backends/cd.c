@@ -1,4 +1,4 @@
-#include "backup-cd.h"
+#include "cd.h"
 
 // always return true for saves being present
 bool cdIsBackupDeviceAvailable(int backupDevice)

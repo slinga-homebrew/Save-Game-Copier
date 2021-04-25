@@ -1,4 +1,4 @@
-#include "backup-satiator.h"
+#include "satiator.h"
 #include "satiator/satiator.h"
 
 // returns true if the backup device is found
@@ -373,7 +373,7 @@ void satiatorReboot(void)
     (*bios_get_mpeg_rom)(2, 2, 0x200000);
 
     ((void(*)(void))0x200000)();
-    
+
     // should never get here
 }
 
