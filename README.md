@@ -63,7 +63,7 @@ When using MODE:
 * Create a "SATSAVES" directory on the root of the SD card. SGC is hardcoded to use that folder and the SD card HDD is not supported yet. 
 * Saves must use the .BUP file extensions or they will not be visible. Filenames can be 11 characters + 3 more for the extension. 
 * You must use the cue file named *game_cue_for_mode.cue* **INSTEAD OF** *game.cue* file. Ensure only 1 cue is present along with game.iso file. This is required because MODE needs a large TOC for the command interface.
-* Set the "Soft Reset" option to "Menu". 
+* Set the Software Reset option to "Direct to Mode: and make sure Fast Boot is enabled.  
 
 ## Dumping Memory
 SGC also supports an advanced feature to dump arbitrary memory. This can allow you to dump:
