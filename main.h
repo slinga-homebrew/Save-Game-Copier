@@ -120,7 +120,7 @@
 // BUGBUG: this should be a compile option,not a #define
 #define SKIP_DEVICE_CHECKS      0
 
-#define MAX_MENU_OPTIONS        12
+#define MAX_MENU_OPTIONS        20
 
 // records whether or not an input has been pressed that frame
 typedef struct _INPUTCACHE
