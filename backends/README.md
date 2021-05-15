@@ -25,15 +25,15 @@ Edit backup.h adding a new #define for the new backup device. ActionReplayBackup
 Create a mybackend.h and mybackend.c. See saturn.h and saturn.c as examples. The file must have the following functions:
 
 * bool mydeviceIsBackupDeviceAvailable(int backupDevice)
- * returns true if the backup device is present. Should be safe to call when the device isn't present.
+  * returns true if the backup device is present. Should be safe to call when the device isn't present.
 * int mydeviceListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
- * queries the saves on the backup device and fills out the fileSaves array. Returns the number of saves found.
+  * queries the saves on the backup device and fills out the fileSaves array. Returns the number of saves found.
 * int mydeviceReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, unsigned int outBufSize)
- * reads the save to outBuffer
+  * reads the save to outBuffer
 * (optional) int mydeviceWriteSaveFile(int backupDevice, char* filename, unsigned char* saveData, unsigned int saveDataLen)
- * writes the save file
+  * writes the save file
 * (optional) int mydeviceDeleteSaveFile(int backupDevice, char* filename)
- * deletes the specified file
+  * deletes the specified file
 
 ## Backend.c
 Edit backend.c adding the new device to the switch statements for isBackupDeviceAvailalbe(), listSaveFiles(), readSaveFile(), writeSaveFile() (optional), deleteSaveFile() optional, and formatDevice() (optional).
