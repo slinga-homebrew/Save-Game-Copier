@@ -84,6 +84,9 @@ SGC uses a dynamic menu and will remove devices it doesn't detect from your menu
 
 MODE is not detected. Make sure you use the game_cure_for_mode.cue otherwise the MODE will not be detected.
 
+## Adding New Backend Devices
+See [backends/README.MD](https://github.com/slinga-homebrew/Save-Game-Copier/blob/master/backends/README.md) for notes on how to add a new backend device to Save Game Copier.  
+
 ## Saturn Save Games Collect Project
 Want to share your save games on the web? Send them to the [Save Games Collect](https://ppcenter.webou.net/pskai/savedata/) project. Made by Cafe-Alpha, the author of the Gamer's Cartridge. Please submit your ".BUP" files. 
 
