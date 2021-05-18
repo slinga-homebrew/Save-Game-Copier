@@ -29,10 +29,37 @@ bool isBackupDeviceAvailable(int backupDevice)
 
         default:
             sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
-            return -1;
+            return false;
     }
 
-    return -1;
+    return false;
+}
+
+// returns true if the backup device is writeable
+// TODO: each device should implement this function
+bool isBackupDeviceWriteable(int backupDevice)
+{
+    switch(backupDevice)
+    {
+        // writeable
+        case JoInternalMemoryBackup:
+        case JoCartridgeMemoryBackup:
+        case JoExternalDeviceBackup:
+        case SatiatorBackup:
+        case MODEBackup:
+            return true;
+
+        // non-writeable
+        case ActionReplayBackup: // currently not writeable
+        case CdMemoryBackup: // cd is never writeable
+            return false;
+
+        default:
+            sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
+            return false;
+    }
+
+    return false;
 }
 
 // queries the saves on the backup device and fills out the saves array
@@ -148,6 +175,7 @@ int deleteSaveFile(int backupDevice, char* filename)
 }
 
 // format a backup device
+// TODO: each device should implement this function
 int formatDevice(int backupDevice)
 {
     bool result = false;

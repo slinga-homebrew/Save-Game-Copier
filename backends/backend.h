@@ -52,6 +52,7 @@ typedef struct _BACKUP_MEDIUM
 
 // access the save data
 bool isBackupDeviceAvailable(int backupDevice);
+bool isBackupDeviceWriteable(int backupDevice);
 int listSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves);
 int readSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, unsigned int outSize);
 int writeSaveFile(int backupDevice, char* filename, unsigned char* inBuffer, unsigned int inSize);
