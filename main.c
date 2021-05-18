@@ -208,6 +208,7 @@ void transitionToState(int newState)
             g_Game.cursorPosX = CURSOR_X;
             g_Game.cursorPosY = OPTIONS_Y;
             g_Game.cursorOffset = 0;
+            g_Game.listSavesCursorOffset = 0;
             g_Game.numStateOptions = initMenuOptions(STATE_MAIN);
             break;
 
@@ -476,14 +477,19 @@ unsigned int initMenuOptions(int newState)
             //g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_WRITE_MEMORY;
             //numMenuOptions++;
 
-            // this check should really be isBackupDeviceWriteable()
-            // for now we just check if it's not the cd
-            if(g_Game.backupDevice != CdMemoryBackup && g_Game.backupDevice != MemoryBackup && g_Game.backupDevice != ActionReplayBackup)
+            // delete only if writeable medium
+            if(isBackupDeviceWriteable(g_Game.backupDevice))
             {
                 g_Game.menuOptions[numMenuOptions].optionText = "Delete Save";
                 g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_DELETE;
                 numMenuOptions++;
             }
+
+            // back out
+            g_Game.menuOptions[numMenuOptions].optionText = "Back";
+            g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_BACK;
+            numMenuOptions++;
+
             break;
         }
 
@@ -567,10 +573,16 @@ void main_draw(void)
 // checks for up/down movement for the cursor
 // erases the old one and draws a new one
 // savesPage is set to true if the cursor is for the list saves page
-void moveCursor(bool savesPage)
+void moveCursor(int* curCursorOffset, bool savesPage)
 {
-    int cursorOffset = g_Game.cursorOffset;
-    int maxCursorOffset = g_Game.numStateOptions;
+    int cursorOffset = 0;
+    int maxCursorOffset = 0;
+
+    if(curCursorOffset == NULL)
+    {
+        // should never happen
+        return;
+    }
 
     // do nothing if there are no options
     // this can happen if we select a backup device with no saves for example
@@ -578,6 +590,9 @@ void moveCursor(bool savesPage)
     {
         return;
     }
+
+    maxCursorOffset = g_Game.numStateOptions;
+    cursorOffset = *curCursorOffset % maxCursorOffset;
 
     //
     // check for up/down which moves up or down the list by 1
@@ -638,15 +653,15 @@ void moveCursor(bool savesPage)
     }
 
     // if we moved the cursor, erase the old
-    if(cursorOffset != g_Game.cursorOffset)
+    if(cursorOffset != *curCursorOffset)
     {
         if(savesPage == true)
         {
-            jo_printf(g_Game.cursorPosX, g_Game.cursorPosY + (g_Game.cursorOffset % MAX_SAVES_PER_PAGE), "  ");
+            jo_printf(g_Game.cursorPosX, g_Game.cursorPosY + (*curCursorOffset % MAX_SAVES_PER_PAGE), "  ");
         }
         else
         {
-            jo_printf(g_Game.cursorPosX, g_Game.cursorPosY + g_Game.cursorOffset, "  ");
+            jo_printf(g_Game.cursorPosX, g_Game.cursorPosY + *curCursorOffset, "  ");
         }
     }
 
@@ -660,7 +675,7 @@ void moveCursor(bool savesPage)
     {
         cursorOffset = 0;
     }
-    g_Game.cursorOffset = cursorOffset;
+    *curCursorOffset = cursorOffset;
 }
 
 // handles input on the main screen
@@ -778,7 +793,7 @@ void main_input(void)
     }
 
     // update the cursor
-    moveCursor(false);
+    moveCursor(&g_Game.cursorOffset, false);
     return;
 }
 
@@ -813,6 +828,8 @@ void listSaves_draw(void)
     if(g_Game.listedSaves == false)
     {
         int count = 0;
+
+        //g_Game.listSavesCursorOffset = 0;
 
         // BUP devices
         if(g_Game.backupDevice == JoInternalMemoryBackup ||
@@ -868,7 +885,7 @@ void listSaves_draw(void)
         }
 
         // print up to MAX_SAVES_PER_PAGE saves on the screen
-        for(i = (g_Game.cursorOffset / MAX_SAVES_PER_PAGE) * MAX_SAVES_PER_PAGE, j = 0; i < g_Game.numSaves && j < MAX_SAVES_PER_PAGE; i++, j++)
+        for(i = (g_Game.listSavesCursorOffset / MAX_SAVES_PER_PAGE) * MAX_SAVES_PER_PAGE, j = 0; i < g_Game.numSaves && j < MAX_SAVES_PER_PAGE; i++, j++)
         {
             jo_printf(OPTIONS_X, OPTIONS_Y + (i % MAX_SAVES_PER_PAGE) + 1, "%-11s  %-10s  %6d", g_Saves[i].name, g_Saves[i].comment, g_Saves[i].datasize);
         }
@@ -883,20 +900,20 @@ void listSaves_draw(void)
     if(g_Game.numStateOptions > 0)
     {
         // copy the save data
-        strncpy(g_Game.saveFilename, g_Saves[g_Game.cursorOffset].filename, MAX_FILENAME);
+        strncpy(g_Game.saveFilename, g_Saves[g_Game.listSavesCursorOffset].filename, MAX_FILENAME);
         g_Game.saveFilename[MAX_FILENAME - 1] = '\0';
 
-        strncpy(g_Game.saveName, g_Saves[g_Game.cursorOffset].name, MAX_SAVE_FILENAME);
+        strncpy(g_Game.saveName, g_Saves[g_Game.listSavesCursorOffset].name, MAX_SAVE_FILENAME);
         g_Game.saveName[MAX_SAVE_FILENAME - 1] = '\0';
 
-        strncpy(g_Game.saveComment, g_Saves[g_Game.cursorOffset].comment, MAX_SAVE_COMMENT);
+        strncpy(g_Game.saveComment, g_Saves[g_Game.listSavesCursorOffset].comment, MAX_SAVE_COMMENT);
         g_Game.saveComment[MAX_SAVE_COMMENT - 1] = '\0';
 
-        g_Game.saveLanguage = g_Saves[g_Game.cursorOffset].language;
-        g_Game.saveDate = g_Saves[g_Game.cursorOffset].date;
-        g_Game.saveFileSize = g_Saves[g_Game.cursorOffset].datasize;
+        g_Game.saveLanguage = g_Saves[g_Game.listSavesCursorOffset].language;
+        g_Game.saveDate = g_Saves[g_Game.listSavesCursorOffset].date;
+        g_Game.saveFileSize = g_Saves[g_Game.listSavesCursorOffset].datasize;
 
-        jo_printf(g_Game.cursorPosX, g_Game.cursorPosY + g_Game.cursorOffset % MAX_SAVES_PER_PAGE, ">>");
+        jo_printf(g_Game.cursorPosX, g_Game.cursorPosY + g_Game.listSavesCursorOffset % MAX_SAVES_PER_PAGE, ">>");
     }
 
     return;
@@ -950,7 +967,7 @@ void listSaves_input(void)
     }
 
     // update the cursor
-    moveCursor(true);
+    moveCursor(&g_Game.listSavesCursorOffset, true);
     return;
 }
 
@@ -1032,7 +1049,7 @@ void displaySave_draw(void)
 
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Save Name: %s        ", g_Game.saveName);
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Comment: %s         ", g_Game.saveComment);
-    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Date: %d/%d/%d %d:%d         ", jo_date.month, jo_date.day, jo_date.year + 1980, jo_date.time, jo_date.min);
+    jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Date: %d/%d/%d %02d:%02d         ", jo_date.month, jo_date.day, jo_date.year + 1980, jo_date.time, jo_date.min);
     y++;
 
     jo_printf(OPTIONS_X, OPTIONS_Y + y++, "Size: %d            ", g_Game.saveFileSize);
@@ -1193,6 +1210,11 @@ void displaySave_input(void)
                         g_Game.operationStatus = OPERATION_SUCCESS;
                         return;
                     }
+                    case SAVE_OPTION_BACK:
+                    {
+                        transitionToState(STATE_PREVIOUS);
+                        return;
+                    }
                 }
             }
         }
@@ -1217,7 +1239,7 @@ void displaySave_input(void)
     }
 
     // update the cursor
-    moveCursor(false);
+    moveCursor(&g_Game.cursorOffset, false);
     return;
 }
 
@@ -1317,7 +1339,7 @@ void format_input(void)
     }
 
     // update the cursor
-    moveCursor(false);
+    moveCursor(&g_Game.cursorOffset, false);
     return;
 }
 
@@ -1445,7 +1467,7 @@ void formatVerify_input(void)
     }
 
     // update the cursor
-    moveCursor(false);
+    moveCursor(&g_Game.cursorOffset, false);
     return;
 }
 

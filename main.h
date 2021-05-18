@@ -31,7 +31,7 @@
 #include "bup_header.h"
 
 // program version, keep this length to avoid having to resize strings
-#define VERSION "3.6.5"
+#define VERSION "3.6.6"
 
 // program states
 #define STATE_UNINITIALIZED      0
@@ -72,6 +72,7 @@
 #define SAVE_OPTION_WRITE_MEMORY 4
 #define SAVE_OPTION_DELETE       5
 #define SAVE_OPTION_MODE		 6
+#define SAVE_OPTION_BACK		 7
 
 #define VERIFY_YES               0
 #define VERIFY_NO                1
@@ -161,6 +162,7 @@ typedef struct _GAME
     int cursorPosX;
     int cursorPosY;
     int cursorOffset;
+    int listSavesCursorOffset;
 
     jo_backup_device backupDevice; // JoInternalMemoryBackup, JoCartridgeMemoryBackup, JoExternalDeviceBackup
     char* backupDeviceName;
@@ -209,7 +211,7 @@ void abcStartHandler(void);
 void clearScreen(void);
 int copyBIOS(unsigned int segment);
 int copySaveFile(void);
-void moveCursor(bool savesPage);
+void moveCursor(int* cursorOffset, bool savesPage);
 void moveDigitCursor(void);
 void adjustHexValue(unsigned int* value, unsigned int digit, bool add);
 void queryBackupDevices(void);
