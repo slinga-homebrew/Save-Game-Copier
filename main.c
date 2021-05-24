@@ -1012,7 +1012,20 @@ void displaySave_draw(void)
     {
         if(g_Game.state == STATE_DISPLAY_SAVE)
         {
-            result = readSaveFile(g_Game.backupDevice, g_Game.saveFilename, (unsigned char*)g_Game.saveBupHeader, g_Game.saveFileSize + sizeof(BUP_HEADER));
+
+            if(g_Game.backupDevice == JoInternalMemoryBackup ||
+                g_Game.backupDevice == JoCartridgeMemoryBackup ||
+                g_Game.backupDevice == JoExternalDeviceBackup )
+            {
+                // BUGBUG: sloppy bug fix. saveFilename includes the .BUP header which internal devices don't used
+                // Jo Engine was ignoring the ".BUP" if the filename was too long
+                result = readSaveFile(g_Game.backupDevice, g_Game.saveName, (unsigned char*)g_Game.saveBupHeader, g_Game.saveFileSize + sizeof(BUP_HEADER));
+            }
+            else
+            {
+                result = readSaveFile(g_Game.backupDevice, g_Game.saveFilename, (unsigned char*)g_Game.saveBupHeader, g_Game.saveFileSize + sizeof(BUP_HEADER));
+            }
+
             if(result != 0)
             {
                 sgc_core_error("Failed to read the save!!");
