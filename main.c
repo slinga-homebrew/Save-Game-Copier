@@ -369,7 +369,7 @@ unsigned int initMenuOptions(int newState)
 
             if(g_Game.deviceActionReplayBackup == true)
             {
-                g_Game.menuOptions[numMenuOptions].optionText = "Action Replay (Beta Read-Only)";
+                g_Game.menuOptions[numMenuOptions].optionText = "Action Replay (DANGER: Beta)";
                 g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_ACTION_REPLAY;
                 numMenuOptions++;
             }
