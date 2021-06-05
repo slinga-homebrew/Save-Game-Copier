@@ -14,6 +14,17 @@
 #define ACTION_REPLAY_PARTITION_SIZE    64
 
 #define RLE01_MAGIC                     "RLE01"
+#define RLE01_MAX_COUNT                 0x100
+#define RLE_MAX_REPEAT                  0xFF
+
+#pragma pack(1)
+typedef struct _RLE01_HEADER
+{
+    char compressionMagic[5]; // should be "RLE01"
+    unsigned char rleKey; // key used to compress the datasize
+    unsigned int compressedSize; // size of the compressed data
+}RLE01_HEADER, *PRLE01_HEADER;
+#pragma pack()
 
 bool actionReplayIsBackupDeviceAvailable(int backupDevice);
 int actionReplayListSaveFiles(int backupDevice, PSAVES fileSaves, unsigned int numSaves);
@@ -22,6 +33,8 @@ int actionReplayWriteSaveFile(int backupDevice, char* filename, unsigned char* s
 int actionReplayDeleteSaveFile(int backupDevice, char* filename);
 
 // utility functions
-int decompressRLE01(unsigned char *src, unsigned int srcSize, unsigned char *dest, unsigned int* bytesNeeded);
-int parseUncompressedMemory(unsigned char* arpUncompressed, unsigned int uncompressedSize, PSAVES saves, unsigned int numSaves);
+int decompressPartition(unsigned char *src, unsigned int srcSize, unsigned char **dest, unsigned int* destSize);
+int decompressRLE01(unsigned char rleKey, unsigned char *src, unsigned int srcSize, unsigned char *dest, unsigned int* bytesNeeded);
+int calcRLEKey(unsigned char* src, unsigned int size, unsigned char* key);
+int compressRLE01(unsigned char rleKey, unsigned char *src, unsigned int srcSize, unsigned char *dest, unsigned int* bytesNeeded);
 
