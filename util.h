@@ -10,6 +10,8 @@
 
 #define JO_PRINTF_BUF_SIZE  (64)
 
+#define UNUSED_ARG(x) (void)(x)
+
 // taken from Jo Engine core.h
 // used to display an error message to the user
 extern char __sgc_last_error[JO_PRINTF_BUF_SIZE];
