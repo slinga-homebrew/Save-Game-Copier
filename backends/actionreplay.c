@@ -162,10 +162,10 @@ cleanup:
 // write the save game to the actionReplay
 int actionReplayWriteSaveFile(int backupDevice, char* filename, unsigned char* inBuffer, unsigned int inSize)
 {
-    UNUSED(backupDevice);
-    UNUSED(filename);
-    UNUSED(inBuffer);
-    UNUSED(inSize);
+    UNUSED_ARG(backupDevice);
+    UNUSED_ARG(filename);
+    UNUSED_ARG(inBuffer);
+    UNUSED_ARG(inSize);
 
     /*
     int result = 0;

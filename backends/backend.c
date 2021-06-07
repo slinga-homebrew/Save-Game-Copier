@@ -47,11 +47,13 @@ bool isBackupDeviceWriteable(int backupDevice)
         case JoExternalDeviceBackup:
         case SatiatorBackup:
         case MODEBackup:
-        case ActionReplayBackup:
             return true;
 
         // non-writeable
         case CdMemoryBackup: // cd is never writeable
+            return false;
+
+        case ActionReplayBackup: // flashing AR is nontrivial, a ton of work to support
             return false;
 
         default:
@@ -231,7 +233,7 @@ int getBackupDeviceName(unsigned int backupDevice, char** deviceName)
             *deviceName = "External Device";
             break;
         case ActionReplayBackup:
-            *deviceName = "Action Replay (DANGER: Beta)";
+            *deviceName = "Action Replay (Read-Only)";
             break;
         case SatiatorBackup:
             *deviceName = "Satiator";
