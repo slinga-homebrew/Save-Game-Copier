@@ -102,7 +102,7 @@ int satListSaves(unsigned char* partitionBuf, unsigned int partitionSize, unsign
             // save name
             // BUGBUG: figure out how to set filename (versus savename)
             memcpy(saves[savesFound].name, metadata->saveName, MAX_SAVE_FILENAME - 1);
-            memcpy(saves[savesFound].filename, metadata->saveName, MAX_SAVE_FILENAME - 1);
+            snprintf(saves[savesFound].filename, MAX_SAVE_FILENAME - 1, "%s.BUP", metadata->saveName);
 
             // langugae
             saves[savesFound].language = metadata->language;
