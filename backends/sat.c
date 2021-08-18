@@ -12,7 +12,7 @@ int calcNumBlocks(unsigned int saveSize, unsigned int blockSize, unsigned int* n
     unsigned int numBlocks = 0;
     unsigned int numBlocks2 = 0;
 
-    if(saveSize == 0)
+    if(saveSize == 0)s
     {
         return -1;
     }
@@ -102,7 +102,10 @@ int satListSaves(unsigned char* partitionBuf, unsigned int partitionSize, unsign
             // save name
             // BUGBUG: figure out how to set filename (versus savename)
             memcpy(saves[savesFound].name, metadata->saveName, MAX_SAVE_FILENAME - 1);
+            saves[savesFound].name[MAX_SAVE_FILENAME -1] = '\0';
+
             snprintf(saves[savesFound].filename, MAX_FILENAME - 1, "%s.BUP", metadata->saveName);
+            saves[savesFound].filename[MAX_FILENAME -1] = '\0';
 
             // langugae
             saves[savesFound].language = metadata->language;
