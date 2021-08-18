@@ -1015,7 +1015,8 @@ void displaySave_draw(void)
 
             if(g_Game.backupDevice == JoInternalMemoryBackup ||
                 g_Game.backupDevice == JoCartridgeMemoryBackup ||
-                g_Game.backupDevice == JoExternalDeviceBackup )
+                g_Game.backupDevice == JoExternalDeviceBackup ||
+                g_Game.backupDevice == ActionReplayBackup )
             {
                 // BUGBUG: sloppy bug fix. saveFilename includes the .BUP header which internal devices don't used
                 // Jo Engine was ignoring the ".BUP" if the filename was too long
