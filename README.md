@@ -27,9 +27,9 @@ THREE_DIRTY.BUP -> THREE_DI.BUP
 MODE and Satiator can use longer 14.3 filenames. 
 
 ## Adding Custom Save Games to the SGC ISO
-There are two ways to add your custom save game files to SGC:
-1a) (Windows) Using something like WinISO add your save game file to the SATSAVES directory. Again read the instructions in "Save Game Format" so you have the correct type of file and filename. The filename must be in the 8.3 format.
-1b) (Linux)
+There are two ways to add your custom save game files to SGC:  
+1a) (Windows) Using something like WinISO add your save game file to the SATSAVES directory. Again read the instructions in "Save Game Format" so you have the correct type of file and filename. The filename must be in the 8.3 format.   
+1b) (Linux)   
 ```
 # mount the original
 mkdir /tmp/sgc_custom
