@@ -29,6 +29,11 @@ int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
         jo_fs_cd(sub_dir);
     }
 
+    // Save-Game-Copier/issues/53
+    // On large SATSAVES folder a blank screen appears for a while
+    // making it appear as if SGC has hung
+    jo_printf(2, 5, "Reading saves, please wait...");
+
     // loop through the files on the directory
     for(unsigned int i = 0; i < numSaves; i++)
     {
@@ -78,6 +83,9 @@ int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
             count++;
         }
     }
+
+    // "erase" the waiting message    
+    jo_printf(2, 5, "                             ");
 
     if (sub_dir != JO_NULL)
     {
