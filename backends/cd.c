@@ -1,5 +1,20 @@
 #include "cd.h"
 
+static bool g_ChangeDir = false;
+
+// avoid unnecessary calls to jo_fs_cd() which will
+// blow away cache
+static void changeToSavesDir(void)
+{
+    if(g_ChangeDir == true)
+    {
+        return;
+    }
+    
+    jo_fs_cd(SAVES_DIRECTORY);
+    g_ChangeDir = true;
+}
+
 // always return true for saves being present
 bool cdIsBackupDeviceAvailable(int backupDevice)
 {
@@ -16,7 +31,6 @@ int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 {
     int count = 0;
     GfsHn gfs = 0;
-    char* sub_dir = SAVES_DIRECTORY;
     BUP_HEADER bupHeader = {0};
 
     if(backupDevice != CdMemoryBackup)
@@ -24,10 +38,7 @@ int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
         return -1;
     }
 
-    if (sub_dir != JO_NULL)
-    {
-        jo_fs_cd(sub_dir);
-    }
+    changeToSavesDir();
 
     // Save-Game-Copier/issues/53
     // On large SATSAVES folder a blank screen appears for a while
@@ -86,12 +97,6 @@ int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 
     // "erase" the waiting message    
     jo_printf(2, 5, "                             ");
-
-    if (sub_dir != JO_NULL)
-    {
-        jo_fs_cd(JO_PARENT_DIR);
-    }
-
     return count;
 }
 
@@ -99,7 +104,6 @@ int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 int cdReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, unsigned int outSize)
 {
     unsigned char* saveData = NULL;
-    char* sub_dir = SAVES_DIRECTORY;
     int length = 0;
 
     if(backupDevice != CdMemoryBackup)
@@ -119,17 +123,9 @@ int cdReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, u
         return -2;
     }
 
-    if(sub_dir != JO_NULL)
-    {
-        jo_fs_cd(sub_dir);
-    }
+    changeToSavesDir();    
 
     saveData = (unsigned char*)jo_fs_read_file(filename, &length);
-
-    if(sub_dir != JO_NULL)
-    {
-        jo_fs_cd(JO_PARENT_DIR);
-    }
 
     if(saveData != NULL)
     {
