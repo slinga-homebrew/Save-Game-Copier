@@ -1,19 +1,7 @@
 #include "cd.h"
 
-static bool g_ChangeDir = false;
-
-// avoid unnecessary calls to jo_fs_cd() which will
-// blow away cache
-static void changeToSavesDir(void)
-{
-    if(g_ChangeDir == true)
-    {
-        return;
-    }
-    
-    jo_fs_cd(SAVES_DIRECTORY);
-    g_ChangeDir = true;
-}
+static SAVES g_CachedSaveFiles[255] = {0};
+static unsigned int g_CachedSaveFilesCount = 0;
 
 // always return true for saves being present
 bool cdIsBackupDeviceAvailable(int backupDevice)
@@ -29,8 +17,9 @@ bool cdIsBackupDeviceAvailable(int backupDevice)
 // queries the saves on the CD device and fills out the saves array
 int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 {
-    int count = 0;
+    unsigned int count = 0;
     GfsHn gfs = 0;
+    char* sub_dir = SAVES_DIRECTORY;
     BUP_HEADER bupHeader = {0};
 
     if(backupDevice != CdMemoryBackup)
@@ -38,7 +27,18 @@ int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
         return -1;
     }
 
-    changeToSavesDir();
+    // check if we already cached the cd dir for faster perf
+    if(g_CachedSaveFilesCount > 0)
+    {
+        count = MIN(numSaves, g_CachedSaveFilesCount);
+        memcpy(saves, g_CachedSaveFiles, count * sizeof(SAVES));
+        return (int)count;
+    }
+
+    if (sub_dir != JO_NULL)
+    {
+        jo_fs_cd(sub_dir);
+    }
 
     // Save-Game-Copier/issues/53
     // On large SATSAVES folder a blank screen appears for a while
@@ -97,6 +97,16 @@ int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 
     // "erase" the waiting message    
     jo_printf(2, 5, "                             ");
+
+    // cache the cd results for faster perf
+    g_CachedSaveFilesCount = MIN((unsigned int)count, COUNTOF(g_CachedSaveFiles));
+    memcpy(g_CachedSaveFiles, saves, g_CachedSaveFilesCount * sizeof(SAVES));
+
+    if (sub_dir != JO_NULL)
+    {
+        jo_fs_cd(JO_PARENT_DIR);
+    }
+
     return count;
 }
 
@@ -104,6 +114,7 @@ int cdListSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
 int cdReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, unsigned int outSize)
 {
     unsigned char* saveData = NULL;
+    char* sub_dir = SAVES_DIRECTORY;
     int length = 0;
 
     if(backupDevice != CdMemoryBackup)
@@ -123,9 +134,17 @@ int cdReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, u
         return -2;
     }
 
-    changeToSavesDir();    
+    if(sub_dir != JO_NULL)
+    {
+        jo_fs_cd(sub_dir);
+    }
 
     saveData = (unsigned char*)jo_fs_read_file(filename, &length);
+
+    if(sub_dir != JO_NULL)
+    {
+        jo_fs_cd(JO_PARENT_DIR);
+    }
 
     if(saveData != NULL)
     {
