@@ -5,7 +5,7 @@
 #include "../util.h"
 #include "../bup_header.h"
 
-#define MAX_SAVE_SIZE           (256 * 1024) // according to Cafe-Alpha this is the maximum size supported by the BIOS
+#define MAX_SAVE_SIZE           (512 * 1024) // according to Cafe-Alpha this is the maximum size supported by the BIOS
 #define MAX_SAVE_FILENAME       12
 #define MAX_SAVE_COMMENT        11
 #define MAX_FILENAME            32
@@ -20,6 +20,7 @@
 #define MemoryBackup (CdMemoryBackup + 1)
 #define MODEBackup (MemoryBackup + 1)
 #define ActionReplayBackup (MODEBackup + 1)
+#define VCDCardBackup (ActionReplayBackup + 1)
 
 // meta data related to save files
 typedef struct  _SAVES {

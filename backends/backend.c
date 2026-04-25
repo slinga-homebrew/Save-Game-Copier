@@ -4,6 +4,7 @@
 #include "mode.h"
 #include "satiator.h"
 #include "cd.h"
+#include "vcd_card.h"
 
 // returns true if the backup device is found
 bool isBackupDeviceAvailable(int backupDevice)
@@ -26,6 +27,9 @@ bool isBackupDeviceAvailable(int backupDevice)
 
         case CdMemoryBackup:
             return true; // always assume CD backups are available
+
+        case VCDCardBackup:
+            return vcdIsBackupDeviceAvailable(backupDevice);
 
         default:
             sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
@@ -54,6 +58,9 @@ bool isBackupDeviceWriteable(int backupDevice)
             return false;
 
         case ActionReplayBackup: // flashing AR is nontrivial, a ton of work to support
+            return false;
+
+        case VCDCardBackup:
             return false;
 
         default:
@@ -86,6 +93,9 @@ int listSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
         case CdMemoryBackup:
             return cdListSaveFiles(backupDevice, saves, numSaves);
 
+        case VCDCardBackup:
+            return vcdListSaveFiles(backupDevice, saves, numSaves);
+
         default:
             sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
             return -1;
@@ -116,6 +126,9 @@ int readSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, uns
         case CdMemoryBackup:
             return cdReadSaveFile(backupDevice, filename, outBuffer, outSize);
 
+        case VCDCardBackup:
+            return vcdReadSaveFile(backupDevice, filename, outBuffer, outSize);
+
         default:
             sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
             return -1;
@@ -141,6 +154,9 @@ int writeSaveFile(int backupDevice, char* filename, unsigned char* inBuffer, uns
             return modeWriteSaveFile(backupDevice, filename, inBuffer, inSize);
 
         case CdMemoryBackup:
+            return -1;
+
+        case VCDCardBackup:
             return -1;
 
         default:
@@ -169,6 +185,9 @@ int deleteSaveFile(int backupDevice, char* filename)
             return actionReplayDeleteSaveFile(backupDevice, filename);
 
         case CdMemoryBackup:
+            return -1;
+
+        case VCDCardBackup:
             return -1;
 
         default:
@@ -247,6 +266,9 @@ int getBackupDeviceName(unsigned int backupDevice, char** deviceName)
         case MemoryBackup:
             *deviceName = "RAM";
             break;
+        case VCDCardBackup:
+            *deviceName = "VCD Card";
+            break;             
 
         default:
             sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
