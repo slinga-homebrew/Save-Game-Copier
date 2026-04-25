@@ -31,7 +31,7 @@
 #include "bup_header.h"
 
 // program version, keep this length to avoid having to resize strings
-#define VERSION "3.6.18"
+#define VERSION "3.6.19"
 
 // program states
 #define STATE_UNINITIALIZED      0
@@ -56,14 +56,15 @@
 #define MAIN_OPTION_SATIATOR      3
 #define MAIN_OPTION_MODE          4
 #define MAIN_OPTION_CD            5
-#define MAIN_OPTION_DUMP_MEMORY   6
-#define MAIN_OPTION_FORMAT        7
-#define MAIN_OPTION_COLLECT       8
-#define MAIN_OPTION_CREDITS       9
-#define MAIN_OPTION_EXIT          10
-#define MAIN_OPTION_REBOOT        11
-#define MAIN_OPTION_EXIT_SATIATOR 12
-#define MAIN_OPTION_ACTION_REPLAY 13
+#define MAIN_OPTION_VCD_CARD      6
+#define MAIN_OPTION_DUMP_MEMORY   7
+#define MAIN_OPTION_FORMAT        8
+#define MAIN_OPTION_COLLECT       9
+#define MAIN_OPTION_CREDITS       10
+#define MAIN_OPTION_EXIT          11
+#define MAIN_OPTION_REBOOT        12
+#define MAIN_OPTION_EXIT_SATIATOR 13
+#define MAIN_OPTION_ACTION_REPLAY 14
 
 #define SAVE_OPTION_INTERNAL     0
 #define SAVE_OPTION_CARTRIDGE    1
@@ -104,7 +105,7 @@
 
 #define HEADING_UNDERSCORE     "___________________________________"
 
-#define MAX_SAVE_SIZE           (256 * 1024) // according to Cafe-Alpha this is the maximum size supported by the BIOS
+#define MAX_SAVE_SIZE           (512 * 1024) // according to Cafe-Alpha 256k is the maximum size supported by the BIOS
 #define MAX_SAVE_FILENAME       12
 #define MAX_SAVE_COMMENT        11
 #define MAX_SAVES               255
@@ -176,6 +177,7 @@ typedef struct _GAME
     bool deviceSatiatorBackup;
     bool deviceCdMemoryBackup;
 	bool deviceModeBackup;
+    bool deviceVCDCardBackup;
 
     bool listedSaves; // set to true if we already queried the saves from the backup device
 

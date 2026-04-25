@@ -65,12 +65,16 @@ When using MODE:
 * You must use the cue file named *game_cue_for_mode.cue* **INSTEAD OF** *game.cue* file, **and then rename** *game_cue_for_mode.cue* to *game.cue*. Ensure only 1 cue is present along with game.iso file. This is required because MODE needs a large TOC for the command interface.
 * Set the Software Reset option to "Direct to Mode" and make sure "Fast Boot" is enabled.  
 
-## Dumping Memory
+## Advanced Features
+### Dumping Memory
 SGC also supports an advanced feature to dump arbitrary memory. This can allow you to dump:
 * Saturn BIOS (address: 0x80000, size: 0x80000)
 * Internal backup memory (address: 0x00180000, size: 0x001FFFFF)
 * Cartridge backup memory (address: 0x02000000, size: 0x01FFFFFF)
 * etc
+
+### Dumping VCD Card Firmware
+SGC can dump the firmware of your VCD card. If your VCD card is detected there will be a "VCD Card" menu option. As the firwmare is 512K the only two options currently are to dump it to MODE or to use the Action Replay+ to dump the address specified by SGC. Satiator does not support the VCD card.
 
 ## Issues
 * Non-English save game comments are not displayed. This is a limitation of the print routine I'm using. However the comments are copied correctly and can be viewed within the Saturn BIOS. I'm researching a workaround.  
@@ -110,3 +114,4 @@ Save Game Copier uses code from:
 * Special thanks to Antime, Ponut, VBT, and everyone else at SegaXtreme keeping the Saturn dev scene alive.
 * Thank you to Takashi for the original Save Game Copier idea back in ~2002.
 * [Shentokk](https://github.com/Shentokk) for information regarding emulator save game extraction
+* VCD Card dumping support based on [CyberWarriorX's](https://github.com/cyberwarriorx) [mpgromdump](https://github.com/cyberwarriorx/mpgromdump)
