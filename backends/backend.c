@@ -3,6 +3,7 @@
 #include "actionreplay.h"
 #include "mode.h"
 #include "satiator.h"
+#include "serial.h"
 #include "cd.h"
 #include "vcd_card.h"
 
@@ -31,6 +32,9 @@ bool isBackupDeviceAvailable(int backupDevice)
         case VCDCardBackup:
             return vcdIsBackupDeviceAvailable(backupDevice);
 
+        case SerialBackup:
+            return serialIsBackupDeviceAvailable(backupDevice);
+
         default:
             sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
             return false;
@@ -51,6 +55,7 @@ bool isBackupDeviceWriteable(int backupDevice)
         case JoExternalDeviceBackup:
         case SatiatorBackup:
         case MODEBackup:
+        case SerialBackup:
             return true;
 
         // non-writeable
@@ -96,6 +101,9 @@ int listSaveFiles(int backupDevice, PSAVES saves, unsigned int numSaves)
         case VCDCardBackup:
             return vcdListSaveFiles(backupDevice, saves, numSaves);
 
+        case SerialBackup:
+            return serialListSaveFiles(backupDevice, saves, numSaves);
+
         default:
             sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
             return -1;
@@ -129,6 +137,9 @@ int readSaveFile(int backupDevice, char* filename, unsigned char* outBuffer, uns
         case VCDCardBackup:
             return vcdReadSaveFile(backupDevice, filename, outBuffer, outSize);
 
+        case SerialBackup:
+            return serialReadSaveFile(backupDevice, filename, outBuffer, outSize);
+
         default:
             sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
             return -1;
@@ -158,6 +169,9 @@ int writeSaveFile(int backupDevice, char* filename, unsigned char* inBuffer, uns
 
         case VCDCardBackup:
             return -1;
+
+        case SerialBackup:
+            return serialWriteSaveFile(backupDevice, filename, inBuffer, inSize);
 
         default:
             sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
@@ -189,6 +203,9 @@ int deleteSaveFile(int backupDevice, char* filename)
 
         case VCDCardBackup:
             return -1;
+
+        case SerialBackup:
+            return serialDeleteSaveFile(backupDevice, filename);
 
         default:
             sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
@@ -268,7 +285,10 @@ int getBackupDeviceName(unsigned int backupDevice, char** deviceName)
             break;
         case VCDCardBackup:
             *deviceName = "VCD Card";
-            break;             
+            break;
+        case SerialBackup:
+            *deviceName = "Serial Link";
+            break;
 
         default:
             sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
