@@ -65,6 +65,8 @@
 #define MAIN_OPTION_REBOOT        12
 #define MAIN_OPTION_EXIT_SATIATOR 13
 #define MAIN_OPTION_ACTION_REPLAY 14
+#define MAIN_OPTION_SERIAL        15
+
 
 #define SAVE_OPTION_INTERNAL     0
 #define SAVE_OPTION_CARTRIDGE    1
@@ -72,8 +74,9 @@
 #define SAVE_OPTION_SATIATOR     3
 #define SAVE_OPTION_WRITE_MEMORY 4
 #define SAVE_OPTION_DELETE       5
-#define SAVE_OPTION_MODE		 6
-#define SAVE_OPTION_BACK		 7
+#define SAVE_OPTION_MODE         6
+#define SAVE_OPTION_SERIAL       7
+#define SAVE_OPTION_BACK         8
 
 #define VERIFY_YES               0
 #define VERIFY_NO                1
@@ -178,6 +181,7 @@ typedef struct _GAME
     bool deviceCdMemoryBackup;
 	bool deviceModeBackup;
     bool deviceVCDCardBackup;
+    bool deviceSerialBackup;
 
     bool listedSaves; // set to true if we already queried the saves from the backup device
 
