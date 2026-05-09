@@ -43,13 +43,11 @@ void jo_main(void)
 {
     jo_core_init(JO_COLOR_Black);
 
-    // check if internal memory is present
-    // check if cartridge memory is present
-    // check if external memory is present
-    // check if satiator is present
+    // increase the default heap size. LWRAM is not being used
+    jo_add_memory_zone((unsigned char *)LWRAM, LWRAM_HEAP_SIZE);
 
-    // allocate our save file buffe
-
+    // allocate our save file buffer
+    // Should be big enough to dump the BIOS\VCD Card firmware (512k)
     g_Game.saveBupHeader = jo_malloc(sizeof(BUP_HEADER) + MAX_SAVE_SIZE);
     if(g_Game.saveBupHeader == NULL)
     {
@@ -57,9 +55,6 @@ void jo_main(void)
         return;
     }
     g_Game.saveFileData = (unsigned char*)(g_Game.saveBupHeader + 1);
-
-    // increase the default heap size. LWRAM is not being used
-    jo_add_memory_zone((unsigned char *)LWRAM, LWRAM_HEAP_SIZE);
 
     // ABC + start handler
     jo_core_set_restart_game_callback(abcStartHandler);
@@ -141,6 +136,12 @@ void queryBackupDevices(void)
         g_Game.deviceActionReplayBackup = isBackupDeviceAvailable(ActionReplayBackup);
         g_Game.deviceSatiatorBackup = isBackupDeviceAvailable(SatiatorBackup);
         g_Game.deviceCdMemoryBackup = isBackupDeviceAvailable(CdMemoryBackup);
+        g_Game.deviceVCDCardBackup = isBackupDeviceAvailable(VCDCardBackup);
+
+        if(g_Game.deviceExternalDeviceBackup == false)
+        {
+            g_Game.deviceSerialBackup = true;
+        }
 
         // some Satiator users were reporting black screens at boot
         // possibly related to MODE?
@@ -158,6 +159,8 @@ void queryBackupDevices(void)
         g_Game.deviceSatiatorBackup = true;
         g_Game.deviceCdMemoryBackup = true;
         g_Game.deviceModeBackup = true;
+        g_Game.deviceVCDCardBackup = true;
+        g_Game.deviceSerialBackup = true;
     }
 
     return;
@@ -388,10 +391,24 @@ unsigned int initMenuOptions(int newState)
                 numMenuOptions++;
             }
 
+            if(g_Game.deviceSerialBackup == true)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Serial Link";
+                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_SERIAL;
+                numMenuOptions++;
+            }
+
             if(g_Game.deviceCdMemoryBackup == true)
             {
                 g_Game.menuOptions[numMenuOptions].optionText = "CD File System";
                 g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_CD;
+                numMenuOptions++;
+            }
+
+            if(g_Game.deviceVCDCardBackup == true)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "VCD Card";
+                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_VCD_CARD;
                 numMenuOptions++;
             }
 
@@ -469,6 +486,13 @@ unsigned int initMenuOptions(int newState)
             {
                 g_Game.menuOptions[numMenuOptions].optionText = "Copy to MODE";
                 g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_MODE;
+                numMenuOptions++;
+            }
+
+            if (g_Game.deviceSerialBackup == true && g_Game.backupDevice != SerialBackup)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Copy to Serial Link";
+                g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_SERIAL;
                 numMenuOptions++;
             }
 
@@ -743,6 +767,19 @@ void main_input(void)
                     transitionToState(STATE_LIST_SAVES);
                     return;
                 }
+                case MAIN_OPTION_VCD_CARD:
+                {
+                    g_Game.backupDevice = VCDCardBackup;
+                    transitionToState(STATE_LIST_SAVES);
+                    return;
+                }
+
+                case MAIN_OPTION_SERIAL:
+                {
+                    g_Game.backupDevice = SerialBackup;
+                    transitionToState(STATE_LIST_SAVES);
+                    return;
+                }
                 case MAIN_OPTION_FORMAT:
                 {
                     transitionToState(STATE_FORMAT);
@@ -836,6 +873,7 @@ void listSaves_draw(void)
             g_Game.backupDevice == JoCartridgeMemoryBackup ||
             g_Game.backupDevice == JoExternalDeviceBackup ||
             g_Game.backupDevice == CdMemoryBackup ||
+            g_Game.backupDevice == VCDCardBackup ||
             g_Game.backupDevice == SatiatorBackup ||
             g_Game.backupDevice == ActionReplayBackup ||
             g_Game.backupDevice == MODEBackup)
@@ -1191,6 +1229,18 @@ void displaySave_input(void)
                     {
                         jo_printf(OPTIONS_X, SAVES_Y + g_Game.numMenuOptions + 2, "Operation in progress....        ");
                         result = writeSaveFile(MODEBackup, g_Game.saveFilename, saveFileData, saveFileSize);
+                        if (result != 0)
+                        {
+                            g_Game.operationStatus = OPERATION_FAIL;
+                            return;
+                        }
+                        g_Game.operationStatus = OPERATION_SUCCESS;
+                        return;
+                    }
+                    case SAVE_OPTION_SERIAL:
+                    {
+                        jo_printf(OPTIONS_X, SAVES_Y + g_Game.numMenuOptions + 2, "Operation in progress....        ");
+                        result = writeSaveFile(SerialBackup, g_Game.saveFilename, saveFileData, saveFileSize);
                         if (result != 0)
                         {
                             g_Game.operationStatus = OPERATION_FAIL;
