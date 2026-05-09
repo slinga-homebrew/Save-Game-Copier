@@ -68,6 +68,9 @@ bool isBackupDeviceWriteable(int backupDevice)
         case VCDCardBackup:
             return false;
 
+        case MemoryBackup:
+            return false;
+
         default:
             sgc_core_error("Invalid backup device specified!! %d\n", backupDevice);
             return false;
