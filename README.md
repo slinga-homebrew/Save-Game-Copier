@@ -1,7 +1,7 @@
 # Save Game Copier (SGC)
-Copy Sega Saturn save game files to and/or from internal memory, cartridge memory, external devices (e.g. Sega Saturn [Floppy Disk Drive](https://segaretro.org/Saturn_Floppy_Drive)), Action Replay cart, Satiator, MODE, and CD. Build with [Jo Engine](https://github.com/johannes-fetz/joengine) or download an ISO from [releases](https://github.com/slinga-homebrew/Save-Game-Copier/releases). One of the most useful features of SGC is to create a custom SGC ISO with your own save game files and copy them to your Saturn.
+Copy Sega Saturn save game files to and/or from internal memory, cartridge memory, external devices (e.g. Sega Saturn [Floppy Disk Drive](https://segaretro.org/Saturn_Floppy_Drive)), Action Replay cart, Satiator, MODE, serial link, and CD. Build with [Jo Engine](https://github.com/johannes-fetz/joengine) or download an ISO from [releases](https://github.com/slinga-homebrew/Save-Game-Copier/releases). One of the most useful features of SGC is to create a custom SGC ISO with your own save game files and copy them to your Saturn.  
 
-SGC is for copying save games to a Saturn. To copy save games from Saturn -> PC use [Save Game Extractor](https://github.com/slinga-homebrew/Save-Game-Extractor).
+Want to extract saves without special hardware? [Save Game Extractor](https://github.com/slinga-homebrew/Save-Game-Extractor) can copy saves over audio.  
 
 ## Screenshots
 ![Main](screenshots/main.png)
@@ -64,6 +64,15 @@ When using MODE:
 * Saves must use the .BUP file extensions or they will not be visible. Filenames can be 11 characters + 3 more for the extension. 
 * You must use the cue file named *game_cue_for_mode.cue* **INSTEAD OF** *game.cue* file, **and then rename** *game_cue_for_mode.cue* to *game.cue*. Ensure only 1 cue is present along with game.iso file. This is required because MODE needs a large TOC for the command interface.
 * Set the Software Reset option to "Direct to Mode" and make sure "Fast Boot" is enabled.  
+
+## Serial Link Support (Experimental, Write-Only)
+If you have a [custom serial link adapter](https://segaxtreme.net/threads/sega-saturn-28th-anniversary-game-competition.25278/post-183549) you can receive saves
+* Start SGC
+* On your PC run picocom: picocom <serial device> -b 209954 -g <filename>
+** Example: picocom /dev/ttyUSB0 -b 209954 -g BIOS.BIN
+* Within SGC click on a save and select "Send to Serial"  
+* The 512k BIOS takes about 30s to send
+* The SGC screen will be blank but you will data on picocom  
 
 ## Advanced Features
 ### Dumping Memory
