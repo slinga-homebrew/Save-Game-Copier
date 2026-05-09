@@ -1,8 +1,14 @@
 #include <jo/serial.h>
 #include "serial.h"
 
+#define SERIAL_SEND_BUSY        (-2)
+#define MAX_SEND_BUSY_ERRORS    (0x400)
+
+bool g_serial_initialized = false;
+
+static void init_serial(void);
+
 // Check if the serial interface is available
-// TODO: this will involve having something on the other end respond
 bool serialIsBackupDeviceAvailable(int backupDevice)
 {
     if(backupDevice != SerialBackup)
@@ -10,10 +16,7 @@ bool serialIsBackupDeviceAvailable(int backupDevice)
         return false;
     }
 
-    // TODO: not here
-    // initialize serial
-	jo_serial_async_init();
-
+    // no real way to check without something responding on the other side
     return true;
 }
 
@@ -30,6 +33,8 @@ int serialListSaveFiles(int backupDevice, PSAVES fileSaves, unsigned int numSave
     {
         return -1;
     }
+
+    init_serial();
 
     count = 0;
     
@@ -48,6 +53,8 @@ int serialReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffe
         return -1;
     }
 
+    init_serial();
+
     if(outBuffer == NULL || filename == NULL)
     {
         sgc_core_error("Save file data buffer is NULL!!");
@@ -60,13 +67,17 @@ int serialReadSaveFile(int backupDevice, char* filename, unsigned char* outBuffe
 
 // Write the save
 int serialWriteSaveFile(int backupDevice, char* filename, unsigned char* saveData, unsigned int saveDataLen)
-{
+{   
+    unsigned int bytesWritten = 0; 
+    int consecutiveErrors = 0;
     int result = 0;
 
     if(backupDevice != SerialBackup)
     {
         return -1;
     }
+
+    init_serial();
 
     if(filename == NULL)
     {
@@ -79,15 +90,33 @@ int serialWriteSaveFile(int backupDevice, char* filename, unsigned char* saveDat
         sgc_core_error("writeSatiatorSaveData: Save file size is invalid %d!!", saveDataLen);
         return -2;
     }
-
-    for(unsigned int bytesWritten = 0; bytesWritten < saveDataLen; )
+    
+    while(bytesWritten < saveDataLen; )
     {
         result = jo_serial_send_byte(saveData[bytesWritten]);
         if(result != 0)
         {
-            return -3;
+            // retry if the serial link is busy
+            if(result == SERIAL_SEND_BUSY)
+            {
+                // check if we had too many errors in a row
+                if(consecutiveErrors >= MAX_SEND_BUSY_ERRORS)
+                {
+                    sgc_core_error("Serial busy %d %d", result, bytesWritten);
+                    return result;
+                }
+
+                continue;
+            }
+            else
+            {                
+                sgc_core_error("Serial error %d %d", result, bytesWritten);
+                return result;
+            }            
         }
 
+        // reset error count after every successful send
+        consecutiveErrors = 0;
         bytesWritten += 1;
     }
 
@@ -103,6 +132,8 @@ int serialDeleteSaveFile(int backupDevice, char* filename)
         return -1;
     }
 
+    init_serial();
+
     if(filename == NULL)
     {
         sgc_core_error("Save file data buffer is NULL!!");
@@ -111,4 +142,17 @@ int serialDeleteSaveFile(int backupDevice, char* filename)
 
     // not implemented yet
     return -1;
+}
+
+// initialize the serial link before using
+static void init_serial(void)
+{
+    if(g_serial_initialized == true)
+    {
+        return;
+    }
+
+    jo_serial_async_init();
+
+    g_serial_initialized = true;
 }
