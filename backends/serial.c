@@ -91,7 +91,7 @@ int serialWriteSaveFile(int backupDevice, char* filename, unsigned char* saveDat
         return -2;
     }
     
-    while(bytesWritten < saveDataLen; )
+    while(bytesWritten < saveDataLen)
     {
         result = jo_serial_send_byte(saveData[bytesWritten]);
         if(result != 0)
