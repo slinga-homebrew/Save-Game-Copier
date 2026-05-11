@@ -81,13 +81,13 @@ int serialWriteSaveFile(int backupDevice, char* filename, unsigned char* saveDat
 
     if(filename == NULL)
     {
-        sgc_core_error("writeSatiatorSaveData: Save file data buffer is NULL!!");
+        sgc_core_error("serialWriteSaveFile: Save file data buffer is NULL!!");
         return -1;
     }
 
     if(saveData == NULL || saveDataLen == 0)
     {
-        sgc_core_error("writeSatiatorSaveData: Save file size is invalid %d!!", saveDataLen);
+        sgc_core_error("serialWriteSaveFile: Save file size is invalid %d!!", saveDataLen);
         return -2;
     }
     
@@ -99,6 +99,8 @@ int serialWriteSaveFile(int backupDevice, char* filename, unsigned char* saveDat
             // retry if the serial link is busy
             if(result == SERIAL_SEND_BUSY)
             {
+                consecutiveErrors++;
+
                 // check if we had too many errors in a row
                 if(consecutiveErrors >= MAX_SEND_BUSY_ERRORS)
                 {
