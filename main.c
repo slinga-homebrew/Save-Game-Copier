@@ -137,6 +137,7 @@ void queryBackupDevices(void)
         g_Game.deviceSatiatorBackup = isBackupDeviceAvailable(SatiatorBackup);
         g_Game.deviceCdMemoryBackup = isBackupDeviceAvailable(CdMemoryBackup);
         g_Game.deviceVCDCardBackup = isBackupDeviceAvailable(VCDCardBackup);
+        g_Game.deviceModemBackup = isBackupDeviceAvailable(ModemBackup);
 
         if(g_Game.deviceExternalDeviceBackup == false)
         {
@@ -161,6 +162,7 @@ void queryBackupDevices(void)
         g_Game.deviceModeBackup = true;
         g_Game.deviceVCDCardBackup = true;
         g_Game.deviceSerialBackup = true;
+        g_Game.deviceModemBackup = true;
     }
 
     return;
@@ -398,6 +400,13 @@ unsigned int initMenuOptions(int newState)
                 numMenuOptions++;
             }
 
+            if(g_Game.deviceModemBackup == true)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Modem";
+                g_Game.menuOptions[numMenuOptions].option = MAIN_OPTION_MODEM;
+                numMenuOptions++;
+            }
+
             if(g_Game.deviceCdMemoryBackup == true)
             {
                 g_Game.menuOptions[numMenuOptions].optionText = "CD File System";
@@ -493,6 +502,13 @@ unsigned int initMenuOptions(int newState)
             {
                 g_Game.menuOptions[numMenuOptions].optionText = "Copy to Serial Link";
                 g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_SERIAL;
+                numMenuOptions++;
+            }
+
+            if (g_Game.deviceModemBackup == true && g_Game.backupDevice != ModemBackup)
+            {
+                g_Game.menuOptions[numMenuOptions].optionText = "Copy to Modem";
+                g_Game.menuOptions[numMenuOptions].option = SAVE_OPTION_MODEM;
                 numMenuOptions++;
             }
 
@@ -773,10 +789,15 @@ void main_input(void)
                     transitionToState(STATE_LIST_SAVES);
                     return;
                 }
-
                 case MAIN_OPTION_SERIAL:
                 {
                     g_Game.backupDevice = SerialBackup;
+                    transitionToState(STATE_LIST_SAVES);
+                    return;
+                }
+                case MAIN_OPTION_MODEM:
+                {
+                    g_Game.backupDevice = ModemBackup;
                     transitionToState(STATE_LIST_SAVES);
                     return;
                 }
@@ -1241,6 +1262,18 @@ void displaySave_input(void)
                     {
                         jo_printf(OPTIONS_X, SAVES_Y + g_Game.numMenuOptions + 2, "Operation in progress....        ");
                         result = writeSaveFile(SerialBackup, g_Game.saveFilename, saveFileData, saveFileSize);
+                        if (result != 0)
+                        {
+                            g_Game.operationStatus = OPERATION_FAIL;
+                            return;
+                        }
+                        g_Game.operationStatus = OPERATION_SUCCESS;
+                        return;
+                    }
+                    case SAVE_OPTION_MODEM:
+                    {
+                        jo_printf(OPTIONS_X, SAVES_Y + g_Game.numMenuOptions + 2, "Operation in progress....        ");
+                        result = writeSaveFile(ModemBackup, g_Game.saveFilename, saveFileData, saveFileSize);
                         if (result != 0)
                         {
                             g_Game.operationStatus = OPERATION_FAIL;

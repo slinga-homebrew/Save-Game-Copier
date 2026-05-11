@@ -31,7 +31,7 @@
 #include "bup_header.h"
 
 // program version, keep this length to avoid having to resize strings
-#define VERSION "3.6.19"
+#define VERSION "3.7.0"
 
 // program states
 #define STATE_UNINITIALIZED      0
@@ -66,6 +66,7 @@
 #define MAIN_OPTION_EXIT_SATIATOR 13
 #define MAIN_OPTION_ACTION_REPLAY 14
 #define MAIN_OPTION_SERIAL        15
+#define MAIN_OPTION_MODEM         16
 
 
 #define SAVE_OPTION_INTERNAL     0
@@ -76,7 +77,8 @@
 #define SAVE_OPTION_DELETE       5
 #define SAVE_OPTION_MODE         6
 #define SAVE_OPTION_SERIAL       7
-#define SAVE_OPTION_BACK         8
+#define SAVE_OPTION_MODEM        8
+#define SAVE_OPTION_BACK         9
 
 #define VERIFY_YES               0
 #define VERIFY_NO                1
@@ -182,6 +184,7 @@ typedef struct _GAME
 	bool deviceModeBackup;
     bool deviceVCDCardBackup;
     bool deviceSerialBackup;
+    bool deviceModemBackup;
 
     bool listedSaves; // set to true if we already queried the saves from the backup device
 
