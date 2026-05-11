@@ -1,5 +1,5 @@
 # Save Game Copier (SGC)
-Copy Sega Saturn save game files to and/or from internal memory, cartridge memory, external devices (e.g. Sega Saturn [Floppy Disk Drive](https://segaretro.org/Saturn_Floppy_Drive)), Action Replay cart, Satiator, MODE, serial link, and CD. Build with [Jo Engine](https://github.com/johannes-fetz/joengine) or download an ISO from [releases](https://github.com/slinga-homebrew/Save-Game-Copier/releases). One of the most useful features of SGC is to create a custom SGC ISO with your own save game files and copy them to your Saturn.  
+Copy Sega Saturn save game files to and/or from internal memory, cartridge memory, external devices (e.g. Sega Saturn [Floppy Disk Drive](https://segaretro.org/Saturn_Floppy_Drive)), Action Replay cart, Satiator, MODE, serial link, Netlink, Saturn Modem, and CD. Build with [Jo Engine](https://github.com/johannes-fetz/joengine) or download an ISO from [releases](https://github.com/slinga-homebrew/Save-Game-Copier/releases). One of the most useful features of SGC is to create a custom SGC ISO with your own save game files and copy them to your Saturn.  
 
 Want to extract saves without special hardware? [Save Game Extractor](https://github.com/slinga-homebrew/Save-Game-Extractor) can copy saves over audio.  
 
@@ -65,14 +65,30 @@ When using MODE:
 * You must use the cue file named *game_cue_for_mode.cue* **INSTEAD OF** *game.cue* file, **and then rename** *game_cue_for_mode.cue* to *game.cue*. Ensure only 1 cue is present along with game.iso file. This is required because MODE needs a large TOC for the command interface.
 * Set the Software Reset option to "Direct to Mode" and make sure "Fast Boot" is enabled.  
 
-## Serial Link Support (Experimental, Write-Only)
-If you have a [custom serial link adapter](https://segaxtreme.net/threads/sega-saturn-28th-anniversary-game-competition.25278/post-183549) you can receive saves
+## Serial Link Support (Experimental, Write-Only).
+If you have a [custom serial link adapter](https://segaxtreme.net/threads/sega-saturn-28th-anniversary-game-competition.25278/post-183549) you can send saves to PC.
 * Start SGC
 * On your PC run picocom: picocom <serial device> -b 209954 -g <filename>
 ** Example: picocom /dev/ttyUSB0 -b 209954 -g BIOS.BIN
 * Within SGC click on a save and select "Send to Serial"  
 * The 512k BIOS takes about 30s to send
-* The SGC screen will be blank but you will data on picocom  
+* The SGC screen will be blank but you will data on picocom
+  
+## Modem Support (Experimental, Write-Only)
+SGC supports both the [Netlink](https://segaretro.org/NetLink_Internet_Modem) and [Saturn Modem](https://segaretro.org/Sega_Saturn_Modem). This has only been tested with the [Netlink Internet Tunneler](https://github.com/eaudunord/Netlink).  
+* Setup [Netlink Internet Tunneler](https://github.com/eaudunord/Netlink)
+  * Add Save Game Copier to netlink_config.ini:
+ ```
+[server:199407]
+name = SaveGameCopier
+host = 127.0.0.1
+port = 4827
+```
+* Start netcat listening: nc -l 4827 > save.BUP
+* Start the Netlink Intrenet Tunneler
+* Within SGC click on a save and select "Send to Modem"
+  * This will dial the tunneler and send the data
+* The 512k BIOS takes about 9 minutes to send
 
 ## Advanced Features
 ### Dumping Memory
@@ -123,4 +139,5 @@ Save Game Copier uses code from:
 * Special thanks to Antime, Ponut, VBT, and everyone else at SegaXtreme keeping the Saturn dev scene alive.
 * Thank you to Takashi for the original Save Game Copier idea back in ~2002.
 * [Shentokk](https://github.com/Shentokk) for information regarding emulator save game extraction
-* VCD Card dumping support based on [CyberWarriorX's](https://github.com/cyberwarriorx) [mpgromdump](https://github.com/cyberwarriorx/mpgromdump)
+* Thank you to [CyberWarriorX](https://github.com/cyberwarriorx) for [mpgromdump](https://github.com/cyberwarriorx/mpgromdump) which was the basis for the VCD dumping support
+* Thank you to [likeagfeld](https://github.com/likeagfeld) for [Disasteroids Netlink](https://github.com/likeagfeld/DisasteroidsNetlink) which was the basis for the modem support
