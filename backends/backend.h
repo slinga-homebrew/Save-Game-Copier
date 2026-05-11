@@ -22,7 +22,7 @@
 #define ActionReplayBackup (MODEBackup + 1)
 #define VCDCardBackup (ActionReplayBackup + 1)
 #define SerialBackup (VCDCardBackup + 1)
-
+#define ModemBackup (SerialBackup + 1)
 
 // meta data related to save files
 typedef struct  _SAVES {
