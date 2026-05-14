@@ -135,8 +135,7 @@ void queryBackupDevices(void)
         g_Game.deviceExternalDeviceBackup = isBackupDeviceAvailable(JoExternalDeviceBackup);
         g_Game.deviceActionReplayBackup = isBackupDeviceAvailable(ActionReplayBackup);
         g_Game.deviceSatiatorBackup = isBackupDeviceAvailable(SatiatorBackup);
-        g_Game.deviceCdMemoryBackup = isBackupDeviceAvailable(CdMemoryBackup);
-        g_Game.deviceVCDCardBackup = isBackupDeviceAvailable(VCDCardBackup);
+        g_Game.deviceCdMemoryBackup = isBackupDeviceAvailable(CdMemoryBackup);        
         g_Game.deviceModemBackup = isBackupDeviceAvailable(ModemBackup);
 
         if(g_Game.deviceExternalDeviceBackup == false)
@@ -150,6 +149,13 @@ void queryBackupDevices(void)
         {
             g_Game.deviceModeBackup = isBackupDeviceAvailable(MODEBackup);
         }
+
+        // Satiator users are reporting hangs. Possibly related to VCD Card detection
+        // in Satiator
+        if(g_Game.deviceSatiatorBackup == false)
+        {
+            g_Game.deviceVCDCardBackup = isBackupDeviceAvailable(VCDCardBackup);
+        }        
     }
     else
     {
